@@ -1,8 +1,11 @@
--- NeoUI Library Example
+-- NeoUI Library (Loadstring Version)
 -- A sleek UI library with smooth animations and notification system
+-- Use: loadstring(game:HttpGet("https://raw.githubusercontent.com/yourusername/NeoUI/main/NeoUI.lua"))()
 
+-- Create the module
 local NeoUI = {}
 NeoUI.__index = NeoUI
+NeoUI.Version = "1.0.0"
 
 -- Configuration
 local config = {
@@ -35,7 +38,16 @@ function NeoUI.new(title)
     self.ScreenGui.Name = "NeoUI"
     self.ScreenGui.ResetOnSpawn = false
     self.ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    self.ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    
+    -- For Synapse X / Script-Ware support
+    if syn then
+        syn.protect_gui(self.ScreenGui)
+        self.ScreenGui.Parent = game.CoreGui
+    elseif gethui then
+        self.ScreenGui.Parent = gethui()
+    else
+        self.ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    end
     
     -- Create main frame
     self.Main = Instance.new("Frame")
@@ -828,41 +840,77 @@ function NeoUI:Close()
     end)
 end
 
--- Example usage:
---[[
--- Create an instance of the UI
-local ui = NeoUI.new("My Amazing Script")
-
--- Add tabs
-local homeTab = ui:AddTab("Home")
-local settingsTab = ui:AddTab("Settings")
-local miscTab = ui:AddTab("Misc")
-
--- Add some elements to the home tab
-homeTab:AddLabel("Welcome to NeoUI!")
-homeTab:AddButton("Click Me", function()
-    ui:Notify("Button Clicked", "You clicked the button!", "info", 3)
-end)
-
--- Add toggle element
-local speedEnabled = homeTab:AddToggle("Enable Speed", false, function(value)
-    if value then
-        ui:Notify("Speed Enabled", "You are now faster!", "success", 3)
+-- Version checking function
+function NeoUI:CheckForUpdates()
+    -- Make sure HTTP requests are enabled in your game settings
+    local success, result = pcall(function()
+        local HttpService = game:GetService("HttpService")
+        
+        -- Replace with your actual GitHub repository URL
+        local url = "https://raw.githubusercontent.com/yourusername/NeoUI/main/README.md"
+        
+        local response = HttpService:GetAsync(url)
+        
+        -- Parse the version from the README
+        local version = response:match("## Version: ([%d%.]+)")
+        
+        return version
+    end)
+    
+    if success and result then
+        -- Compare versions
+        local currentVersion = NeoUI.Version
+        local latestVersion = result
+        
+        -- Simple version comparison
+        local function compareVersions(v1, v2)
+            local v1Parts = {}
+            local v2Parts = {}
+            
+            for part in v1:gmatch("%d+") do
+                table.insert(v1Parts, tonumber(part))
+            end
+            
+            for part in v2:gmatch("%d+") do
+                table.insert(v2Parts, tonumber(part))
+            end
+            
+            for i = 1, math.max(#v1Parts, #v2Parts) do
+                local v1Part = v1Parts[i] or 0
+                local v2Part = v2Parts[i] or 0
+                
+                if v1Part > v2Part then
+                    return 1
+                elseif v1Part < v2Part then
+                    return -1
+                end
+            end
+            
+            return 0
+        end
+        
+        local versionComparison = compareVersions(currentVersion, latestVersion)
+        
+        if versionComparison < 0 then
+            -- Current version is older than latest version
+            self:Notify(
+                "Update Available", 
+                "A new version of NeoUI is available: v" .. latestVersion .. 
+                "\nCurrent version: v" .. currentVersion, 
+                "info", 
+                10
+            )
+            return latestVersion
+        else
+            -- Current version is up to date or newer
+            return currentVersion
+        end
     else
-        ui:Notify("Speed Disabled", "Speed has been turned off.", "warning", 3)
+        -- Failed to check for updates
+        warn("Failed to check for updates: " .. tostring(result))
+        return nil
     end
-end)
+end
 
--- Add slider element
-local speedMultiplier = homeTab:AddSlider("Speed Multiplier", 1, 10, 2, function(value)
-    ui:Notify("Speed Updated", "Speed set to " .. value .. "x", "info", 2)
-end)
-
--- Add elements to the settings tab
-settingsTab:AddLabel("Settings")
-settingsTab:AddToggle("Auto Save", true, function(value)
-    ui:Notify("Auto Save", value and "Enabled" or "Disabled", value and "success" or "warning", 3)
-end)
-]]
-
+-- Return the module
 return NeoUI
