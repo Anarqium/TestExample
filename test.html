@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firefox Home</title>
+    <title>Firefox Startseite</title>
     <style>
         :root {
             --bg-color: #1a1a1a;
@@ -132,7 +132,7 @@
             border-radius: 16px;
             padding: 20px;
             width: 100%;
-            max-width: 280px;
+            max-width: 380px;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -172,6 +172,7 @@
         .weather-details {
             margin-top: 15px;
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
         }
         
@@ -179,6 +180,74 @@
             text-align: center;
             font-size: 12px;
             opacity: 0.8;
+            flex-basis: 33%;
+            margin-bottom: 10px;
+        }
+        
+        .minmax-temp {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        
+        .divider {
+            height: 1px;
+            background-color: rgba(255, 255, 255, 0.1);
+            margin: 15px 0;
+            width: 100%;
+        }
+        
+        .moon-phase-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        
+        .moon-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+        
+        .moon-phase-text {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .weather-tabs {
+            display: flex;
+            margin-top: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .weather-tab {
+            padding: 8px 12px;
+            font-size: 14px;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            opacity: 0.6;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .weather-tab.active {
+            opacity: 1;
+            border-bottom: 2px solid var(--accent-color);
+        }
+        
+        .weather-tab:hover {
+            opacity: 0.8;
+        }
+        
+        .weather-content {
+            display: none;
+            margin-top: 15px;
+        }
+        
+        .weather-content.active {
+            display: block;
         }
         
         .clock {
@@ -350,6 +419,56 @@
             background-color: #0077ED;
         }
         
+        .forecast-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+        
+        .forecast-item {
+            flex: 0 0 auto;
+            text-align: center;
+            margin-right: 15px;
+            min-width: 60px;
+        }
+        
+        .forecast-item:last-child {
+            margin-right: 0;
+        }
+        
+        .forecast-day {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+        
+        .forecast-icon {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .forecast-temp {
+            font-size: 12px;
+        }
+        
+        .uv-meter {
+            height: 6px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-top: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .uv-value {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #22c55e, #eab308, #ef4444, #8b5cf6);
+            width: 0%;
+            transition: width 1s ease;
+        }
+        
         /* For smaller screens */
         @media (max-width: 768px) {
             .widgets {
@@ -371,44 +490,105 @@
     <div class="container">
         <div class="search-container">
             <form class="search-form" action="https://www.google.com/search" method="GET">
-                <input type="text" name="q" class="search-input" placeholder="Search with Google" autocomplete="off">
+                <input type="text" name="q" class="search-input" placeholder="Mit Google suchen" autocomplete="off">
             </form>
         </div>
         
         <div class="shortcuts" id="shortcuts">
-            <!-- Shortcuts will be dynamically generated -->
+            <!-- Shortcuts werden dynamisch generiert -->
         </div>
         
         <div class="widgets">
             <div class="widget">
-                <div class="widget-title">Weather</div>
-                <input type="text" id="location-input" class="location-input" placeholder="Enter your location" value="Berlin">
-                <div id="weather-data">
+                <div class="widget-title">Wetter</div>
+                <input type="text" id="location-input" class="location-input" placeholder="Ort eingeben" value="Berlin">
+                
+                <div class="weather-tabs">
+                    <button class="weather-tab active" data-tab="current">Aktuell</button>
+                    <button class="weather-tab" data-tab="details">Details</button>
+                    <button class="weather-tab" data-tab="forecast">Vorhersage</button>
+                </div>
+                
+                <div id="current-weather" class="weather-content active">
                     <div class="weather-info">
                         <div class="weather-icon">🌤️</div>
                         <div>
                             <div class="weather-temp">--°C</div>
-                            <div class="weather-desc">Loading...</div>
+                            <div class="weather-desc">Wird geladen...</div>
                         </div>
                     </div>
+                    
+                    <div class="minmax-temp">
+                        <span id="min-temp">Min: --°C</span>
+                        <span id="max-temp">Max: --°C</span>
+                    </div>
+                    
+                    <div class="divider"></div>
+                    
                     <div class="weather-details">
                         <div class="weather-detail">
-                            <div>Humidity</div>
+                            <div>Luftfeuchtigkeit</div>
                             <div id="humidity">--%</div>
                         </div>
                         <div class="weather-detail">
                             <div>Wind</div>
                             <div id="wind">-- km/h</div>
                         </div>
+                        <div class="weather-detail">
+                            <div>Luftdruck</div>
+                            <div id="pressure">-- hPa</div>
+                        </div>
+                        <div class="weather-detail">
+                            <div>Sichtweite</div>
+                            <div id="visibility">-- km</div>
+                        </div>
+                        <div class="weather-detail">
+                            <div>UV-Index</div>
+                            <div id="uv-index">--</div>
+                            <div class="uv-meter">
+                                <div class="uv-value" id="uv-meter-value"></div>
+                            </div>
+                        </div>
+                        <div class="weather-detail">
+                            <div>Gefühlt</div>
+                            <div id="feels-like">--°C</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="details-weather" class="weather-content">
+                    <div class="moon-phase-container">
+                        <div class="moon-icon" id="moon-icon">🌕</div>
+                        <div class="moon-phase-text" id="moon-phase">Mondphase wird geladen...</div>
+                    </div>
+                    
+                    <div class="divider"></div>
+                    
+                    <div>
+                        <div><strong>Sonnenaufgang:</strong> <span id="sunrise">--:--</span></div>
+                        <div><strong>Sonnenuntergang:</strong> <span id="sunset">--:--</span></div>
+                    </div>
+                    
+                    <div class="divider"></div>
+                    
+                    <div>
+                        <div><strong>Taupunkt:</strong> <span id="dew-point">--°C</span></div>
+                        <div><strong>Wolkenbedeckung:</strong> <span id="clouds">--%</span></div>
+                    </div>
+                </div>
+                
+                <div id="forecast-weather" class="weather-content">
+                    <div class="forecast-container" id="forecast-container">
+                        <!-- Vorhersage wird dynamisch generiert -->
                     </div>
                 </div>
             </div>
             
             <div class="widget">
-                <div class="widget-title">Date & Time</div>
+                <div class="widget-title">Datum & Uhrzeit</div>
                 <div class="clock" id="clock">00:00:00</div>
-                <div class="date" id="date">Loading...</div>
-                <div class="quote" id="quote">Loading a daily quote...</div>
+                <div class="date" id="date">Wird geladen...</div>
+                <div class="quote" id="quote">Lade Zitat des Tages...</div>
             </div>
         </div>
     </div>
@@ -421,24 +601,24 @@
     </div>
     
     <div class="settings-panel" id="settings-panel">
-        <div class="settings-title">Add Shortcut</div>
+        <div class="settings-title">Verknüpfung hinzufügen</div>
         <div>
             <label for="shortcut-name">Name</label>
-            <input type="text" id="shortcut-name" class="url-input" placeholder="e.g., YouTube">
+            <input type="text" id="shortcut-name" class="url-input" placeholder="z.B. YouTube">
         </div>
         <div>
             <label for="shortcut-url">URL</label>
-            <input type="text" id="shortcut-url" class="url-input" placeholder="e.g., https://youtube.com">
+            <input type="text" id="shortcut-url" class="url-input" placeholder="z.B. https://youtube.com">
         </div>
         <div>
-            <label for="shortcut-icon">Icon (emoji)</label>
-            <input type="text" id="shortcut-icon" class="url-input" placeholder="e.g., 📺 or YouTube">
+            <label for="shortcut-icon">Icon (Emoji)</label>
+            <input type="text" id="shortcut-icon" class="url-input" placeholder="z.B. 📺 oder YouTube">
         </div>
-        <button class="add-btn" id="add-shortcut-btn">Add Shortcut</button>
+        <button class="add-btn" id="add-shortcut-btn">Hinzufügen</button>
     </div>
     
     <script>
-        // Default shortcuts
+        // Standardverknüpfungen
         const defaultShortcuts = [
             { name: 'YouTube', url: 'https://youtube.com', icon: '📺' },
             { name: 'Gmail', url: 'https://mail.google.com', icon: '📧' },
@@ -448,7 +628,7 @@
             { name: 'Amazon', url: 'https://amazon.com', icon: '🛒' }
         ];
         
-        // Load shortcuts from localStorage or use defaults
+        // Verknüpfungen aus dem localStorage laden oder Standardwerte verwenden
         function loadShortcuts() {
             const shortcuts = JSON.parse(localStorage.getItem('shortcuts')) || defaultShortcuts;
             const shortcutsContainer = document.getElementById('shortcuts');
@@ -468,140 +648,322 @@
             });
         }
         
-        // Update clock and date
+        // Uhr und Datum aktualisieren
         function updateClock() {
             const now = new Date();
             const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
             const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             
-            document.getElementById('clock').textContent = now.toLocaleTimeString(undefined, timeOptions);
-            document.getElementById('date').textContent = now.toLocaleDateString(undefined, dateOptions);
+            document.getElementById('clock').textContent = now.toLocaleTimeString('de-DE', timeOptions);
+            document.getElementById('date').textContent = now.toLocaleDateString('de-DE', dateOptions);
         }
         
-        // Weather API function
+        // Mondphase berechnen (einfache Berechnung)
+        function getMoonPhase(date) {
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            
+            // Berechnung der Phase (0-29)
+            // Approximation nach "Astronomical Algorithms" von Jean Meeus
+            let r = year % 100;
+            r %= 19;
+            if (r > 9) r -= 19;
+            r = ((r * 11) % 30) + month + day;
+            if (month < 3) r += 2;
+            r -= ((year < 2000) ? 4 : 8.3);
+            r = Math.floor(r + 0.5) % 30;
+            if (r < 0) r += 30;
+            
+            // Mondphase-Icon und Text basierend auf der Phase
+            let moonIcon, moonText;
+            
+            if (r < 1) {
+                moonIcon = '🌑';
+                moonText = 'Neumond';
+            } else if (r < 7) {
+                moonIcon = '🌒';
+                moonText = 'Zunehmender Sichelmond';
+            } else if (r < 8) {
+                moonIcon = '🌓';
+                moonText = 'Erstes Viertel';
+            } else if (r < 14) {
+                moonIcon = '🌔';
+                moonText = 'Zunehmender Mond';
+            } else if (r < 16) {
+                moonIcon = '🌕';
+                moonText = 'Vollmond';
+            } else if (r < 22) {
+                moonIcon = '🌖';
+                moonText = 'Abnehmender Mond';
+            } else if (r < 23) {
+                moonIcon = '🌗';
+                moonText = 'Letztes Viertel';
+            } else {
+                moonIcon = '🌘';
+                moonText = 'Abnehmender Sichelmond';
+            }
+            
+            return { icon: moonIcon, text: moonText };
+        }
+        
+        // Wetter-API-Funktion
         async function getWeather(location) {
             try {
-                // Using a CORS proxy to access the weather API
-                const url = `https://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=9de243494c0b295cca9337e1e96b00e2`;
+                // Verwendung einer CORS-Proxy, um auf die Wetter-API zuzugreifen
+                const url = `https://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&lang=de&appid=9de243494c0b295cca9337e1e96b00e2`;
+                const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${location}&units=metric&lang=de&appid=9de243494c0b295cca9337e1e96b00e2`;
                 
-                // Fetch weather data
+                // Wetterdaten abrufen
                 const response = await fetch(url);
                 const data = await response.json();
                 
+                // Für Vorhersage
+                const forecastResponse = await fetch(forecastUrl);
+                const forecastData = await forecastResponse.json();
+                
                 if (data.cod === 200) {
-                    // Update UI with weather data
+                    // UI mit Wetterdaten aktualisieren
                     const temp = Math.round(data.main.temp);
+                    const feelsLike = Math.round(data.main.feels_like);
                     const description = data.weather[0].description;
                     const humidity = data.main.humidity;
-                    const windSpeed = Math.round(data.wind.speed * 3.6); // Convert to km/h
+                    const windSpeed = Math.round(data.wind.speed * 3.6); // Umrechnung in km/h
+                    const pressure = data.main.pressure;
+                    const visibility = (data.visibility / 1000).toFixed(1); // Umrechnung in km
+                    const clouds = data.clouds.all;
                     
-                    // Get weather icon
+                    // Für Sonnenaufgang und Sonnenuntergang
+                    const sunrise = new Date(data.sys.sunrise * 1000);
+                    const sunset = new Date(data.sys.sunset * 1000);
+                    const sunriseTime = sunrise.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                    const sunsetTime = sunset.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                    
+                    // Taupunkt berechnen
+                    const dewPoint = Math.round(temp - ((100 - humidity) / 5));
+                    
+                    // Wetter-Icon holen
                     let weatherIcon = '🌤️';
                     const weatherCode = data.weather[0].id;
                     
                     if (weatherCode < 300) {
-                        weatherIcon = '⛈️'; // Thunderstorm
+                        weatherIcon = '⛈️'; // Gewitter
                     } else if (weatherCode < 400) {
-                        weatherIcon = '🌧️'; // Drizzle
+                        weatherIcon = '🌧️'; // Nieselregen
                     } else if (weatherCode < 600) {
-                        weatherIcon = '🌧️'; // Rain
+                        weatherIcon = '🌧️'; // Regen
                     } else if (weatherCode < 700) {
-                        weatherIcon = '❄️'; // Snow
+                        weatherIcon = '❄️'; // Schnee
                     } else if (weatherCode < 800) {
-                        weatherIcon = '🌫️'; // Atmosphere (fog, mist, etc.)
+                        weatherIcon = '🌫️'; // Atmosphäre (Nebel, Dunst, etc.)
                     } else if (weatherCode === 800) {
-                        weatherIcon = '☀️'; // Clear sky
+                        weatherIcon = '☀️'; // Klarer Himmel
                     } else if (weatherCode < 900) {
-                        weatherIcon = '☁️'; // Clouds
+                        weatherIcon = '☁️'; // Wolken
                     }
                     
+                    // UI-Elemente aktualisieren
                     document.querySelector('.weather-icon').textContent = weatherIcon;
                     document.querySelector('.weather-temp').textContent = `${temp}°C`;
                     document.querySelector('.weather-desc').textContent = description;
+                    document.getElementById('feels-like').textContent = `${feelsLike}°C`;
                     document.getElementById('humidity').textContent = `${humidity}%`;
                     document.getElementById('wind').textContent = `${windSpeed} km/h`;
+                    document.getElementById('pressure').textContent = `${pressure} hPa`;
+                    document.getElementById('visibility').textContent = `${visibility} km`;
+                    document.getElementById('clouds').textContent = `${clouds}%`;
+                    document.getElementById('dew-point').textContent = `${dewPoint}°C`;
+                    document.getElementById('sunrise').textContent = sunriseTime;
+                    document.getElementById('sunset').textContent = sunsetTime;
                     
-                    // Save location to localStorage
+                    // Geschätzter UV-Index basierend auf Wolkenbedeckung und Tageszeit
+                    let uvIndex = 0;
+                    const hour = new Date().getHours();
+                    const isSunUp = hour >= 7 && hour <= 19;
+                    
+                    if (isSunUp) {
+                        const baseUV = 8; // Basis-UV-Wert für Sonnenschein
+                        uvIndex = Math.round(baseUV * (1 - clouds / 100)); // Reduzierung basierend auf Wolkenbedeckung
+                    }
+                    
+                    document.getElementById('uv-index').textContent = uvIndex;
+                    document.getElementById('uv-meter-value').style.width = `${(uvIndex / 11) * 100}%`;
+                    
+                    // Min/Max Temperaturen
+                    if (forecastData.cod === '200') {
+                        const today = new Date().setHours(0, 0, 0, 0);
+                        const todayForecasts = forecastData.list.filter(item => {
+                            const itemDate = new Date(item.dt * 1000).setHours(0, 0, 0, 0);
+                            return itemDate === today;
+                        });
+                        
+                        if (todayForecasts.length > 0) {
+                            const temps = todayForecasts.map(item => item.main.temp);
+                            const minTemp = Math.round(Math.min(...temps));
+                            const maxTemp = Math.round(Math.max(...temps));
+                            
+                            document.getElementById('min-temp').textContent = `Min: ${minTemp}°C`;
+                            document.getElementById('max-temp').textContent = `Max: ${maxTemp}°C`;
+                        }
+                        
+                        // 5-Tage-Vorhersage
+                        const forecastContainer = document.getElementById('forecast-container');
+                        forecastContainer.innerHTML = '';
+                        
+                        // Gruppiere nach Tagen und nehme nur einen Eintrag pro Tag
+                        const dailyForecasts = {};
+                        forecastData.list.forEach(item => {
+                            const date = new Date(item.dt * 1000);
+                            const day = date.setHours(0, 0, 0, 0);
+                            
+                            if (!dailyForecasts[day] || date.getHours() === 12) {
+                                dailyForecasts[day] = item;
+                            }
+                        });
+                        
+                        // Erstelle Elemente für jeden Tag
+                        Object.values(dailyForecasts).slice(0, 5).forEach(item => {
+                            const date = new Date(item.dt * 1000);
+                            const dayName = date.toLocaleDateString('de-DE', { weekday: 'short' });
+                            
+                            let forecastIcon = '🌤️';
+                            const forecastCode = item.weather[0].id;
+                            
+                            if (forecastCode < 300) {
+                                forecastIcon = '⛈️';
+                            } else if (forecastCode < 400) {
+                                forecastIcon = '🌧️';
+                            } else if (forecastCode < 600) {
+                                forecastIcon = '🌧️';
+                            } else if (forecastCode < 700) {
+                                forecastIcon = '❄️';
+                            } else if (forecastCode < 800) {
+                                forecastIcon = '🌫️';
+                            } else if (forecastCode === 800) {
+                                forecastIcon = '☀️';
+                            } else if (forecastCode < 900) {
+                                forecastIcon = '☁️';
+                            }
+                            
+                            const forecastElement = document.createElement('div');
+                            forecastElement.className = 'forecast-item';
+                            forecastElement.innerHTML = `
+                                <div class="forecast-day">${dayName}</div>
+                                <div class="forecast-icon">${forecastIcon}</div>
+                                <div class="forecast-temp">${Math.round(item.main.temp)}°C</div>
+                            `;
+                            
+                            forecastContainer.appendChild(forecastElement);
+                        });
+                    }
+                    
+                    // Mondphase aktualisieren
+                    const moonPhase = getMoonPhase(new Date());
+                    document.getElementById('moon-icon').textContent = moonPhase.icon;
+                    document.getElementById('moon-phase').textContent = moonPhase.text;
+                    
+                    // Standort im localStorage speichern
                     localStorage.setItem('weatherLocation', location);
                 } else {
-                    throw new Error('City not found');
+                    throw new Error('Stadt nicht gefunden');
                 }
             } catch (error) {
-                console.error('Error fetching weather:', error);
-                document.querySelector('.weather-desc').textContent = 'City not found. Try again.';
+                console.error('Fehler beim Abrufen der Wetterdaten:', error);
+                document.querySelector('.weather-desc').textContent = 'Stadt nicht gefunden. Versuche es erneut.';
             }
         }
         
-        // Get random quote
-        async function getQuote() {
+        // Zufälliges Zitat holen
+        function getQuote() {
             try {
                 const quotes = [
-                    "The only way to do great work is to love what you do.",
-                    "Innovation distinguishes between a leader and a follower.",
-                    "Your time is limited, so don't waste it living someone else's life.",
-                    "The future belongs to those who believe in the beauty of their dreams.",
-                    "Life is what happens when you're busy making other plans.",
-                    "The journey of a thousand miles begins with one step.",
-                    "Simplicity is the ultimate sophistication.",
-                    "Design is not just what it looks like and feels like. Design is how it works.",
-                    "Stay hungry, stay foolish.",
-                    "Think different."
+                    "Der einzige Weg, großartige Arbeit zu leisten, ist zu lieben, was man tut.",
+                    "Innovation unterscheidet den Anführer vom Nachfolger.",
+                    "Deine Zeit ist begrenzt, also verschwende sie nicht damit, das Leben eines anderen zu leben.",
+                    "Die Zukunft gehört denen, die an die Schönheit ihrer Träume glauben.",
+                    "Das Leben ist das, was passiert, während du beschäftigt bist, andere Pläne zu machen.",
+                    "Die Reise von tausend Meilen beginnt mit einem Schritt.",
+                    "Einfachheit ist die ultimative Raffinesse.",
+                    "Design ist nicht nur, wie es aussieht und sich anfühlt. Design ist, wie es funktioniert.",
+                    "Bleib hungrig, bleib närrisch.",
+                    "Denke anders."
                 ];
                 
                 const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
                 document.getElementById('quote').textContent = `"${randomQuote}"`;
             } catch (error) {
-                console.error('Error fetching quote:', error);
+                console.error('Fehler beim Abrufen des Zitats:', error);
             }
         }
         
-        // Settings panel toggle
+        // Wetter-Tabs
+        document.querySelectorAll('.weather-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Aktiven Tab setzen
+                document.querySelectorAll('.weather-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Aktiven Inhalt anzeigen
+                const tabId = this.getAttribute('data-tab');
+                document.querySelectorAll('.weather-content').forEach(content => content.classList.remove('active'));
+                
+                if (tabId === 'current') {
+                    document.getElementById('current-weather').classList.add('active');
+                } else if (tabId === 'details') {
+                    document.getElementById('details-weather').classList.add('active');
+                } else if (tabId === 'forecast') {
+                    document.getElementById('forecast-weather').classList.add('active');
+                }
+            });
+        });
+        
+        // Einstellungen Panel Ein-/Ausblenden
         document.getElementById('settings-btn').addEventListener('click', function() {
             document.getElementById('settings-panel').classList.toggle('show');
         });
         
-        // Add new shortcut
+        // Neue Verknüpfung hinzufügen
         document.getElementById('add-shortcut-btn').addEventListener('click', function() {
             const name = document.getElementById('shortcut-name').value.trim();
             let url = document.getElementById('shortcut-url').value.trim();
             const icon = document.getElementById('shortcut-icon').value.trim();
             
             if (!name || !url) {
-                alert('Please enter both name and URL');
+                alert('Bitte gib sowohl Namen als auch URL ein');
                 return;
             }
             
-            // Add https:// if not present
+            // https:// hinzufügen, falls nicht vorhanden
             if (!url.startsWith('http://') && !url.startsWith('https://')) {
                 url = 'https://' + url;
             }
             
-            // Get existing shortcuts
+            // Bestehende Verknüpfungen holen
             const shortcuts = JSON.parse(localStorage.getItem('shortcuts')) || defaultShortcuts;
             
-            // Add new shortcut
+            // Neue Verknüpfung hinzufügen
             shortcuts.push({
                 name,
                 url,
-                icon: icon || '🔗' // Default icon if not provided
+                icon: icon || '🔗' // Standard-Icon, falls nicht angegeben
             });
             
-            // Save to localStorage
+            // Im localStorage speichern
             localStorage.setItem('shortcuts', JSON.stringify(shortcuts));
             
-            // Reload shortcuts
+            // Verknüpfungen neu laden
             loadShortcuts();
             
-            // Clear inputs
+            // Eingabefelder leeren
             document.getElementById('shortcut-name').value = '';
             document.getElementById('shortcut-url').value = '';
             document.getElementById('shortcut-icon').value = '';
             
-            // Hide settings panel
+            // Einstellungen Panel ausblenden
             document.getElementById('settings-panel').classList.remove('show');
         });
         
-        // Weather location input
+        // Wetter-Standort-Eingabe
         document.getElementById('location-input').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 const location = this.value.trim();
@@ -611,21 +973,21 @@
             }
         });
         
-        // Initialize
+        // Initialisierung
         document.addEventListener('DOMContentLoaded', function() {
-            // Load shortcuts
+            // Verknüpfungen laden
             loadShortcuts();
             
-            // Update clock initially and then every second
+            // Uhr initial aktualisieren und dann jede Sekunde
             updateClock();
             setInterval(updateClock, 1000);
             
-            // Load weather
+            // Wetter laden
             const savedLocation = localStorage.getItem('weatherLocation') || 'Berlin';
             document.getElementById('location-input').value = savedLocation;
             getWeather(savedLocation);
             
-            // Load random quote
+            // Zufälliges Zitat laden
             getQuote();
         });
     </script>
