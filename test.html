@@ -1,712 +1,165 @@
-import React, { useState, useEffect } from 'react';
-import { Sun, Moon, Cloud, CloudRain, CloudSnow, CloudLightning, CloudDrizzle, MapPin } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coole Startanimation</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #121212;
+            color: white;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
 
-// Hauptkomponente für die Wetter-App
-const WeatherApp = () => {
-  // Zustandsvariablen
-  const [isNight, setIsNight] = useState(false);
-  const [temperature, setTemperature] = useState(null);
-  const [weatherType, setWeatherType] = useState(null);
-  const [forecast, setForecast] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [showElements, setShowElements] = useState(false);
-  
-  // Fest codierter Standort: Zerbst, Sachsen-Anhalt
-  const location = "Zerbst";
-  const locationDetails = {
-    city: "Zerbst",
-    country: "Deutschland",
-    latitude: 51.9667,
-    longitude: 12.0833
-  };
+        .container {
+            position: relative;
+            text-align: center;
+        }
 
-  // Wetterdaten beim Start laden
-  useEffect(() => {
-    // Automatisch Tag/Nacht basierend auf Tageszeit setzen
-    const hours = new Date().getHours();
-    setIsNight(hours < 6 || hours > 20);
-    
-    // Wetterdaten für Zerbst generieren
-    simulateWeatherData(locationDetails.latitude, locationDetails.longitude);
-    
-    // App starten mit Animation
-    setTimeout(() => {
-      setIsLoading(false);
-      setTimeout(() => setShowElements(true), 100);
-    }, 1500);
-  }, []);
+        .logo {
+            font-size: 3rem;
+            font-weight: bold;
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeIn 1.5s ease forwards 0.5s;
+        }
 
-  // Simuliere Wetterdaten basierend auf Standort
-  const simulateWeatherData = (latitude, longitude) => {
-    // Aktuelle Jahreszeit bestimmen
-    const month = new Date().getMonth();
-    const isNorthernHemisphere = latitude > 0;
-    
-    // Temperatur basierend auf Breitengrad und Jahreszeit
-    let baseTemp;
-    
-    if (isNorthernHemisphere) {
-      // Nördliche Hemisphäre
-      if (month >= 5 && month <= 8) { // Sommer
-        baseTemp = 30 - Math.abs(latitude) / 2;
-      } else if (month >= 11 || month <= 2) { // Winter
-        baseTemp = 20 - Math.abs(latitude) / 1.5;
-      } else { // Frühling/Herbst
-        baseTemp = 25 - Math.abs(latitude) / 2;
-      }
-    } else {
-      // Südliche Hemisphäre (umgekehrte Jahreszeiten)
-      if (month >= 11 || month <= 2) { // Sommer
-        baseTemp = 30 - Math.abs(latitude) / 2;
-      } else if (month >= 5 && month <= 8) { // Winter
-        baseTemp = 20 - Math.abs(latitude) / 1.5;
-      } else { // Frühling/Herbst
-        baseTemp = 25 - Math.abs(latitude) / 2;
-      }
-    }
-    
-    // Wetter basierend auf Breitengrad und Jahreszeit bestimmen
-    let possibleWeatherTypes;
-    const equatorial = Math.abs(latitude) < 15;
-    const tropical = Math.abs(latitude) < 30;
-    const temperate = Math.abs(latitude) >= 30 && Math.abs(latitude) < 60;
-    const polar = Math.abs(latitude) >= 60;
-    
-    if (equatorial) {
-      // Tropisch, meist warm und feucht
-      possibleWeatherTypes = month % 2 === 0 ? 
-        ['sunny', 'cloudy', 'rainy', 'rainy', 'drizzle'] : 
-        ['sunny', 'sunny', 'cloudy', 'drizzle'];
-    } else if (tropical) {
-      // Subtropisch, warm, saisonaler Regen
-      possibleWeatherTypes = month >= 5 && month <= 9 ? 
-        ['sunny', 'sunny', 'cloudy', 'drizzle'] : 
-        ['sunny', 'cloudy', 'rainy', 'drizzle'];
-    } else if (temperate) {
-      // Gemäßigt, alle Wetterarten möglich
-      const isSummer = (isNorthernHemisphere && month >= 5 && month <= 8) || 
-                       (!isNorthernHemisphere && (month >= 11 || month <= 2));
-      const isWinter = (isNorthernHemisphere && (month >= 11 || month <= 2)) || 
-                       (!isNorthernHemisphere && month >= 5 && month <= 8);
-      
-      if (isSummer) {
-        possibleWeatherTypes = ['sunny', 'sunny', 'cloudy', 'rainy', 'stormy'];
-      } else if (isWinter) {
-        possibleWeatherTypes = ['cloudy', 'rainy', 'snowy', 'snowy', 'stormy'];
-      } else {
-        possibleWeatherTypes = ['sunny', 'cloudy', 'cloudy', 'rainy', 'drizzle'];
-      }
-    } else if (polar) {
-      // Polar, meist kalt
-      const isPolarSummer = (isNorthernHemisphere && month >= 5 && month <= 8) || 
-                           (!isNorthernHemisphere && (month >= 11 || month <= 2));
-      
-      if (isPolarSummer) {
-        possibleWeatherTypes = ['sunny', 'cloudy', 'cloudy', 'drizzle'];
-        baseTemp = Math.max(baseTemp, 5); // Minimum 5°C im Polarsommer
-      } else {
-        possibleWeatherTypes = ['cloudy', 'snowy', 'snowy', 'stormy'];
-        baseTemp = Math.min(baseTemp, 0); // Maximum 0°C im Polarwinter
-      }
-    } else {
-      // Fallback
-      possibleWeatherTypes = ['sunny', 'cloudy', 'rainy', 'drizzle'];
-    }
-    
-    // Zufälligen Wetterzustand aus den möglichen auswählen
-    const randomWeather = possibleWeatherTypes[Math.floor(Math.random() * possibleWeatherTypes.length)];
-    
-    // Kleine Temperaturanpassung basierend auf Wetter
-    if (randomWeather === 'rainy' || randomWeather === 'cloudy') baseTemp -= 3;
-    if (randomWeather === 'snowy') baseTemp = Math.min(baseTemp, 3); // Maximal 3°C bei Schnee
-    if (randomWeather === 'stormy') baseTemp -= 5;
-    
-    // Auf ganze Grad runden
-    baseTemp = Math.round(baseTemp);
-    
-    setTemperature(baseTemp);
-    setWeatherType(randomWeather);
-    
-    // 5-Tage-Prognose generieren
-    generateForecast(baseTemp, randomWeather);
-  };
+        .gradient-text {
+            background: linear-gradient(90deg, #ff8a00, #e52e71);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
 
-  // 5-Tage-Prognose generieren
-  const generateForecast = (baseTemp, currentWeather) => {
-    const weekdays = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
-    const today = new Date().getDay();
-    const forecast = [];
-    
-    // Heutige Prognose
-    forecast.push({
-      day: 'Heute',
-      temp: baseTemp,
-      type: currentWeather
-    });
-    
-    // Wettertypen mit Übergängen (z.B. von Regen zu Sonne über mehrere Tage)
-    const weatherTransition = getWeatherTransition(currentWeather, 4);
-    
-    // Nächste 4 Tage
-    for (let i = 1; i <= 4; i++) {
-      // Nächster Wochentag
-      const nextDay = (today + i) % 7;
-      
-      // Temperaturvariation +/- 3 Grad
-      const tempVariation = Math.floor(Math.random() * 7) - 3;
-      
-      forecast.push({
-        day: weekdays[nextDay],
-        temp: baseTemp + tempVariation,
-        type: weatherTransition[i - 1]
-      });
-    }
-    
-    setForecast(forecast);
-  };
+        .subtitle {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 1.5s ease forwards 1.5s;
+        }
 
-  // Erzeugt eine realistische Wetterübergangsprognose
-  const getWeatherTransition = (startWeather, days) => {
-    const weatherTypes = ['sunny', 'cloudy', 'rainy', 'snowy', 'stormy', 'drizzle'];
-    let currentIdx = weatherTypes.indexOf(startWeather);
-    if (currentIdx === -1) currentIdx = 0;
-    
-    const forecast = [];
-    let currentWeather = startWeather;
-    
-    for (let i = 0; i < days; i++) {
-      // 60% Chance, dass das Wetter ähnlich bleibt oder sich nur leicht ändert
-      const changeChance = Math.random();
-      
-      if (changeChance < 0.6) {
-        // Wetter bleibt gleich oder ändert sich nur leicht
-        const variation = Math.floor(Math.random() * 3) - 1; // -1, 0, oder 1
-        let newIdx = currentIdx + variation;
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: -1;
+            animation: pulseIn 2s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+        }
+
+        .circle-1 {
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 138, 0, 0.1);
+        }
+
+        .circle-2 {
+            width: 400px;
+            height: 400px;
+            background: rgba(229, 46, 113, 0.05);
+            animation-delay: 0.3s;
+        }
+
+        .circle-3 {
+            width: 600px;
+            height: 600px;
+            background: rgba(255, 255, 255, 0.02);
+            animation-delay: 0.6s;
+        }
+
+        .content {
+            margin-top: 3rem;
+            max-width: 600px;
+            opacity: 0;
+            animation: contentAppear 1s ease forwards 2.5s;
+        }
+
+        .button {
+            display: inline-block;
+            margin-top: 2rem;
+            padding: 0.8rem 2rem;
+            background: linear-gradient(90deg, #ff8a00, #e52e71);
+            border: none;
+            border-radius: 30px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            transform: scale(0);
+            animation: buttonPop 0.5s cubic-bezier(0.17, 0.89, 0.32, 1.49) forwards 3s;
+        }
+
+        .button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(229, 46, 113, 0.5);
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulseIn {
+            from {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes contentAppear {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes buttonPop {
+            0% {
+                transform: scale(0);
+            }
+            70% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="circle circle-1"></div>
+        <div class="circle circle-2"></div>
+        <div class="circle circle-3"></div>
         
-        // Sicherstellen, dass der Index im gültigen Bereich liegt
-        if (newIdx < 0) newIdx = 0;
-        if (newIdx >= weatherTypes.length) newIdx = weatherTypes.length - 1;
-        
-        currentWeather = weatherTypes[newIdx];
-        currentIdx = newIdx;
-      } else if (changeChance < 0.9) {
-        // Mäßige Wetteränderung
-        const variation = Math.floor(Math.random() * 3) - 1; // -1, 0, oder 1
-        let newIdx = currentIdx + variation + (Math.random() > 0.5 ? 1 : -1);
-        
-        if (newIdx < 0) newIdx = 0;
-        if (newIdx >= weatherTypes.length) newIdx = weatherTypes.length - 1;
-        
-        currentWeather = weatherTypes[newIdx];
-        currentIdx = weatherTypes.indexOf(currentWeather);
-      } else {
-        // Zufälliges Wetter (selten, plötzlicher Wetterwechsel)
-        currentWeather = weatherTypes[Math.floor(Math.random() * weatherTypes.length)];
-        currentIdx = weatherTypes.indexOf(currentWeather);
-      }
-      
-      forecast.push(currentWeather);
-    }
-    
-    return forecast;
-  };
-
-  // Rendert das passende Wettersymbol basierend auf dem Typ
-  const renderWeatherIcon = (type, size = 48) => {
-    switch(type) {
-      case 'sunny': return isNight ? <Moon size={size} className="text-white" /> : <Sun size={size} className="text-white" />;
-      case 'cloudy': return <Cloud size={size} className="text-white" />;
-      case 'rainy': return <CloudRain size={size} className="text-white" />;
-      case 'snowy': return <CloudSnow size={size} className="text-white" />;
-      case 'stormy': return <CloudLightning size={size} className="text-white" />;
-      case 'drizzle': return <CloudDrizzle size={size} className="text-white" />;
-      default: return <Sun size={size} className="text-white" />;
-    }
-  };
-
-  // Animation für verschiedene Wettereffekte im Hintergrund
-  const renderBackgroundElements = () => {
-    // Nacht: Sterne
-    if (isNight) {
-      return (
-        <>
-          {/* Pulsierende Sterne */}
-          {Array(25).fill().map((_, i) => (
-            <div 
-              key={`star-${i}`} 
-              className="absolute rounded-full bg-white"
-              style={{
-                width: Math.random() * 2 + 1 + 'px',
-                height: Math.random() * 2 + 1 + 'px',
-                top: Math.random() * 100 + '%',
-                left: Math.random() * 100 + '%',
-                opacity: Math.random() * 0.5 + 0.3,
-                animation: `pulse ${Math.random() * 3 + 2}s infinite alternate`
-              }}
-            />
-          ))}
-          
-          {/* Hellere pulsierende Sterne */}
-          {Array(5).fill().map((_, i) => (
-            <div 
-              key={`bright-star-${i}`} 
-              className="absolute rounded-full bg-white"
-              style={{
-                width: Math.random() * 3 + 2 + 'px',
-                height: Math.random() * 3 + 2 + 'px',
-                top: Math.random() * 100 + '%',
-                left: Math.random() * 100 + '%',
-                opacity: 0.9,
-                animation: `pulse ${Math.random() * 4 + 3}s infinite alternate, twinkle ${Math.random() * 5 + 5}s infinite alternate`
-              }}
-            />
-          ))}
-        </>
-      );
-    } 
-    // Regnerisches Wetter: Regentropfen
-    else if (weatherType === 'rainy' || weatherType === 'drizzle') {
-      return (
-        <>
-          {/* Regentropfen */}
-          {Array(30).fill().map((_, i) => (
-            <div 
-              key={`drop-${i}`} 
-              className="absolute bg-white rounded-b-full"
-              style={{
-                width: weatherType === 'drizzle' ? '1px' : '2px',
-                height: weatherType === 'drizzle' ? '8px' : '15px',
-                top: Math.random() * 100 + '%',
-                left: Math.random() * 100 + '%',
-                opacity: weatherType === 'drizzle' ? 0.4 : 0.6,
-                animation: `rainfall ${Math.random() * 1 + (weatherType === 'drizzle' ? 1.5 : 1)}s infinite linear`,
-                animationDelay: `${Math.random() * 2}s`
-              }}
-            />
-          ))}
-        </>
-      );
-    }
-    // Schnee
-    else if (weatherType === 'snowy') {
-      return (
-        <>
-          {/* Schneeflocken */}
-          {Array(20).fill().map((_, i) => (
-            <div 
-              key={`snow-${i}`} 
-              className="absolute bg-white rounded-full"
-              style={{
-                width: Math.random() * 4 + 2 + 'px',
-                height: Math.random() * 4 + 2 + 'px',
-                top: Math.random() * 100 + '%',
-                left: Math.random() * 100 + '%',
-                opacity: 0.7,
-                animation: `snowfall ${Math.random() * 5 + 10}s infinite linear, sway ${Math.random() * 3 + 2}s infinite alternate`
-              }}
-            />
-          ))}
-        </>
-      );
-    }
-    // Wolkig
-    else if (weatherType === 'cloudy') {
-      return (
-        <>
-          {/* Hintergrundwolken */}
-          {Array(5).fill().map((_, i) => (
-            <div 
-              key={`cloud-${i}`} 
-              className="absolute bg-white rounded-full"
-              style={{
-                width: `${Math.random() * 100 + 100}px`,
-                height: `${Math.random() * 30 + 30}px`,
-                top: `${Math.random() * 70}%`,
-                left: `${Math.random() * 100}%`,
-                opacity: 0.2,
-                animation: `float ${Math.random() * 60 + 60}s infinite linear`,
-                transform: `scale(${Math.random() + 0.5})`
-              }}
-            />
-          ))}
-        </>
-      );
-    }
-    // Gewitter
-    else if (weatherType === 'stormy') {
-      return (
-        <>
-          {/* Dunkle Wolken */}
-          {Array(5).fill().map((_, i) => (
-            <div 
-              key={`storm-cloud-${i}`} 
-              className="absolute bg-gray-700 rounded-full"
-              style={{
-                width: `${Math.random() * 120 + 100}px`,
-                height: `${Math.random() * 40 + 30}px`,
-                top: `${Math.random() * 50}%`,
-                left: `${Math.random() * 100}%`,
-                opacity: 0.4,
-                animation: `float ${Math.random() * 30 + 30}s infinite linear`,
-                transform: `scale(${Math.random() + 0.8})`
-              }}
-            />
-          ))}
-          
-          {/* Gelegentliche Blitze */}
-          <div 
-            className="absolute inset-0 bg-white"
-            style={{
-              opacity: 0,
-              animation: `lightning 10s infinite`
-            }}
-          />
-        </>
-      );
-    }
-    // Sonniges Wetter
-    else if (weatherType === 'sunny' && !isNight) {
-      return (
-        <div 
-          className="absolute rounded-full bg-yellow-300"
-          style={{
-            width: '120px',
-            height: '120px',
-            top: '15%',
-            right: '10%',
-            opacity: 0.2,
-            boxShadow: '0 0 40px 20px rgba(250, 204, 21, 0.4)',
-            animation: 'pulseSun 4s infinite alternate'
-          }}
-        />
-      );
-    }
-    
-    return null;
-  };
-
-  // Generiert Text zur Wetterart
-  const getWeatherText = () => {
-    if (isNight && weatherType === 'sunny') return 'Klar';
-    
-    switch(weatherType) {
-      case 'sunny': return 'Sonnig';
-      case 'cloudy': return 'Bewölkt';
-      case 'rainy': return 'Regnerisch';
-      case 'snowy': return 'Schnee';
-      case 'stormy': return 'Gewitter';
-      case 'drizzle': return 'Nieselregen';
-      default: return 'Sonnig';
-    }
-  };
-
-  // CSS-Klassen für den Hintergrund basierend auf Tag/Nacht und Wetter
-  const getBgClass = () => {
-    if (isNight) {
-      return 'bg-gradient-to-b from-black to-blue-900';
-    }
-    
-    switch(weatherType) {
-      case 'sunny': return 'bg-gradient-to-b from-blue-500 to-blue-300';
-      case 'cloudy': return 'bg-gradient-to-b from-blue-400 to-gray-400';
-      case 'rainy': case 'drizzle': return 'bg-gradient-to-b from-gray-500 to-gray-700';
-      case 'snowy': return 'bg-gradient-to-b from-gray-300 to-blue-100';
-      case 'stormy': return 'bg-gradient-to-b from-gray-700 to-blue-900';
-      default: return 'bg-gradient-to-b from-blue-500 to-blue-300';
-    }
-  };
-
-  // Apple-typische Wetterbeschreibung
-  const getWeatherDescription = () => {
-    const now = new Date();
-    const hours = now.getHours();
-    
-    if (isNight) {
-      return weatherType === 'sunny' 
-        ? 'Klare Nacht bis zum Morgen.'
-        : weatherType === 'cloudy'
-          ? 'Bewölkte Nacht bis zum Morgen.'
-          : weatherType === 'rainy'
-            ? 'Regnerisch bis zum Morgen.'
-            : weatherType === 'snowy'
-              ? 'Leichter Schneefall bis zum Morgen.'
-              : weatherType === 'stormy'
-                ? 'Vereinzelte Gewitter in der Nacht.'
-                : 'Bedeckt bis zum Morgen.';
-    } else {
-      return weatherType === 'sunny'
-        ? 'Sonnig den ganzen Tag.'
-        : weatherType === 'cloudy'
-          ? 'Überwiegend bewölkt heute.'
-          : weatherType === 'rainy'
-            ? 'Regenschauer bis zum Abend.'
-            : weatherType === 'snowy'
-              ? 'Leichter Schneefall erwartet.'
-              : weatherType === 'stormy'
-                ? 'Gewitter mit starkem Wind.'
-                : weatherType === 'drizzle'
-                  ? 'Leichter Nieselregen über den Tag verteilt.'
-                  : 'Wechselhaftes Wetter heute.';
-    }
-  };
-
-  // Loading-Animation
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-black">
-        <div className="w-12 h-12 rounded-full border-2 border-t-white border-white border-opacity-20 animate-spin"></div>
-      </div>
-    );
-  }
-
-  return (
-    <div className={`relative h-screen w-full overflow-hidden ${getBgClass()} text-white font-sans transition-all duration-1000`}>
-      {/* Animation Hintergrund Elemente (Sterne, Regen, etc.) */}
-      {renderBackgroundElements()}
-      
-      {/* Hauptcontainer mit Glaseffekt */}
-      <div className={`h-full w-full flex flex-col transition-all duration-1000 transform ${showElements ? 'opacity-100' : 'opacity-0'}`}>
-        {/* Hauptwetter-Widget */}
-        <div className="mx-4 mt-8 mb-4 bg-black bg-opacity-10 backdrop-blur-lg rounded-3xl overflow-hidden shadow-lg">
-          {/* Standort und Datum */}
-          <div className="p-4 pb-0">
-            <div className="flex items-center">
-              <MapPin size={16} className="mr-1" />
-              <div className="text-xl font-medium">{location}, Sachsen-Anhalt</div>
-            </div>
-            <div className="text-sm opacity-80">
-              {new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })}
-            </div>
-          </div>
-          
-          {/* Hauptwetteranzeige */}
-          <div className="flex items-center p-4">
-            <div className="flex-1">
-              <div className="text-6xl font-light mb-1">{temperature}°</div>
-              <div className="text-lg font-medium">{getWeatherText()}</div>
-              <div className="text-sm opacity-70">{getWeatherDescription()}</div>
-            </div>
-            <div className="mr-2">
-              {renderWeatherIcon(weatherType, 80)}
-            </div>
-          </div>
-          
-          {/* Tagesverlauf */}
-          <div className="px-4 pb-4">
-            <div className="text-sm font-medium mb-2">TAGESVERLAUF</div>
-            <div className="flex justify-between">
-              {['Jetzt', '12:00', '15:00', '18:00', '21:00'].map((time, i) => {
-                // Temperaturverlauf simulieren
-                let timeTemp = temperature;
-                if (time === '12:00') timeTemp += 2;
-                if (time === '15:00') timeTemp += 3;
-                if (time === '18:00') timeTemp += 1;
-                if (time === '21:00') timeTemp -= 1;
-                
-                // Nachts kältere Temperaturen
-                if (time === '21:00' && isNight) timeTemp -= 2;
-                
-                return (
-                  <div key={i} className="flex flex-col items-center">
-                    <div className="text-xs mb-1">{time}</div>
-                    <div className="mb-1">
-                      {i === 0 ? 
-                        renderWeatherIcon(weatherType, 20) : 
-                        renderWeatherIcon(forecast[0]?.type || weatherType, 20)}
-                    </div>
-                    <div className="text-xs font-medium">{timeTemp}°</div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+        <div class="logo">
+            <span class="gradient-text">Willkommen</span>
         </div>
         
-        {/* 5-Tage-Vorhersage */}
-        <div className="mx-4 mb-4 bg-black bg-opacity-10 backdrop-blur-lg rounded-3xl overflow-hidden shadow-lg">
-          <div className="p-4">
-            <div className="text-sm font-medium mb-3">5-TAGE-VORHERSAGE</div>
-            <div className="space-y-3">
-              {forecast.map((day, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="w-16 text-sm">{day.day}</div>
-                  <div className="flex-1 flex items-center">
-                    {renderWeatherIcon(day.type, 24)}
-                  </div>
-                  <div className="flex w-24 justify-end">
-                    <span className="text-sm opacity-70 mr-3">{Math.round(day.temp - 2)}°</span>
-                    <span className="text-sm font-medium">{Math.round(day.temp)}°</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+        <div class="subtitle">
+            Eine coole Animation zum Starten
         </div>
         
-        {/* Details und Zusatzinfos */}
-        <div className="grid grid-cols-2 gap-4 mx-4 mb-4">
-          <div className="bg-black bg-opacity-10 backdrop-blur-lg rounded-3xl p-4 shadow-lg">
-            <div className="text-xs opacity-70 mb-1">LUFTFEUCHTIGKEIT</div>
-            <div className="text-2xl font-light">
-              {weatherType === 'rainy' || weatherType === 'drizzle' || weatherType === 'stormy' 
-                ? '85%' 
-                : weatherType === 'snowy' 
-                  ? '70%' 
-                  : weatherType === 'cloudy' 
-                    ? '65%' 
-                    : '45%'}
-            </div>
-            <div className="text-xs opacity-70 mt-1">
-              {weatherType === 'rainy' || weatherType === 'drizzle' || weatherType === 'stormy' 
-                ? 'Hohe Luftfeuchtigkeit' 
-                : weatherType === 'snowy' || weatherType === 'cloudy'
-                  ? 'Mittlere Luftfeuchtigkeit' 
-                  : 'Niedrige Luftfeuchtigkeit'}
-            </div>
-          </div>
-          <div className="bg-black bg-opacity-10 backdrop-blur-lg rounded-3xl p-4 shadow-lg">
-            <div className="text-xs opacity-70 mb-1">GEFÜHLT</div>
-            <div className="text-2xl font-light">
-              {weatherType === 'windy' || weatherType === 'stormy' 
-                ? `${temperature - 2}°` 
-                : weatherType === 'sunny' && !isNight && temperature > 20 
-                  ? `${temperature + 2}°` 
-                  : `${temperature}°`}
-            </div>
-            <div className="text-xs opacity-70 mt-1">
-              {weatherType === 'windy' || weatherType === 'stormy' 
-                ? 'Kühler durch Wind' 
-                : weatherType === 'sunny' && !isNight && temperature > 20 
-                  ? 'Wärmer durch Sonneneinstrahlung' 
-                  : 'Ähnlich wie tatsächliche Temp.'}
-            </div>
-          </div>
-          <div className="bg-black bg-opacity-10 backdrop-blur-lg rounded-3xl p-4 shadow-lg">
-            <div className="text-xs opacity-70 mb-1">WIND</div>
-            <div className="text-2xl font-light">
-              {weatherType === 'stormy' 
-                ? '35 km/h' 
-                : weatherType === 'windy' 
-                  ? '25 km/h' 
-                  : weatherType === 'rainy' || weatherType === 'snowy' 
-                    ? '15 km/h' 
-                    : '8 km/h'}
-            </div>
-            <div className="text-xs opacity-70 mt-1">
-              {weatherType === 'stormy' 
-                ? 'Starker Wind' 
-                : weatherType === 'windy' 
-                  ? 'Mäßiger Wind' 
-                  : weatherType === 'rainy' || weatherType === 'snowy' 
-                    ? 'Leichter Wind' 
-                    : 'Schwacher Wind'}
-            </div>
-          </div>
-          <div className="bg-black bg-opacity-10 backdrop-blur-lg rounded-3xl p-4 shadow-lg">
-            <div className="text-xs opacity-70 mb-1">UV-INDEX</div>
-            <div className="text-2xl font-light">
-              {isNight 
-                ? '0' 
-                : weatherType === 'sunny' 
-                  ? '7' 
-                  : weatherType === 'cloudy' 
-                    ? '4' 
-                    : '2'}
-            </div>
-            <div className="text-xs opacity-70 mt-1">
-              {isNight 
-                ? 'Niedrig' 
-                : weatherType === 'sunny' 
-                  ? 'Hoch - Sonnenschutz empfohlen' 
-                  : weatherType === 'cloudy' 
-                    ? 'Moderat' 
-                    : 'Niedrig'}
-            </div>
-          </div>
+        <div class="content">
+            <p>Diese einfache HTML-Seite zeigt eine schöne Startanimation mit mehreren Elementen, die nacheinander erscheinen und einen ansprechenden visuellen Effekt erzeugen.</p>
+            
+            <button class="button">Mehr entdecken</button>
         </div>
-        
-        {/* Demo-Steuerung (Tag/Nacht und Wetter) */}
-        <div className="flex justify-center mt-auto mb-4">
-          <div className="bg-black bg-opacity-20 backdrop-blur-lg rounded-full px-3 py-1 flex space-x-2">
-            <button 
-              onClick={() => setIsNight(!isNight)} 
-              className={`p-2 rounded-full ${isNight ? 'bg-blue-500' : 'bg-yellow-500'} bg-opacity-30`}
-            >
-              {isNight ? <Moon size={16} /> : <Sun size={16} />}
-            </button>
-            <button 
-              onClick={() => setWeatherType('sunny')}
-              className={`p-2 rounded-full ${weatherType === 'sunny' ? 'bg-white bg-opacity-30' : ''}`}
-            >
-              <Sun size={16} />
-            </button>
-            <button 
-              onClick={() => setWeatherType('cloudy')}
-              className={`p-2 rounded-full ${weatherType === 'cloudy' ? 'bg-white bg-opacity-30' : ''}`}
-            >
-              <Cloud size={16} />
-            </button>
-            <button 
-              onClick={() => setWeatherType('rainy')}
-              className={`p-2 rounded-full ${weatherType === 'rainy' ? 'bg-white bg-opacity-30' : ''}`}
-            >
-              <CloudRain size={16} />
-            </button>
-            <button 
-              onClick={() => setWeatherType('snowy')}
-              className={`p-2 rounded-full ${weatherType === 'snowy' ? 'bg-white bg-opacity-30' : ''}`}
-            >
-              <CloudSnow size={16} />
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      {/* CSS-Animationen */}
-      <style jsx>{`
-        @keyframes pulse {
-          0% { opacity: 0.3; transform: scale(0.8); }
-          100% { opacity: 0.8; transform: scale(1.2); }
-        }
-        
-        @keyframes twinkle {
-          0%, 100% { opacity: 0.9; }
-          50% { opacity: 0.1; }
-        }
-        
-        @keyframes rainfall {
-          0% { transform: translateY(-10px); }
-          100% { transform: translateY(30px); opacity: 0; }
-        }
-        
-        @keyframes snowfall {
-          0% { transform: translateY(-10px) translateX(0); }
-          100% { transform: translateY(30px) translateX(10px); opacity: 0.3; }
-        }
-        
-        @keyframes sway {
-          0% { transform: translateX(-5px); }
-          100% { transform: translateX(5px); }
-        }
-        
-        @keyframes float {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100vw); }
-        }
-        
-        @keyframes lightning {
-          0%, 95%, 98% { opacity: 0; }
-          96%, 99% { opacity: 0.2; }
-          97%, 100% { opacity: 0; }
-        }
-        
-        @keyframes pulseSun {
-          0% { opacity: 0.2; transform: scale(1); }
-          100% { opacity: 0.3; transform: scale(1.1); }
-        }
-      `}</style>
     </div>
-  );
-};
-
-export default WeatherApp;
+</body>
+</html>
