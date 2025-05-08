@@ -3,264 +3,423 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wetter-Widget</title>
+    <title>Wetter-App</title>
     <style>
         :root {
-            --widget-bg: rgba(28, 28, 30, 0.8);
-            --widget-text: #ffffff;
-            --widget-secondary: rgba(255, 255, 255, 0.6);
-            --widget-border: rgba(255, 255, 255, 0.1);
-            --widget-shadow: rgba(0, 0, 0, 0.4);
+            --bg-primary: #000000;
+            --bg-secondary: #1c1c1e;
+            --widget-bg: rgba(30, 30, 32, 0.75);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.55);
+            --text-tertiary: rgba(255, 255, 255, 0.35);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --accent-color: #0A84FF;
+            --success-color: #30D158;
+            --warning-color: #FFD60A;
+            --danger-color: #FF453A;
+            --card-radius: 18px;
+            --btn-radius: 10px;
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        body {
-            background: linear-gradient(135deg, #3498db, #8e44ad);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            transition: background 1s ease;
+        html, body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100%;
+            width: 100%;
+            overflow-x: hidden;
         }
 
         .container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            max-width: 800px;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .widget {
-            background: var(--widget-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 20px;
-            color: var(--widget-text);
-            box-shadow: 0 10px 30px var(--widget-shadow);
-            border: 1px solid var(--widget-border);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            overflow: hidden;
-        }
-
-        .widget:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px var(--widget-shadow);
-        }
-
-        .main-widget {
-            width: 300px;
-            height: 320px;
-            position: relative;
-        }
-
-        .mini-widget {
-            width: 140px;
-            height: 150px;
+            max-width: 480px;
+            margin: 0 auto;
+            padding: var(--spacing-md);
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            min-height: 100%;
         }
 
-        .location {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .date {
-            font-size: 14px;
-            color: var(--widget-secondary);
-            margin-bottom: 20px;
-        }
-
-        .temp {
-            font-size: 60px;
-            font-weight: 400;
-            line-height: 1;
-            margin-bottom: 10px;
-        }
-
-        .condition {
-            font-size: 16px;
-            margin-bottom: 15px;
-        }
-
-        .high-low {
-            font-size: 14px;
-            color: var(--widget-secondary);
-        }
-
-        .mini-temp {
-            font-size: 28px;
-            font-weight: 400;
-        }
-
-        .mini-title {
-            font-size: 14px;
-            color: var(--widget-secondary);
-        }
-
-        .mini-value {
-            font-size: 24px;
-            margin-top: 5px;
-        }
-
-        .mini-widget .condition {
-            font-size: 14px;
-            margin-top: 5px;
-        }
-
-        .forecast {
+        /* Header Styles */
+        .app-header {
             display: flex;
             justify-content: space-between;
-            margin-top: 20px;
-            border-top: 1px solid var(--widget-border);
-            padding-top: 15px;
-        }
-
-        .day {
-            display: flex;
-            flex-direction: column;
             align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding-top: var(--spacing-md);
+        }
+
+        .location-container {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .location-icon {
+            width: 16px;
+            height: 16px;
+            fill: var(--accent-color);
+        }
+
+        .location-text {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .action-button {
+            background: var(--widget-bg);
+            border: none;
+            border-radius: var(--btn-radius);
+            color: var(--text-primary);
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .action-button:hover {
+            background: rgba(60, 60, 67, 0.4);
+        }
+
+        .action-button svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--text-primary);
+        }
+
+        /* Current Weather Card */
+        .current-weather {
+            background: var(--widget-bg);
+            border-radius: var(--card-radius);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 16px var(--shadow-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .current-date {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .weather-main {
+            display: flex;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .weather-temp {
+            font-size: 72px;
+            font-weight: 300;
+            line-height: 1;
+            flex-grow: 1;
+        }
+
+        .weather-condition {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .weather-icon {
+            width: 70px;
+            height: 70px;
+            position: relative;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .condition-text {
+            font-size: 16px;
             text-align: center;
         }
 
-        .day-name {
+        .weather-details {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .weather-range {
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-md);
+            font-size: 15px;
+        }
+
+        .detail-row {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        .detail-box {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: var(--spacing-sm);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .detail-label {
             font-size: 12px;
-            color: var(--widget-secondary);
-            margin-bottom: 5px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
         }
 
-        .day-temp {
+        .detail-value {
             font-size: 16px;
-            margin-top: 5px;
+            font-weight: 500;
+            color: var(--accent-color);
         }
 
-        /* Weather icons and animations */
-        .weather-icon {
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            margin-bottom: var(--spacing-md);
+            background: var(--widget-bg);
+            border-radius: var(--btn-radius);
+            padding: 4px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .tab-button {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: var(--spacing-sm) 0;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .tab-button.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        /* Forecast Section */
+        .forecast-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-title {
+            margin-bottom: var(--spacing-sm);
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .hourly-forecast,
+        .daily-forecast {
+            display: none;
+            overflow-x: auto;
+            gap: var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .hourly-forecast.active,
+        .daily-forecast.active {
+            display: flex;
+        }
+
+        .forecast-card {
+            background: var(--widget-bg);
+            border-radius: var(--card-radius);
+            padding: var(--spacing-md);
+            min-width: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-xs);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .forecast-time,
+        .forecast-day {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .forecast-icon {
+            width: 36px;
+            height: 36px;
+            margin: var(--spacing-xs) 0;
             position: relative;
-            width: 40px;
-            height: 40px;
         }
 
-        .main-icon {
-            width: 80px;
-            height: 80px;
-            position: absolute;
-            right: 20px;
-            top: 20px;
+        .forecast-temp {
+            font-size: 16px;
+            font-weight: 500;
         }
 
-        /* Sun animation */
-        .sun {
-            background: #ffeb3b;
-            border-radius: 50%;
-            box-shadow: 0 0 20px 5px rgba(255, 235, 59, 0.6);
-            position: absolute;
+        .hourly-scroll,
+        .daily-scroll {
+            display: flex;
+            overflow-x: auto;
+            gap: var(--spacing-sm);
+            scrollbar-width: none;  /* Firefox */
+            -ms-overflow-style: none;  /* IE and Edge */
+            margin-bottom: var(--spacing-md);
+        }
+
+        .hourly-scroll::-webkit-scrollbar,
+        .daily-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Search Panel */
+        .search-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            animation: pulse 3s infinite alternate;
+            background: var(--bg-primary);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            padding: var(--spacing-md);
+        }
+
+        .search-panel.active {
+            display: flex;
+        }
+
+        .search-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            gap: var(--spacing-md);
+        }
+
+        .search-input {
+            flex: 1;
+            background: var(--widget-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--btn-radius);
+            color: var(--text-primary);
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: 16px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .close-button {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .recent-locations {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .location-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .location-item {
+            background: var(--widget-bg);
+            border-radius: var(--btn-radius);
+            padding: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        .location-item:hover {
+            background: rgba(60, 60, 67, 0.3);
+        }
+
+        .location-name {
+            flex: 1;
+        }
+
+        .location-temp {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        /* Weather Icons and Animations */
+        .sun {
+            position: absolute;
+            background: #FFD60A;
+            width: 60%;
+            height: 60%;
+            border-radius: 50%;
+            left: 20%;
+            top: 20%;
+            box-shadow: 0 0 10px rgba(255, 214, 10, 0.5);
+            animation: pulse 4s infinite alternate;
         }
 
         @keyframes pulse {
             0% {
                 transform: scale(1);
-                box-shadow: 0 0 20px 5px rgba(255, 235, 59, 0.6);
             }
             100% {
-                transform: scale(1.1);
-                box-shadow: 0 0 30px 8px rgba(255, 235, 59, 0.8);
+                transform: scale(1.05);
+                box-shadow: 0 0 15px rgba(255, 214, 10, 0.6);
             }
         }
 
-        /* Cloud animation */
         .cloud {
-            background: #fff;
+            position: absolute;
+            background: white;
+            width: 25%;
+            height: 25%;
             border-radius: 50%;
             box-shadow: 
-                10px 10px 0 0 #fff,
-                20px 10px 0 0 #fff,
-                15px 0 0 0 #fff;
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            top: 10px;
-            left: 10px;
+                30% 10% 0 0 white,
+                60% 10% 0 0 white,
+                45% -5% 0 0 white;
+            bottom: 20%;
+            right: 20%;
             animation: float 5s infinite alternate;
-        }
-
-        .partly-cloudy .sun {
-            left: 0;
-            top: 0;
-            width: 60%;
-            height: 60%;
-        }
-
-        .partly-cloudy .cloud {
-            width: 15px;
-            height: 15px;
-            left: 20px;
-            top: 20px;
-            box-shadow: 
-                8px 8px 0 0 #fff,
-                16px 8px 0 0 #fff,
-                12px 0 0 0 #fff;
-        }
-
-        /* Rain animation */
-        .rain {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-        }
-
-        .raindrop {
-            position: absolute;
-            background: #80d0ff;
-            width: 2px;
-            height: 10px;
-            border-radius: 2px;
-            animation: fall linear infinite;
-        }
-
-        .raindrop:nth-child(1) {
-            left: 10px;
-            animation-duration: 0.8s;
-            animation-delay: 0.2s;
-        }
-
-        .raindrop:nth-child(2) {
-            left: 20px;
-            animation-duration: 1s;
-            animation-delay: 0.1s;
-        }
-
-        .raindrop:nth-child(3) {
-            left: 30px;
-            animation-duration: 0.7s;
-            animation-delay: 0.3s;
-        }
-
-        @keyframes fall {
-            0% {
-                transform: translateY(0);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(40px);
-                opacity: 0;
-            }
         }
 
         @keyframes float {
@@ -268,61 +427,58 @@
                 transform: translateY(0);
             }
             100% {
-                transform: translateY(-5px);
+                transform: translateY(-8%);
             }
         }
 
-        /* Wind animation */
-        .wind {
+        .rain {
             position: absolute;
             width: 100%;
             height: 100%;
+            top: 0;
+            left: 0;
         }
 
-        .wind-line {
+        .raindrop {
             position: absolute;
-            background: #ebebeb;
-            height: 2px;
-            border-radius: 2px;
-            animation: wind-blow 3s infinite;
+            background: var(--accent-color);
+            width: 2px;
+            height: 8px;
+            border-radius: 1px;
+            animation: fall linear infinite;
         }
 
-        .wind-line:nth-child(1) {
-            width: 20px;
-            top: 15px;
-            left: 5px;
-            animation-delay: 0.3s;
+        .raindrop:nth-child(1) {
+            left: 30%;
+            top: 50%;
+            animation-duration: 0.7s;
         }
 
-        .wind-line:nth-child(2) {
-            width: 15px;
-            top: 22px;
-            left: 8px;
-            animation-delay: 0.1s;
-        }
-
-        .wind-line:nth-child(3) {
-            width: 25px;
-            top: 28px;
-            left: 3px;
+        .raindrop:nth-child(2) {
+            left: 50%;
+            top: 60%;
+            animation-duration: 0.6s;
             animation-delay: 0.2s;
         }
 
-        @keyframes wind-blow {
+        .raindrop:nth-child(3) {
+            left: 70%;
+            top: 55%;
+            animation-duration: 0.8s;
+            animation-delay: 0.1s;
+        }
+
+        @keyframes fall {
             0% {
-                transform: translateX(0);
-                opacity: 0;
-            }
-            20% {
-                opacity: 1;
+                transform: translateY(0);
+                opacity: 0.8;
             }
             100% {
-                transform: translateX(30px);
+                transform: translateY(15px);
                 opacity: 0;
             }
         }
 
-        /* Snow animation */
         .snow {
             position: absolute;
             width: 100%;
@@ -332,105 +488,280 @@
         .snowflake {
             position: absolute;
             background: white;
-            width: 4px;
-            height: 4px;
+            width: 3px;
+            height: 3px;
             border-radius: 50%;
             animation: snowfall linear infinite;
         }
 
         .snowflake:nth-child(1) {
-            left: 10px;
-            animation-duration: 3s;
-            animation-delay: 0s;
+            left: 30%;
+            top: 50%;
+            animation-duration: 2.5s;
         }
 
         .snowflake:nth-child(2) {
-            left: 20px;
-            animation-duration: 3.5s;
+            left: 50%;
+            top: 60%;
+            animation-duration: 3s;
             animation-delay: 0.5s;
         }
 
         .snowflake:nth-child(3) {
-            left: 30px;
-            animation-duration: 3.2s;
-            animation-delay: 0.7s;
+            left: 70%;
+            top: 55%;
+            animation-duration: 2.7s;
+            animation-delay: 0.3s;
         }
 
         @keyframes snowfall {
             0% {
                 transform: translate(0, 0) rotate(0deg);
-                opacity: 1;
+                opacity: 0.8;
             }
             100% {
-                transform: translate(3px, 40px) rotate(360deg);
+                transform: translate(3px, 15px) rotate(360deg);
                 opacity: 0;
             }
         }
 
-        /* Toggle for day/night */
-        .toggle-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
+        /* Bottom Navigation */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-between;
+            background: var(--widget-bg);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--card-radius);
+            margin-top: auto;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid var(--border-color);
         }
 
-        .toggle {
-            background: rgba(0, 0, 0, 0.3);
-            border: none;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: var(--spacing-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            flex: 1;
             cursor: pointer;
-            backdrop-filter: blur(10px);
-            transition: background 0.3s ease;
         }
 
-        .toggle:hover {
-            background: rgba(0, 0, 0, 0.5);
+        .nav-item.active {
+            color: var(--accent-color);
         }
 
-        /* Night mode */
-        body.night-mode {
-            background: linear-gradient(135deg, #1a237e, #311b92);
+        .nav-icon {
+            margin-bottom: 4px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-label {
+            font-size: 12px;
+        }
+
+        /* Utils */
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .container {
+                padding: var(--spacing-sm);
+            }
+            
+            .current-weather {
+                padding: var(--spacing-md);
+            }
+            
+            .weather-temp {
+                font-size: 64px;
+            }
+            
+            .weather-icon {
+                width: 60px;
+                height: 60px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="toggle-container">
-        <button class="toggle" id="mode-toggle">🌙 Nachtmodus</button>
-    </div>
-
     <div class="container">
-        <!-- Main weather widget -->
-        <div class="widget main-widget">
-            <div class="location">Leipzig, Sachsen</div>
-            <div class="date">Donnerstag, 8. Mai</div>
-            <div class="weather-icon main-icon partly-cloudy">
-                <div class="sun"></div>
-                <div class="cloud"></div>
+        <!-- Header -->
+        <div class="app-header">
+            <div class="location-container">
+                <svg class="location-icon" viewBox="0 0 24 24">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                </svg>
+                <span class="location-text">Zerbst, DE</span>
             </div>
-            <div class="temp">21°</div>
-            <div class="condition">Teilweise bewölkt</div>
-            <div class="high-low">H: 24° L: 14°</div>
+            <div class="header-actions">
+                <button class="action-button" id="search-button">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                </button>
+                <button class="action-button" id="refresh-button">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 9h7V2l-2.35 4.35z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
 
-            <div class="forecast">
-                <div class="day">
-                    <div class="day-name">FR</div>
-                    <div class="weather-icon">
+        <!-- Current Weather -->
+        <div class="current-weather">
+            <div class="current-date">Donnerstag, 8. Mai · Aktualisiert vor 5 Min.</div>
+
+            <div class="weather-main">
+                <div class="weather-temp">21°</div>
+                <div class="weather-condition">
+                    <div class="weather-icon" id="main-icon">
                         <div class="sun"></div>
-                    </div>
-                    <div class="day-temp">23°</div>
-                </div>
-                <div class="day">
-                    <div class="day-name">SA</div>
-                    <div class="weather-icon">
                         <div class="cloud"></div>
                     </div>
-                    <div class="day-temp">20°</div>
+                    <div class="condition-text">Teilweise bewölkt</div>
                 </div>
-                <div class="day">
-                    <div class="day-name">SO</div>
-                    <div class="weather-icon">
+            </div>
+
+            <div class="weather-range">H: 24° · T: 14°</div>
+
+            <div class="weather-details">
+                <div class="detail-row">
+                    <div class="detail-box">
+                        <span class="detail-label">Luftfeuchtigkeit</span>
+                        <span class="detail-value">65%</span>
+                    </div>
+                    <div class="detail-box">
+                        <span class="detail-label">Wind</span>
+                        <span class="detail-value">12 km/h</span>
+                    </div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-box">
+                        <span class="detail-label">UV-Index</span>
+                        <span class="detail-value">5</span>
+                    </div>
+                    <div class="detail-box">
+                        <span class="detail-label">Niederschlag</span>
+                        <span class="detail-value">20%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-button active" data-tab="hourly">Stündlich</button>
+            <button class="tab-button" data-tab="daily">10 Tage</button>
+        </div>
+
+        <!-- Forecast Section -->
+        <div class="forecast-section">
+            <!-- Hourly Forecast -->
+            <div class="hourly-scroll active" id="hourly-forecast">
+                <div class="forecast-card">
+                    <div class="forecast-time">Jetzt</div>
+                    <div class="forecast-icon">
+                        <div class="sun"></div>
+                        <div class="cloud"></div>
+                    </div>
+                    <div class="forecast-temp">21°</div>
+                </div>
+                <div class="forecast-card">
+                    <div class="forecast-time">14:00</div>
+                    <div class="forecast-icon">
+                        <div class="sun"></div>
+                    </div>
+                    <div class="forecast-temp">22°</div>
+                </div>
+                <div class="forecast-card">
+                    <div class="forecast-time">15:00</div>
+                    <div class="forecast-icon">
+                        <div class="sun"></div>
+                    </div>
+                    <div class="forecast-temp">23°</div>
+                </div>
+                <div class="forecast-card">
+                    <div class="forecast-time">16:00</div>
+                    <div class="forecast-icon">
+                        <div class="sun"></div>
+                    </div>
+                    <div class="forecast-temp">23°</div>
+                </div>
+                <div class="forecast-card">
+                    <div class="forecast-time">17:00</div>
+                    <div class="forecast-icon">
+                        <div class="sun"></div>
+                        <div class="cloud"></div>
+                    </div>
+                    <div class="forecast-temp">22°</div>
+                </div>
+                <div class="forecast-card">
+                    <div class="forecast-time">18:00</div>
+                    <div class="forecast-icon">
+                        <div class="sun"></div>
+                        <div class="cloud"></div>
+                    </div>
+                    <div class="forecast-temp">21°</div>
+                </div>
+                <div class="forecast-card">
+                    <div class="forecast-time">19:00</div>
+                    <div class="forecast-icon">
+                        <div class="cloud"></div>
+                    </div>
+                    <div class="forecast-temp">19°</div>
+                </div>
+                <div class="forecast-card">
+                    <div class="forecast-time">20:00</div>
+                    <div class="forecast-icon">
+                        <div class="cloud"></div>
+                    </div>
+                    <div class="forecast-temp">18°</div>
+                </div>
+            </div>
+
+            <!-- Daily Forecast -->
+            <div class="daily-scroll" id="daily-forecast">
+                <div class="forecast-card">
+                    <div class="forecast-day">Heute</div>
+                    <div class="forecast-icon">
+                        <div class="sun"></div>
+                        <div class="cloud"></div>
+                    </div>
+                    <div class="forecast-temp">24° / 14°</div>
+                </div>
+                <div class="forecast-card">
+                    <div class="forecast-day">Fr</div>
+                    <div class="forecast-icon">
+                        <div class="sun"></div>
+                    </div>
+                    <div class="forecast-temp">25° / 15°</div>
+                </div>
+                <div class="forecast-card">
+                    <div class="forecast-day">Sa</div>
+                    <div class="forecast-icon">
+                        <div class="sun"></div>
+                    </div>
+                    <div class="forecast-temp">26° / 16°</div>
+                </div>
+                <div class="forecast-card">
+                    <div class="forecast-day">So</div>
+                    <div class="forecast-icon">
                         <div class="cloud"></div>
                         <div class="rain">
                             <div class="raindrop"></div>
@@ -438,184 +769,236 @@
                             <div class="raindrop"></div>
                         </div>
                     </div>
-                    <div class="day-temp">18°</div>
+                    <div class="forecast-temp">22° / 14°</div>
                 </div>
-                <div class="day">
-                    <div class="day-name">MO</div>
-                    <div class="weather-icon">
-                        <div class="partly-cloudy">
-                            <div class="sun"></div>
-                            <div class="cloud"></div>
+                <div class="forecast-card">
+                    <div class="forecast-day">Mo</div>
+                    <div class="forecast-icon">
+                        <div class="cloud"></div>
+                        <div class="rain">
+                            <div class="raindrop"></div>
+                            <div class="raindrop"></div>
+                            <div class="raindrop"></div>
                         </div>
                     </div>
-                    <div class="day-temp">21°</div>
+                    <div class="forecast-temp">19° / 12°</div>
                 </div>
-                <div class="day">
-                    <div class="day-name">DI</div>
-                    <div class="weather-icon">
-                        <div class="sun"></div>
+                <div class="forecast-card">
+                    <div class="forecast-day">Di</div>
+                    <div class="forecast-icon">
+                        <div class="cloud"></div>
                     </div>
-                    <div class="day-temp">24°</div>
+                    <div class="forecast-temp">20° / 13°</div>
+                </div>
+                <div class="forecast-card">
+                    <div class="forecast-day">Mi</div>
+                    <div class="forecast-icon">
+                        <div class="sun"></div>
+                        <div class="cloud"></div>
+                    </div>
+                    <div class="forecast-temp">22° / 14°</div>
                 </div>
             </div>
         </div>
 
-        <!-- Humidity widget -->
-        <div class="widget mini-widget">
-            <div class="mini-title">Luftfeuchtigkeit</div>
-            <div class="mini-value">65%</div>
-            <div class="weather-icon">
-                <div class="rain">
-                    <div class="raindrop"></div>
-                    <div class="raindrop"></div>
-                    <div class="raindrop"></div>
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active">
+                <div class="nav-icon">
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <path fill="currentColor" d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/>
+                    </svg>
                 </div>
+                <div class="nav-label">Wetter</div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <path fill="currentColor" d="M13 16.12c3.47-.41 6.17-3.36 6.17-6.95 0-3.87-3.13-7-7-7s-7 3.13-7 7c0 3.47 2.52 6.34 5.83 6.89V20H5v2h14v-2h-6v-3.88z"/>
+                    </svg>
+                </div>
+                <div class="nav-label">Karte</div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <path fill="currentColor" d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                    </svg>
+                </div>
+                <div class="nav-label">Einstellungen</div>
             </div>
         </div>
+    </div>
 
-        <!-- Wind widget -->
-        <div class="widget mini-widget">
-            <div class="mini-title">Wind</div>
-            <div class="mini-value">12 km/h</div>
-            <div class="weather-icon">
-                <div class="wind">
-                    <div class="wind-line"></div>
-                    <div class="wind-line"></div>
-                    <div class="wind-line"></div>
-                </div>
-            </div>
+    <!-- Search Panel -->
+    <div class="search-panel" id="search-panel">
+        <div class="search-header">
+            <button class="close-button" id="close-search">&times;</button>
+            <input type="text" class="search-input" placeholder="Stadt, PLZ oder Airport suchen...">
         </div>
 
-        <!-- Precipitation widget -->
-        <div class="widget mini-widget">
-            <div class="mini-title">Niederschlag</div>
-            <div class="mini-value">20%</div>
-            <div class="weather-icon">
-                <div class="cloud"></div>
-                <div class="rain">
-                    <div class="raindrop"></div>
+        <div class="recent-locations">
+            <h3 class="section-title">Aktuelle Standorte</h3>
+            <div class="location-list">
+                <div class="location-item" data-location="Zerbst">
+                    <div class="location-name">Zerbst, Sachsen-Anhalt</div>
+                    <div class="location-temp">21°</div>
                 </div>
-            </div>
-        </div>
-
-        <!-- UV Index widget -->
-        <div class="widget mini-widget">
-            <div class="mini-title">UV-Index</div>
-            <div class="mini-value">5</div>
-            <div class="weather-icon">
-                <div class="sun"></div>
+                <div class="location-item" data-location="Berlin">
+                    <div class="location-name">Berlin</div>
+                    <div class="location-temp">22°</div>
+                </div>
+                <div class="location-item" data-location="München">
+                    <div class="location-name">München</div>
+                    <div class="location-temp">20°</div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Toggle between day and night mode
-        const toggleButton = document.getElementById('mode-toggle');
-        const body = document.body;
+        // Tab navigation
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const hourlyForecast = document.getElementById('hourly-forecast');
+        const dailyForecast = document.getElementById('daily-forecast');
 
-        toggleButton.addEventListener('click', () => {
-            body.classList.toggle('night-mode');
-            
-            if (body.classList.contains('night-mode')) {
-                toggleButton.textContent = '☀️ Tagmodus';
-            } else {
-                toggleButton.textContent = '🌙 Nachtmodus';
-            }
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all tabs
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                button.classList.add('active');
+                
+                // Show corresponding forecast
+                if (button.dataset.tab === 'hourly') {
+                    hourlyForecast.classList.add('active');
+                    dailyForecast.classList.remove('active');
+                } else {
+                    dailyForecast.classList.add('active');
+                    hourlyForecast.classList.remove('active');
+                }
+            });
         });
 
-        // Simulate weather condition changes
-        const mainIcon = document.querySelector('.main-icon');
-        const conditions = ['sunny', 'partly-cloudy', 'cloudy', 'rainy', 'windy', 'snowy'];
+        // Search panel functionality
+        const searchButton = document.getElementById('search-button');
+        const searchPanel = document.getElementById('search-panel');
+        const closeSearchButton = document.getElementById('close-search');
+        const locationItems = document.querySelectorAll('.location-item');
+        const locationText = document.querySelector('.location-text');
+
+        searchButton.addEventListener('click', () => {
+            searchPanel.classList.add('active');
+        });
+
+        closeSearchButton.addEventListener('click', () => {
+            searchPanel.classList.remove('active');
+        });
+
+        locationItems.forEach(item => {
+            item.addEventListener('click', () => {
+                locationText.textContent = item.querySelector('.location-name').textContent;
+                searchPanel.classList.remove('active');
+                // In a real app, we would fetch weather data for the selected location here
+            });
+        });
+
+        // Main weather icon animation
+        const mainIcon = document.getElementById('main-icon');
+        const conditions = ['sunny', 'partly-cloudy', 'cloudy', 'rainy', 'snowy'];
         let currentIndex = 1; // Start with partly cloudy
 
         function changeWeather() {
-            // Remove all condition classes
-            conditions.forEach(condition => {
-                mainIcon.classList.remove(condition);
-            });
-
-            // Clear the icon
+            // Create new elements based on condition
             mainIcon.innerHTML = '';
 
-            // Add new condition
             const newCondition = conditions[currentIndex];
-            mainIcon.classList.add(newCondition);
+            const conditionText = document.querySelector('.condition-text');
 
-            // Update icon elements based on condition
-            if (newCondition === 'sunny' || newCondition === 'partly-cloudy') {
+            if (newCondition === 'sunny') {
                 const sun = document.createElement('div');
                 sun.className = 'sun';
                 mainIcon.appendChild(sun);
-            }
-
-            if (newCondition === 'partly-cloudy' || newCondition === 'cloudy' || newCondition === 'rainy' || newCondition === 'snowy') {
+                conditionText.textContent = 'Sonnig';
+            } else if (newCondition === 'partly-cloudy') {
+                const sun = document.createElement('div');
+                sun.className = 'sun';
                 const cloud = document.createElement('div');
                 cloud.className = 'cloud';
+                mainIcon.appendChild(sun);
                 mainIcon.appendChild(cloud);
-            }
-
-            if (newCondition === 'rainy') {
+                conditionText.textContent = 'Teilweise bewölkt';
+            } else if (newCondition === 'cloudy') {
+                const cloud = document.createElement('div');
+                cloud.className = 'cloud';
+                cloud.style.width = '40%';
+                cloud.style.height = '40%';
+                cloud.style.left = '30%';
+                cloud.style.top = '30%';
+                mainIcon.appendChild(cloud);
+                conditionText.textContent = 'Bewölkt';
+            } else if (newCondition === 'rainy') {
+                const cloud = document.createElement('div');
+                cloud.className = 'cloud';
                 const rain = document.createElement('div');
                 rain.className = 'rain';
+                
                 for (let i = 0; i < 3; i++) {
                     const raindrop = document.createElement('div');
                     raindrop.className = 'raindrop';
                     rain.appendChild(raindrop);
                 }
+                
+                mainIcon.appendChild(cloud);
                 mainIcon.appendChild(rain);
-            }
-
-            if (newCondition === 'windy') {
-                const wind = document.createElement('div');
-                wind.className = 'wind';
-                for (let i = 0; i < 3; i++) {
-                    const windLine = document.createElement('div');
-                    windLine.className = 'wind-line';
-                    wind.appendChild(windLine);
-                }
-                mainIcon.appendChild(wind);
-            }
-
-            if (newCondition === 'snowy') {
+                conditionText.textContent = 'Regnerisch';
+            } else if (newCondition === 'snowy') {
+                const cloud = document.createElement('div');
+                cloud.className = 'cloud';
                 const snow = document.createElement('div');
                 snow.className = 'snow';
+                
                 for (let i = 0; i < 3; i++) {
                     const snowflake = document.createElement('div');
                     snowflake.className = 'snowflake';
                     snow.appendChild(snowflake);
                 }
+                
+                mainIcon.appendChild(cloud);
                 mainIcon.appendChild(snow);
+                conditionText.textContent = 'Schneefall';
             }
 
-            // Update the condition text
-            const conditionText = document.querySelector('.condition');
-            switch (newCondition) {
-                case 'sunny':
-                    conditionText.textContent = 'Sonnig';
-                    break;
-                case 'partly-cloudy':
-                    conditionText.textContent = 'Teilweise bewölkt';
-                    break;
-                case 'cloudy':
-                    conditionText.textContent = 'Bewölkt';
-                    break;
-                case 'rainy':
-                    conditionText.textContent = 'Regnerisch';
-                    break;
-                case 'windy':
-                    conditionText.textContent = 'Windig';
-                    break;
-                case 'snowy':
-                    conditionText.textContent = 'Schneefall';
-                    break;
-            }
-
-            // Move to next condition for next time
+            // Move to next condition
             currentIndex = (currentIndex + 1) % conditions.length;
         }
 
-        // Change weather every 5 seconds
-        setInterval(changeWeather, 5000);
+        // Simulate refresh
+        const refreshButton = document.getElementById('refresh-button');
+        refreshButton.addEventListener('click', () => {
+            refreshButton.style.transform = 'rotate(360deg)';
+            refreshButton.style.transition = 'transform 0.5s ease';
+            
+            setTimeout(() => {
+                document.querySelector('.current-date').textContent = 'Donnerstag, 8. Mai · Aktualisiert gerade eben';
+                refreshButton.style.transform = 'rotate(0deg)';
+                refreshButton.style.transition = 'none';
+            }, 500);
+        });
+
+        // Change weather every 8 seconds
+        setInterval(changeWeather, 8000);
+
+        // Bottom nav functionality (in a real app, these would navigate to different screens)
+        const navItems = document.querySelectorAll('.nav-item');
+        
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                navItems.forEach(navItem => navItem.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
     </script>
 </body>
 </html>
