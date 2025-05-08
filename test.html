@@ -1,459 +1,633 @@
-import { useState, useEffect } from "react";
-import { Sun, Cloud, Droplets, CloudRain, CloudSnow, Wind, Thermometer, Compass, LocateFixed, Search, RefreshCw, Map, Settings } from "lucide-react";
-
-// Main Weather App Component
-export default function WeatherApp() {
-  const [location, setLocation] = useState("Zerbst, DE");
-  const [currentWeather, setCurrentWeather] = useState({
-    temp: 21,
-    condition: "Teilweise bewölkt",
-    high: 24,
-    low: 14,
-    humidity: 65,
-    wind: 12,
-    uvIndex: 5,
-    precipitation: 20,
-  });
-  const [activeTab, setActiveTab] = useState("hourly");
-  const [showSearch, setShowSearch] = useState(false);
-  const [geolocationStatus, setGeolocationStatus] = useState("");
-  
-  // Get the current date in German format
-  const today = new Date();
-  const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  const formattedDate = today.toLocaleDateString('de-DE', dateOptions);
-  
-  // Simulated hourly forecast data
-  const hourlyForecast = [
-    { time: "Jetzt", temp: 21, condition: "partly-cloudy" },
-    { time: "14:00", temp: 22, condition: "sunny" },
-    { time: "15:00", temp: 23, condition: "sunny" },
-    { time: "16:00", temp: 23, condition: "sunny" },
-    { time: "17:00", temp: 22, condition: "partly-cloudy" },
-    { time: "18:00", temp: 21, condition: "partly-cloudy" },
-    { time: "19:00", temp: 19, condition: "cloudy" },
-    { time: "20:00", temp: 18, condition: "cloudy" },
-    { time: "21:00", temp: 17, condition: "cloudy" },
-    { time: "22:00", temp: 16, condition: "cloudy" },
-    { time: "23:00", temp: 15, condition: "cloudy" },
-    { time: "00:00", temp: 14, condition: "cloudy" },
-  ];
-  
-  // Simulated daily forecast data
-  const dailyForecast = [
-    { day: "Heute", high: 24, low: 14, condition: "partly-cloudy" },
-    { day: "Fr", high: 25, low: 15, condition: "sunny" },
-    { day: "Sa", high: 26, low: 16, condition: "sunny" },
-    { day: "So", high: 22, low: 14, condition: "rainy" },
-    { day: "Mo", high: 19, low: 12, condition: "rainy" },
-    { day: "Di", high: 20, low: 13, condition: "cloudy" },
-    { day: "Mi", high: 22, low: 14, condition: "partly-cloudy" },
-    { day: "Do", high: 23, low: 15, condition: "sunny" },
-    { day: "Fr", high: 24, low: 16, condition: "sunny" },
-    { day: "Sa", high: 25, low: 15, condition: "partly-cloudy" },
-  ];
-  
-  // Recent locations for search panel
-  const recentLocations = [
-    { name: "Zerbst, Sachsen-Anhalt", temp: 21 },
-    { name: "Berlin", temp: 22 },
-    { name: "München", temp: 20 },
-    { name: "Hamburg", temp: 19 },
-    { name: "Köln", temp: 21 },
-  ];
-  
-  // Get user's location
-  const getUserLocation = () => {
-    setGeolocationStatus("Standort wird abgerufen...");
-    
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setGeolocationStatus("Standort erfolgreich erkannt!");
-          // In a real app, you would reverse geocode the coordinates to get the city name
-          // and then fetch weather data for that location
-          
-          // Simulate location change after a short delay
-          setTimeout(() => {
-            setGeolocationStatus("");
-            setLocation("Ihr Standort");
-          }, 1500);
-        },
-        (error) => {
-          console.error("Geolocation error:", error);
-          setGeolocationStatus("Standort konnte nicht abgerufen werden.");
-          setTimeout(() => setGeolocationStatus(""), 3000);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firefox Home</title>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --text-color: #f5f5f7;
+            --accent-color: #0071e3;
+            --card-bg: rgba(40, 40, 40, 0.7);
+            --card-border: rgba(80, 80, 80, 0.3);
         }
-      );
-    } else {
-      setGeolocationStatus("Geolokalisierung wird von Ihrem Browser nicht unterstützt.");
-      setTimeout(() => setGeolocationStatus(""), 3000);
-    }
-  };
-  
-  // Function to render weather icon based on condition
-  const WeatherIcon = ({ condition, size = "md" }) => {
-    const sizes = {
-      sm: "w-8 h-8",
-      md: "w-16 h-16",
-      lg: "w-24 h-24",
-    };
-    
-    const iconSize = sizes[size] || sizes.md;
-    
-    switch (condition) {
-      case "sunny":
-        return (
-          <div className={`relative ${iconSize}`}>
-            <Sun className="w-full h-full text-yellow-300" />
-          </div>
-        );
-      case "partly-cloudy":
-        return (
-          <div className={`relative ${iconSize}`}>
-            <Sun className="w-full h-full text-yellow-300 absolute" />
-            <Cloud className="w-2/3 h-2/3 text-white opacity-90 absolute bottom-0 right-0" />
-          </div>
-        );
-      case "cloudy":
-        return (
-          <div className={`relative ${iconSize}`}>
-            <Cloud className="w-full h-full text-white" />
-          </div>
-        );
-      case "rainy":
-        return (
-          <div className={`relative ${iconSize}`}>
-            <Cloud className="w-full h-full text-gray-300" />
-            <Droplets className="w-1/2 h-1/2 text-blue-400 absolute bottom-0 right-0" />
-          </div>
-        );
-      case "stormy":
-        return (
-          <div className={`relative ${iconSize}`}>
-            <CloudRain className="w-full h-full text-blue-400" />
-          </div>
-        );
-      case "snowy":
-        return (
-          <div className={`relative ${iconSize}`}>
-            <CloudSnow className="w-full h-full text-white" />
-          </div>
-        );
-      default:
-        return (
-          <div className={`relative ${iconSize}`}>
-            <Cloud className="w-full h-full text-white" />
-          </div>
-        );
-    }
-  };
-
-  return (
-    <div className="bg-black min-h-screen text-white flex flex-col">
-      {/* Status Notification */}
-      {geolocationStatus && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white py-2 px-4 rounded-lg z-50 shadow-lg">
-          {geolocationStatus}
-        </div>
-      )}
-      
-      {/* Main Content */}
-      <div className="max-w-6xl w-full mx-auto flex flex-col min-h-screen p-6">
-        {/* Header */}
-        <header className="flex justify-between items-center mb-6 pt-4">
-          <div className="flex items-center gap-2">
-            <LocateFixed className="text-blue-400 w-5 h-5" />
-            <h1 className="text-2xl font-medium">{location}</h1>
-            <button 
-              onClick={getUserLocation} 
-              className="ml-2 text-blue-400 hover:text-blue-300 transition-colors"
-            >
-              <LocateFixed className="w-4 h-4" />
-            </button>
-          </div>
-          <div className="flex gap-2">
-            <button 
-              onClick={() => setShowSearch(true)}
-              className="bg-gray-800 bg-opacity-75 p-2 rounded-lg hover:bg-gray-700 transition-colors"
-            >
-              <Search className="w-6 h-6" />
-            </button>
-            <button 
-              className="bg-gray-800 bg-opacity-75 p-2 rounded-lg hover:bg-gray-700 transition-colors"
-            >
-              <RefreshCw className="w-6 h-6" />
-            </button>
-          </div>
-        </header>
-
-        {/* Desktop Layout - Two Column */}
-        <div className="flex flex-1 gap-6">
-          {/* Left Column - Current Weather & Detail */}
-          <div className="flex-1">
-            {/* Current Weather Card */}
-            <div className="bg-gray-900 bg-opacity-75 rounded-2xl p-6 mb-6 border border-gray-800 shadow-lg">
-              <div className="text-gray-400 text-sm mb-4">
-                {formattedDate} · Aktualisiert vor 5 Min.
-              </div>
-              
-              <div className="flex items-center mb-6">
-                <div className="text-7xl font-light mr-6">{currentWeather.temp}°</div>
-                <div className="flex flex-col items-center">
-                  <WeatherIcon condition="partly-cloudy" size="lg" />
-                  <div className="mt-2">{currentWeather.condition}</div>
-                </div>
-              </div>
-              
-              <div className="text-gray-400 mb-6">H: {currentWeather.high}° · T: {currentWeather.low}°</div>
-              
-              {/* Weather Details Grid */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gray-800 bg-opacity-50 rounded-xl p-4 flex flex-col items-center">
-                  <span className="text-gray-400 text-sm mb-1">Luftfeuchtigkeit</span>
-                  <div className="flex items-center">
-                    <Droplets className="w-5 h-5 text-blue-400 mr-2" />
-                    <span className="text-lg text-blue-400">{currentWeather.humidity}%</span>
-                  </div>
-                </div>
-                
-                <div className="bg-gray-800 bg-opacity-50 rounded-xl p-4 flex flex-col items-center">
-                  <span className="text-gray-400 text-sm mb-1">Wind</span>
-                  <div className="flex items-center">
-                    <Wind className="w-5 h-5 text-blue-400 mr-2" />
-                    <span className="text-lg text-blue-400">{currentWeather.wind} km/h</span>
-                  </div>
-                </div>
-                
-                <div className="bg-gray-800 bg-opacity-50 rounded-xl p-4 flex flex-col items-center">
-                  <span className="text-gray-400 text-sm mb-1">UV-Index</span>
-                  <div className="flex items-center">
-                    <Sun className="w-5 h-5 text-yellow-400 mr-2" />
-                    <span className="text-lg text-yellow-400">{currentWeather.uvIndex}</span>
-                  </div>
-                </div>
-                
-                <div className="bg-gray-800 bg-opacity-50 rounded-xl p-4 flex flex-col items-center">
-                  <span className="text-gray-400 text-sm mb-1">Niederschlag</span>
-                  <div className="flex items-center">
-                    <CloudRain className="w-5 h-5 text-blue-400 mr-2" />
-                    <span className="text-lg text-blue-400">{currentWeather.precipitation}%</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Extra details for desktop */}
-              <div className="mt-6 p-4 bg-gray-800 bg-opacity-30 rounded-xl">
-                <h3 className="text-lg mb-2">Weitere Details</h3>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <p className="text-gray-400 text-sm">Luftdruck</p>
-                    <p>1013 hPa</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-400 text-sm">Sichtweite</p>
-                    <p>10 km</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-400 text-sm">Taupunkt</p>
-                    <p>12°</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: linear-gradient(145deg, #121212, #202020);
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .search-container {
+            margin: 30px auto;
+            width: 100%;
+            max-width: 580px;
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .search-container:hover {
+            transform: translateY(-2px);
+        }
+        
+        .search-form {
+            display: flex;
+            width: 100%;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 12px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        .shortcuts {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 40px;
+        }
+        
+        .shortcut {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-color);
+        }
+        
+        .shortcut:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            background-color: rgba(60, 60, 60, 0.7);
+        }
+        
+        .shortcut i {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .shortcut span {
+            font-size: 12px;
+        }
+        
+        .widgets {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+            width: 100%;
+        }
+        
+        .widget {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 20px;
+            width: 100%;
+            max-width: 280px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .widget:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        .widget-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            color: var(--text-color);
+            opacity: 0.9;
+        }
+        
+        .weather-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .weather-temp {
+            font-size: 36px;
+            font-weight: 300;
+        }
+        
+        .weather-desc {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        .weather-details {
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .weather-detail {
+            text-align: center;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        .clock {
+            font-size: 36px;
+            font-weight: 300;
+            margin-bottom: 10px;
+        }
+        
+        .date {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .quote {
+            font-size: 14px;
+            font-style: italic;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+        
+        .location-input {
+            width: 100%;
+            padding: 8px 12px;
+            font-size: 14px;
+            border: none;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            margin-top: 10px;
+        }
+        
+        .location-input:focus {
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .weather-icon {
+            font-size: 36px;
+            margin-right: 10px;
+        }
+        
+        /* Custom icons for shortcuts */
+        .icon {
+            width: 36px;
+            height: 36px;
+            fill: var(--text-color);
+            margin-bottom: 8px;
+        }
+        
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .settings-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .settings-btn:hover {
+            transform: rotate(180deg);
+            background-color: rgba(60, 60, 60, 0.7);
+        }
+        
+        .settings-panel {
+            position: fixed;
+            bottom: 70px;
+            right: 20px;
+            width: 300px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 20px;
+            transform: translateY(20px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .settings-panel.show {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .settings-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+        
+        .settings-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .settings-item label {
+            font-size: 14px;
+        }
+        
+        .url-input {
+            width: 100%;
+            padding: 8px 12px;
+            font-size: 14px;
+            border: none;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            margin-top: 5px;
+        }
+        
+        .url-input:focus {
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .add-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .add-btn:hover {
+            background-color: #0077ED;
+        }
+        
+        /* For smaller screens */
+        @media (max-width: 768px) {
+            .widgets {
+                flex-direction: column;
+                align-items: center;
+            }
             
-            {/* Radar Map Card - Desktop Only */}
-            <div className="bg-gray-900 bg-opacity-75 rounded-2xl p-6 border border-gray-800 shadow-lg">
-              <h3 className="text-lg mb-4">Wetterradar</h3>
-              <div className="relative h-64 bg-blue-900 bg-opacity-20 rounded-xl overflow-hidden flex items-center justify-center">
-                <div className="absolute inset-0 bg-[url('/api/placeholder/600/300')] opacity-40"></div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-sm opacity-70">Hier würde eine Wetterkarte angezeigt werden</span>
-                </div>
-                <div className="absolute bottom-4 right-4 p-2 bg-black bg-opacity-50 rounded-lg">
-                  <div className="flex items-center text-sm">
-                    <span className="inline-block w-3 h-3 bg-blue-500 mr-1 rounded-full"></span>
-                    <span className="mr-2">Regen</span>
-                    <span className="inline-block w-3 h-3 bg-green-500 mr-1 rounded-full"></span>
-                    <span>Niederschlag</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Right Column - Forecasts */}
-          <div className="flex-1">
-            {/* Tab Navigation */}
-            <div className="bg-gray-800 bg-opacity-60 rounded-lg p-1 mb-6">
-              <div className="flex">
-                <button 
-                  className={`flex-1 py-2 text-center rounded ${activeTab === "hourly" ? "bg-gray-700 text-white" : "text-gray-400"}`}
-                  onClick={() => setActiveTab("hourly")}
-                >
-                  Stündlich
-                </button>
-                <button 
-                  className={`flex-1 py-2 text-center rounded ${activeTab === "daily" ? "bg-gray-700 text-white" : "text-gray-400"}`}
-                  onClick={() => setActiveTab("daily")}
-                >
-                  10 Tage
-                </button>
-              </div>
-            </div>
+            .widget {
+                max-width: 100%;
+            }
             
-            {/* Forecasts Panel */}
-            <div className="bg-gray-900 bg-opacity-75 rounded-2xl p-6 border border-gray-800 shadow-lg min-h-96 mb-6">
-              <h3 className="text-lg mb-4">{activeTab === "hourly" ? "Stündliche Vorhersage" : "10-Tage Vorhersage"}</h3>
-              
-              {activeTab === "hourly" ? (
-                <div className="grid grid-cols-4 gap-4">
-                  {hourlyForecast.map((forecast, index) => (
-                    <div key={index} className="bg-gray-800 bg-opacity-50 rounded-xl p-3 flex flex-col items-center">
-                      <div className="text-gray-400 text-sm mb-1">{forecast.time}</div>
-                      <WeatherIcon condition={forecast.condition} size="sm" />
-                      <div className="mt-2 font-medium">{forecast.temp}°</div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col gap-3">
-                  {dailyForecast.map((forecast, index) => (
-                    <div key={index} className="bg-gray-800 bg-opacity-50 rounded-xl p-3 flex items-center">
-                      <div className="w-16 text-gray-100">{forecast.day}</div>
-                      <div className="w-20 flex justify-center">
-                        <WeatherIcon condition={forecast.condition} size="sm" />
-                      </div>
-                      <div className="flex-1"></div>
-                      <div className="text-right flex gap-3 items-center">
-                        <span className="text-blue-400">{forecast.low}°</span>
-                        <div className="w-24 bg-gray-700 h-1 rounded-full overflow-hidden">
-                          <div className="bg-gradient-to-r from-blue-400 to-yellow-400 h-full" style={{width: "70%"}}></div>
-                        </div>
-                        <span className="text-yellow-400">{forecast.high}°</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            
-            {/* Additional Information - Desktop Only */}
-            <div className="bg-gray-900 bg-opacity-75 rounded-2xl p-6 border border-gray-800 shadow-lg">
-              <h3 className="text-lg mb-4">Tagesüberblick</h3>
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <p className="text-gray-400 text-sm mb-1">Sonnenaufgang</p>
-                  <div className="flex items-center">
-                    <Sun className="w-5 h-5 text-yellow-400 mr-2" />
-                    <span>05:32</span>
-                  </div>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm mb-1">Sonnenuntergang</p>
-                  <div className="flex items-center">
-                    <Sun className="w-5 h-5 text-orange-400 mr-2" />
-                    <span>20:58</span>
-                  </div>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm mb-1">Niederschlagswahrscheinlichkeit</p>
-                  <div className="mt-1 h-3 bg-gray-700 rounded-full overflow-hidden">
-                    <div className="bg-blue-400 h-full rounded-full" style={{ width: `${currentWeather.precipitation}%` }}></div>
-                  </div>
-                  <div className="flex justify-between text-xs mt-1">
-                    <span>0%</span>
-                    <span>50%</span>
-                    <span>100%</span>
-                  </div>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm mb-1">Luftqualität</p>
-                  <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full bg-green-400"></div>
-                    <span>Gut (AQI: 32)</span>
-                  </div>
-                  <p className="text-xs text-gray-400 mt-1">Ideal für Aktivitäten im Freien</p>
-                </div>
-              </div>
-            </div>
-          </div>
+            .search-container {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="search-container">
+            <form class="search-form" action="https://www.google.com/search" method="GET">
+                <input type="text" name="q" class="search-input" placeholder="Search with Google" autocomplete="off">
+            </form>
         </div>
         
-        {/* Footer Navigation */}
-        <footer className="mt-8 bg-gray-900 bg-opacity-75 rounded-2xl p-4 border border-gray-800 shadow-lg flex justify-between">
-          <div className="flex items-center text-blue-400">
-            <Thermometer className="w-6 h-6 mr-2" />
-            <span>Wetter</span>
-          </div>
-          <div className="flex items-center text-gray-400 hover:text-white transition-colors cursor-pointer">
-            <Map className="w-6 h-6 mr-2" />
-            <span>Karte</span>
-          </div>
-          <div className="flex items-center text-gray-400 hover:text-white transition-colors cursor-pointer">
-            <Compass className="w-6 h-6 mr-2" />
-            <span>Radar</span>
-          </div>
-          <div className="flex items-center text-gray-400 hover:text-white transition-colors cursor-pointer">
-            <Settings className="w-6 h-6 mr-2" />
-            <span>Einstellungen</span>
-          </div>
-        </footer>
-      </div>
-      
-      {/* Search Panel */}
-      {showSearch && (
-        <div className="fixed inset-0 bg-black bg-opacity-95 z-50 p-6 overflow-auto">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-center mb-8">
-              <button 
-                onClick={() => setShowSearch(false)}
-                className="text-3xl mr-4 text-white hover:text-gray-300 transition-colors"
-              >
-                &times;
-              </button>
-              <input 
-                type="text" 
-                className="flex-1 bg-gray-800 bg-opacity-75 border border-gray-700 rounded-lg text-white p-3 text-lg"
-                placeholder="Stadt, PLZ oder Airport suchen..."
-              />
-            </div>
-            
-            <div className="mb-8">
-              <h3 className="text-xl mb-4">Aktuelle Standorte</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {recentLocations.map((loc, index) => (
-                  <div 
-                    key={index}
-                    className="bg-gray-800 bg-opacity-50 rounded-xl p-4 flex justify-between items-center cursor-pointer hover:bg-gray-700 transition-colors"
-                    onClick={() => {
-                      setLocation(loc.name.split(',')[0]);
-                      setShowSearch(false);
-                    }}
-                  >
-                    <div className="location-name">{loc.name}</div>
-                    <div className="text-xl font-medium">{loc.temp}°</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div>
-              <h3 className="text-xl mb-4">Standortdienste</h3>
-              <button 
-                onClick={() => {
-                  getUserLocation();
-                  setShowSearch(false);
-                }}
-                className="bg-blue-600 hover:bg-blue-500 text-white py-3 px-6 rounded-lg flex items-center transition-colors"
-              >
-                <LocateFixed className="w-5 h-5 mr-2" />
-                Meinen aktuellen Standort verwenden
-              </button>
-            </div>
-          </div>
+        <div class="shortcuts" id="shortcuts">
+            <!-- Shortcuts will be dynamically generated -->
         </div>
-      )}
+        
+        <div class="widgets">
+            <div class="widget">
+                <div class="widget-title">Weather</div>
+                <input type="text" id="location-input" class="location-input" placeholder="Enter your location" value="Berlin">
+                <div id="weather-data">
+                    <div class="weather-info">
+                        <div class="weather-icon">🌤️</div>
+                        <div>
+                            <div class="weather-temp">--°C</div>
+                            <div class="weather-desc">Loading...</div>
+                        </div>
+                    </div>
+                    <div class="weather-details">
+                        <div class="weather-detail">
+                            <div>Humidity</div>
+                            <div id="humidity">--%</div>
+                        </div>
+                        <div class="weather-detail">
+                            <div>Wind</div>
+                            <div id="wind">-- km/h</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="widget">
+                <div class="widget-title">Date & Time</div>
+                <div class="clock" id="clock">00:00:00</div>
+                <div class="date" id="date">Loading...</div>
+                <div class="quote" id="quote">Loading a daily quote...</div>
+            </div>
+        </div>
     </div>
-  );
-}
+    
+    <div class="settings-btn" id="settings-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+    </div>
+    
+    <div class="settings-panel" id="settings-panel">
+        <div class="settings-title">Add Shortcut</div>
+        <div>
+            <label for="shortcut-name">Name</label>
+            <input type="text" id="shortcut-name" class="url-input" placeholder="e.g., YouTube">
+        </div>
+        <div>
+            <label for="shortcut-url">URL</label>
+            <input type="text" id="shortcut-url" class="url-input" placeholder="e.g., https://youtube.com">
+        </div>
+        <div>
+            <label for="shortcut-icon">Icon (emoji)</label>
+            <input type="text" id="shortcut-icon" class="url-input" placeholder="e.g., 📺 or YouTube">
+        </div>
+        <button class="add-btn" id="add-shortcut-btn">Add Shortcut</button>
+    </div>
+    
+    <script>
+        // Default shortcuts
+        const defaultShortcuts = [
+            { name: 'YouTube', url: 'https://youtube.com', icon: '📺' },
+            { name: 'Gmail', url: 'https://mail.google.com', icon: '📧' },
+            { name: 'Twitter', url: 'https://twitter.com', icon: '🐦' },
+            { name: 'GitHub', url: 'https://github.com', icon: '💻' },
+            { name: 'Netflix', url: 'https://netflix.com', icon: '🎬' },
+            { name: 'Amazon', url: 'https://amazon.com', icon: '🛒' }
+        ];
+        
+        // Load shortcuts from localStorage or use defaults
+        function loadShortcuts() {
+            const shortcuts = JSON.parse(localStorage.getItem('shortcuts')) || defaultShortcuts;
+            const shortcutsContainer = document.getElementById('shortcuts');
+            shortcutsContainer.innerHTML = '';
+            
+            shortcuts.forEach(shortcut => {
+                const shortcutElement = document.createElement('a');
+                shortcutElement.className = 'shortcut';
+                shortcutElement.href = shortcut.url;
+                
+                shortcutElement.innerHTML = `
+                    <div class="icon">${shortcut.icon}</div>
+                    <span>${shortcut.name}</span>
+                `;
+                
+                shortcutsContainer.appendChild(shortcutElement);
+            });
+        }
+        
+        // Update clock and date
+        function updateClock() {
+            const now = new Date();
+            const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            
+            document.getElementById('clock').textContent = now.toLocaleTimeString(undefined, timeOptions);
+            document.getElementById('date').textContent = now.toLocaleDateString(undefined, dateOptions);
+        }
+        
+        // Weather API function
+        async function getWeather(location) {
+            try {
+                // Using a CORS proxy to access the weather API
+                const url = `https://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=9de243494c0b295cca9337e1e96b00e2`;
+                
+                // Fetch weather data
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.cod === 200) {
+                    // Update UI with weather data
+                    const temp = Math.round(data.main.temp);
+                    const description = data.weather[0].description;
+                    const humidity = data.main.humidity;
+                    const windSpeed = Math.round(data.wind.speed * 3.6); // Convert to km/h
+                    
+                    // Get weather icon
+                    let weatherIcon = '🌤️';
+                    const weatherCode = data.weather[0].id;
+                    
+                    if (weatherCode < 300) {
+                        weatherIcon = '⛈️'; // Thunderstorm
+                    } else if (weatherCode < 400) {
+                        weatherIcon = '🌧️'; // Drizzle
+                    } else if (weatherCode < 600) {
+                        weatherIcon = '🌧️'; // Rain
+                    } else if (weatherCode < 700) {
+                        weatherIcon = '❄️'; // Snow
+                    } else if (weatherCode < 800) {
+                        weatherIcon = '🌫️'; // Atmosphere (fog, mist, etc.)
+                    } else if (weatherCode === 800) {
+                        weatherIcon = '☀️'; // Clear sky
+                    } else if (weatherCode < 900) {
+                        weatherIcon = '☁️'; // Clouds
+                    }
+                    
+                    document.querySelector('.weather-icon').textContent = weatherIcon;
+                    document.querySelector('.weather-temp').textContent = `${temp}°C`;
+                    document.querySelector('.weather-desc').textContent = description;
+                    document.getElementById('humidity').textContent = `${humidity}%`;
+                    document.getElementById('wind').textContent = `${windSpeed} km/h`;
+                    
+                    // Save location to localStorage
+                    localStorage.setItem('weatherLocation', location);
+                } else {
+                    throw new Error('City not found');
+                }
+            } catch (error) {
+                console.error('Error fetching weather:', error);
+                document.querySelector('.weather-desc').textContent = 'City not found. Try again.';
+            }
+        }
+        
+        // Get random quote
+        async function getQuote() {
+            try {
+                const quotes = [
+                    "The only way to do great work is to love what you do.",
+                    "Innovation distinguishes between a leader and a follower.",
+                    "Your time is limited, so don't waste it living someone else's life.",
+                    "The future belongs to those who believe in the beauty of their dreams.",
+                    "Life is what happens when you're busy making other plans.",
+                    "The journey of a thousand miles begins with one step.",
+                    "Simplicity is the ultimate sophistication.",
+                    "Design is not just what it looks like and feels like. Design is how it works.",
+                    "Stay hungry, stay foolish.",
+                    "Think different."
+                ];
+                
+                const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+                document.getElementById('quote').textContent = `"${randomQuote}"`;
+            } catch (error) {
+                console.error('Error fetching quote:', error);
+            }
+        }
+        
+        // Settings panel toggle
+        document.getElementById('settings-btn').addEventListener('click', function() {
+            document.getElementById('settings-panel').classList.toggle('show');
+        });
+        
+        // Add new shortcut
+        document.getElementById('add-shortcut-btn').addEventListener('click', function() {
+            const name = document.getElementById('shortcut-name').value.trim();
+            let url = document.getElementById('shortcut-url').value.trim();
+            const icon = document.getElementById('shortcut-icon').value.trim();
+            
+            if (!name || !url) {
+                alert('Please enter both name and URL');
+                return;
+            }
+            
+            // Add https:// if not present
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+            
+            // Get existing shortcuts
+            const shortcuts = JSON.parse(localStorage.getItem('shortcuts')) || defaultShortcuts;
+            
+            // Add new shortcut
+            shortcuts.push({
+                name,
+                url,
+                icon: icon || '🔗' // Default icon if not provided
+            });
+            
+            // Save to localStorage
+            localStorage.setItem('shortcuts', JSON.stringify(shortcuts));
+            
+            // Reload shortcuts
+            loadShortcuts();
+            
+            // Clear inputs
+            document.getElementById('shortcut-name').value = '';
+            document.getElementById('shortcut-url').value = '';
+            document.getElementById('shortcut-icon').value = '';
+            
+            // Hide settings panel
+            document.getElementById('settings-panel').classList.remove('show');
+        });
+        
+        // Weather location input
+        document.getElementById('location-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const location = this.value.trim();
+                if (location) {
+                    getWeather(location);
+                }
+            }
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load shortcuts
+            loadShortcuts();
+            
+            // Update clock initially and then every second
+            updateClock();
+            setInterval(updateClock, 1000);
+            
+            // Load weather
+            const savedLocation = localStorage.getItem('weatherLocation') || 'Berlin';
+            document.getElementById('location-input').value = savedLocation;
+            getWeather(savedLocation);
+            
+            // Load random quote
+            getQuote();
+        });
+    </script>
+</body>
+</html>
