@@ -3,163 +3,1058 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coole Startanimation</title>
+    <title>Wetter App</title>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            font-family: 'Arial', sans-serif;
-            background-color: #121212;
-            color: white;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            color: white;
             overflow: hidden;
+            transition: background 2s ease;
         }
-
+        
+        /* Dynamische Hintergründe basierend auf Wetter und Tageszeit */
+        .bg-clear-day {
+            background: linear-gradient(135deg, #71B7E6, #1E90FF);
+        }
+        
+        .bg-clear-night {
+            background: linear-gradient(135deg, #0F2027, #203A43, #2C5364);
+        }
+        
+        .bg-cloudy-day {
+            background: linear-gradient(135deg, #757F9A, #D7DDE8);
+        }
+        
+        .bg-cloudy-night {
+            background: linear-gradient(135deg, #232526, #414345);
+        }
+        
+        .bg-rain {
+            background: linear-gradient(135deg, #3E5151, #DECBA4);
+        }
+        
+        .bg-snow {
+            background: linear-gradient(135deg, #E6DADA, #274046);
+        }
+        
         .container {
-            position: relative;
-            text-align: center;
-        }
-
-        .logo {
-            font-size: 3rem;
-            font-weight: bold;
-            position: relative;
+            width: 90%;
+            max-width: 380px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            padding: 25px;
             opacity: 0;
             transform: translateY(30px);
-            animation: fadeIn 1.5s ease forwards 0.5s;
+            animation: slideUp 1.5s forwards 0.5s;
         }
-
-        .gradient-text {
-            background: linear-gradient(90deg, #ff8a00, #e52e71);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .subtitle {
-            margin-top: 1rem;
-            font-size: 1.2rem;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeIn 1.5s ease forwards 1.5s;
-        }
-
-        .circle {
-            position: absolute;
-            border-radius: 50%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            z-index: -1;
-            animation: pulseIn 2s cubic-bezier(0.19, 1, 0.22, 1) forwards;
-        }
-
-        .circle-1 {
-            width: 200px;
-            height: 200px;
-            background: rgba(255, 138, 0, 0.1);
-        }
-
-        .circle-2 {
-            width: 400px;
-            height: 400px;
-            background: rgba(229, 46, 113, 0.05);
-            animation-delay: 0.3s;
-        }
-
-        .circle-3 {
-            width: 600px;
-            height: 600px;
-            background: rgba(255, 255, 255, 0.02);
-            animation-delay: 0.6s;
-        }
-
-        .content {
-            margin-top: 3rem;
-            max-width: 600px;
-            opacity: 0;
-            animation: contentAppear 1s ease forwards 2.5s;
-        }
-
-        .button {
-            display: inline-block;
-            margin-top: 2rem;
-            padding: 0.8rem 2rem;
-            background: linear-gradient(90deg, #ff8a00, #e52e71);
-            border: none;
+        
+        .search-box {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
             border-radius: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            outline: none;
+            background: rgba(255, 255, 255, 0.2);
             color: white;
             font-size: 1rem;
+            border-radius: 30px 0 0 30px;
+        }
+        
+        .search-box input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .search-box button {
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            outline: none;
+            padding: 12px 20px;
             cursor: pointer;
+            border-radius: 0 30px 30px 0;
             transition: all 0.3s ease;
-            transform: scale(0);
-            animation: buttonPop 0.5s cubic-bezier(0.17, 0.89, 0.32, 1.49) forwards 3s;
         }
-
-        .button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(229, 46, 113, 0.5);
+        
+        .search-box button:hover {
+            background: rgba(255, 255, 255, 0.4);
         }
-
-        @keyframes fadeIn {
+        
+        .search-icon {
+            width: 20px;
+            height: 20px;
+            fill: white;
+        }
+        
+        .weather-info {
+            text-align: center;
+            padding: 10px 0;
+        }
+        
+        .city {
+            font-size: 1.8rem;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .date {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 15px;
+        }
+        
+        .weather-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .temp {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 10px 0;
+            position: relative;
+        }
+        
+        .temp::after {
+            content: '°C';
+            position: absolute;
+            font-size: 1.2rem;
+            top: 5px;
+        }
+        
+        .description {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+        
+        .weather-details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .col {
+            text-align: center;
+            width: 33.33%;
+        }
+        
+        .col img {
+            width: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .humidity, .wind, .feels {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+        
+        .text {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .forecast {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .day {
+            text-align: center;
+            padding: 5px;
+            flex: 1;
+        }
+        
+        .day-name {
+            font-size: 0.8rem;
+            margin-bottom: 3px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .day-icon {
+            width: 28px;
+            height: 28px;
+            margin: 3px auto;
+        }
+        
+        .day-temp {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        /* Wetter-Animationen (minimalistisch) */
+        .sun {
+            width: 60px;
+            height: 60px;
+            background: #FFD700;
+            border-radius: 50%;
+            box-shadow: 0 0 20px #FFD700;
+            animation: pulse 3s infinite;
+        }
+        
+        .moon {
+            width: 50px;
+            height: 50px;
+            background: #FFFAF0;
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(255, 250, 240, 0.8);
+            position: relative;
+            animation: glow 5s infinite;
+        }
+        
+        .moon::after {
+            content: '';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 45px;
+            height: 45px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+        }
+        
+        .cloud {
+            width: 80px;
+            height: 25px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: absolute;
+            top: 20px;
+            left: 15px;
+            animation: float 5s infinite;
+        }
+        
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+        }
+        
+        .cloud::before {
+            width: 30px;
+            height: 30px;
+            top: -15px;
+            left: 10px;
+        }
+        
+        .cloud::after {
+            width: 45px;
+            height: 45px;
+            top: -25px;
+            right: 10px;
+        }
+        
+        .rain {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 50px;
+            left: 0;
+        }
+        
+        .drop {
+            position: absolute;
+            width: 2px;
+            height: 10px;
+            background: linear-gradient(transparent, #64b5f6);
+            border-radius: 10px;
+            animation: rain 1s infinite linear;
+        }
+        
+        .drop:nth-child(1) {
+            left: 20px;
+            animation-delay: 0.3s;
+        }
+        
+        .drop:nth-child(2) {
+            left: 50px;
+            animation-delay: 0.5s;
+        }
+        
+        .drop:nth-child(3) {
+            left: 30px;
+            animation-delay: 0.1s;
+        }
+        
+        .drop:nth-child(4) {
+            left: 60px;
+            animation-delay: 0.8s;
+        }
+        
+        .snow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 50px;
+            left: 0;
+        }
+        
+        .snowflake {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: snow 3s infinite linear;
+        }
+        
+        .snowflake:nth-child(1) {
+            left: 20px;
+            animation-delay: 0.3s;
+        }
+        
+        .snowflake:nth-child(2) {
+            left: 50px;
+            animation-delay: 0.5s;
+        }
+        
+        .snowflake:nth-child(3) {
+            left: 30px;
+            animation-delay: 0.1s;
+        }
+        
+        .snowflake:nth-child(4) {
+            left: 60px;
+            animation-delay: 0.8s;
+        }
+        
+        /* Sterne Animation für Nachthimmel */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 2s ease;
+        }
+        
+        .stars.active {
+            opacity: 1;
+        }
+        
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 4s infinite;
+        }
+        
+        /* Regentropfen-Hintergrund Animation */
+        .rain-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 2s ease;
+        }
+        
+        .rain-bg.active {
+            opacity: 1;
+        }
+        
+        .rain-drop {
+            position: absolute;
+            width: 1px;
+            height: 15px;
+            background: linear-gradient(transparent, rgba(255, 255, 255, 0.5));
+            animation: rainFall 1s linear infinite;
+        }
+        
+        /* Schneefall-Hintergrund Animation */
+        .snow-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 2s ease;
+        }
+        
+        .snow-bg.active {
+            opacity: 1;
+        }
+        
+        .snow-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: snowFall 10s linear infinite;
+        }
+        
+        /* Ladeanimation */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #1e3c72, #2a5298);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 1s ease, visibility 1s ease;
+        }
+        
+        .loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .loader-content {
+            text-align: center;
+        }
+        
+        .loader-icon {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            animation: rotate 2s infinite linear;
+        }
+        
+        .loader-text {
+            font-size: 1.5rem;
+            color: white;
+            letter-spacing: 2px;
+        }
+        
+        @keyframes slideUp {
             to {
-                opacity: 1;
                 transform: translateY(0);
-            }
-        }
-
-        @keyframes pulseIn {
-            from {
-                transform: translate(-50%, -50%) scale(0);
-                opacity: 0;
-            }
-            to {
-                transform: translate(-50%, -50%) scale(1);
                 opacity: 1;
             }
         }
-
-        @keyframes contentAppear {
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes buttonPop {
+        
+        @keyframes pulse {
             0% {
-                transform: scale(0);
+                transform: scale(1);
+                box-shadow: 0 0 10px #FFD700;
             }
-            70% {
-                transform: scale(1.1);
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 20px #FFD700;
             }
             100% {
                 transform: scale(1);
+                box-shadow: 0 0 10px #FFD700;
+            }
+        }
+        
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 0 10px rgba(255, 250, 240, 0.6);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(255, 250, 240, 0.8);
+            }
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            50% {
+                transform: translateX(5px);
+            }
+        }
+        
+        @keyframes rain {
+            0% {
+                transform: translateY(0);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(40px);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes snow {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(40px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes twinkle {
+            0%, 100% {
+                opacity: 0.2;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes rainFall {
+            0% {
+                transform: translateY(-100px);
+            }
+            100% {
+                transform: translateY(100vh);
+            }
+        }
+        
+        @keyframes snowFall {
+            0% {
+                transform: translateY(-10px) translateX(0) rotate(0deg);
+            }
+            100% {
+                transform: translateY(100vh) translateX(20px) rotate(360deg);
+            }
+        }
+        
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="circle circle-1"></div>
-        <div class="circle circle-2"></div>
-        <div class="circle circle-3"></div>
-        
-        <div class="logo">
-            <span class="gradient-text">Willkommen</span>
-        </div>
-        
-        <div class="subtitle">
-            Eine coole Animation zum Starten
-        </div>
-        
-        <div class="content">
-            <p>Diese einfache HTML-Seite zeigt eine schöne Startanimation mit mehreren Elementen, die nacheinander erscheinen und einen ansprechenden visuellen Effekt erzeugen.</p>
-            
-            <button class="button">Mehr entdecken</button>
+    <!-- Startanimation Ladescreen -->
+    <div class="loader">
+        <div class="loader-content">
+            <div class="loader-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+                    <circle cx="12" cy="12" r="5" stroke="white" fill="none"></circle>
+                </svg>
+            </div>
+            <div class="loader-text">Wetter wird geladen...</div>
         </div>
     </div>
+    
+    <!-- Hintergrund-Animationen -->
+    <div class="stars"></div>
+    <div class="rain-bg"></div>
+    <div class="snow-bg"></div>
+    
+    <div class="container">
+        <div class="search-box">
+            <input type="text" placeholder="Stadt eingeben..." id="city-input">
+            <button id="search-btn">
+                <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path fill="white" d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l4.25 4.25c.41.41.99.41 1.4 0 .39-.39.39-1.01 0-1.4L15.5 14zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="weather-info">
+            <h2 class="city">Standort wird ermittelt...</h2>
+            <p class="date">Datum wird geladen...</p>
+            
+            <div class="weather-icon">
+                <!-- Wetter Animation wird via JS eingefügt -->
+            </div>
+            
+            <h1 class="temp">--</h1>
+            <p class="description">Wetter wird geladen...</p>
+            
+            <div class="weather-details">
+                <div class="col">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0xMiAyYTggOCAwIDAgMC04IDh2Mmg2LjM1YTQgNCAwIDAgMCA3LjM1IDJIMTZ2MmE4IDggMCAwIDAgOC04IDggOCAwIDAgMC04LThaIi8+PC9zdmc+" alt="Luftfeuchtigkeit">
+                    <div class="humidity">--%</div>
+                    <div class="text">Luftfeuchtigkeit</div>
+                </div>
+                <div class="col">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0xNy43IDcuNyA3Ljc2IDE3LjY0bS0xLjE1LTcuODdhMS4zNSAxLjM1IDAgMSAxLTEuODcgMS45NiAxLjUgMS41IDAgMCAxIDAtMi4xIDE0LjUgMi41IDAgMCAxIDIuNS4xNE01LjgzIDE5aC4wMm0xMi45NS01LjkzbS0xMi45IDEwLjJDMi42NiAyMy40Ny0uNSAyMC4wNSAyLjE3IDIzTTE0LjA1IDIuNTVsMi4yNSA1Ljc1bTEuMy0uNjdsNS4yNS0uNTMiLz48L3N2Zz4=" alt="Wind">
+                    <div class="wind">-- km/h</div>
+                    <div class="text">Wind</div>
+                </div>
+                <div class="col">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0xNCAyMi4xN2ExMS4yMyAxMS4yMyAwIDAgMS05LjktOS45TTEuNjIgMTNBMTEgMTEgMCAwIDAgMiA1Ljg0YTUgNSAwIDAgMSA1LjgtMS42MU0xNS42MiAxQTExLjQ0IDExLjQ0IDAgMCAxIDIyLjE2IDkuNjFNMjIuMjIgMTMuNjhjLjAwMy4xOC4wMDUuMzY0LjAwNS41NSAwIDUuOTQtNC4zOSAxMC43Ni0xMC4wNSAxMC43Ni0uMTkgMC0uMzc3LS4wMDItLjU2NC0uMDA2Ii8+PC9zdmc+" alt="Gefühlt">
+                    <div class="feels">--°</div>
+                    <div class="text">Gefühlt</div>
+                </div>
+            </div>
+            
+            <div class="forecast">
+                <!-- Vorhersage wird via JS eingesetzt -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loader = document.querySelector('.loader');
+            const container = document.querySelector('.container');
+            const searchBtn = document.getElementById('search-btn');
+            const cityInput = document.getElementById('city-input');
+            const weatherIcon = document.querySelector('.weather-icon');
+            const cityElement = document.querySelector('.city');
+            const dateElement = document.querySelector('.date');
+            const tempElement = document.querySelector('.temp');
+            const descriptionElement = document.querySelector('.description');
+            const humidityElement = document.querySelector('.humidity');
+            const windElement = document.querySelector('.wind');
+            const feelsElement = document.querySelector('.feels');
+            const forecastContainer = document.querySelector('.forecast');
+            const starsElement = document.querySelector('.stars');
+            const rainBgElement = document.querySelector('.rain-bg');
+            const snowBgElement = document.querySelector('.snow-bg');
+            
+            // OpenWeatherMap API Key - BITTE ERSETZEN
+            const apiKey = "IHREN_API_KEY_HIER_EINFÜGEN";
+            
+            // Aktuelle Position ermitteln
+            function getCurrentLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(position => {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        
+                        getWeatherByCoords(lat, lon);
+                    }, error => {
+                        // Fallback bei Fehlern: Leipzig als Standardort
+                        getWeatherByCity("Leipzig");
+                        console.log("Geolocation error: ", error);
+                    });
+                } else {
+                    // Fallback wenn Geolocation nicht unterstützt wird
+                    getWeatherByCity("Leipzig");
+                    alert("Geolocation wird von Ihrem Browser nicht unterstützt.");
+                }
+            }
+            
+            // Wetter nach Koordinaten abrufen
+            function getWeatherByCoords(lat, lon) {
+                // Aktuelles Wetter
+                fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=de&appid=${apiKey}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Wetter konnte nicht abgerufen werden.");
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        updateWeatherUI(data);
+                        
+                        // 5-Tage Vorhersage
+                        return fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&lang=de&appid=${apiKey}`);
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Vorhersage konnte nicht abgerufen werden.");
+                        }
+                        return response.json();
+                    })
+                    .then(forecastData => {
+                        updateForecastUI(forecastData);
+                        hideLoader();
+                    })
+                    .catch(error => {
+                        console.log("Fehler: ", error);
+                        alert("Fehler beim Abrufen der Wetterdaten. Bitte versuchen Sie es später erneut.");
+                        hideLoader();
+                    });
+            }
+            
+            // Wetter nach Stadtname abrufen
+            function getWeatherByCity(city) {
+                // Aktuelles Wetter
+                fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&lang=de&appid=${apiKey}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Stadt nicht gefunden.");
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        updateWeatherUI(data);
+                        
+                        // 5-Tage Vorhersage
+                        return fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&lang=de&appid=${apiKey}`);
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Vorhersage konnte nicht abgerufen werden.");
+                        }
+                        return response.json();
+                    })
+                    .then(forecastData => {
+                        updateForecastUI(forecastData);
+                        hideLoader();
+                    })
+                    .catch(error => {
+                        console.log("Fehler: ", error);
+                        alert("Stadt nicht gefunden oder Wetterdaten konnten nicht abgerufen werden.");
+                        hideLoader();
+                    });
+            }
+            
+            // Wetter-UI aktualisieren
+            function updateWeatherUI(data) {
+                // Stadtname und Datum
+                cityElement.textContent = data.name;
+                const currentDate = new Date();
+                const options = { weekday: 'long', day: 'numeric', month: 'long' };
+                dateElement.textContent = currentDate.toLocaleDateString('de-DE', options);
+                
+                // Temperatur und Beschreibung
+                tempElement.textContent = Math.round(data.main.temp);
+                descriptionElement.textContent = data.weather[0].description.charAt(0).toUpperCase() + data.weather[0].description.slice(1);
+                
+                // Details
+                humidityElement.textContent = `${data.main.humidity}%`;
+                windElement.textContent = `${Math.round(data.wind.speed * 3.6)} km/h`; // Umrechnung von m/s zu km/h
+                feelsElement.textContent = `${Math.round(data.main.feels_like)}°`;
+                
+                // Wetter-Icon und Hintergrund aktualisieren
+                updateWeatherDisplay(data.weather[0].id, data.dt, data.sys.sunrise, data.sys.sunset);
+            }
+            
+            // Vorhersage-UI aktualisieren
+            function updateForecastUI(forecastData) {
+                // Leeren der vorherigen Vorhersage
+                forecastContainer.innerHTML = '';
+                
+                // Erstellen der Tagesvorhersage (nur für die nächsten 4 Tage, eine Messung pro Tag)
+                const uniqueDays = {};
+                const forecasts = forecastData.list.filter(item => {
+                    const date = new Date(item.dt * 1000);
+                    const day = date.toLocaleDateString('de-DE', { weekday: 'short' });
+                    const today = new Date().toLocaleDateString('de-DE', { weekday: 'short' });
+                    
+                    // Nur Daten für andere Tage als heute, und einmal pro Tag (12:00 Uhr)
+                    if (day !== today && date.getHours() >= 12 && date.getHours() <= 15 && !uniqueDays[day]) {
+                        uniqueDays[day] = true;
+                        return true;
+                    }
+                    return false;
+                }).slice(0, 4); // Nur 4 Tage anzeigen
+                
+                forecasts.forEach(forecast => {
+                    const date = new Date(forecast.dt * 1000);
+                    const day = date.toLocaleDateString('de-DE', { weekday: 'short' });
+                    
+                    const dayElement = document.createElement('div');
+                    dayElement.className = 'day';
+                    
+                    // Wettericon basierend auf dem Wetter-ID
+                    let weatherEmoji = '☀️'; // Standard: Sonne
+                    const weatherId = forecast.weather[0].id;
+                    
+                    if (weatherId >= 200 && weatherId < 300) {
+                        weatherEmoji = '⛈️'; // Gewitter
+                    } else if (weatherId >= 300 && weatherId < 500) {
+                        weatherEmoji = '🌦️'; // Nieselregen
+                    } else if (weatherId >= 500 && weatherId < 600) {
+                        weatherEmoji = '🌧️'; // Regen
+                    } else if (weatherId >= 600 && weatherId < 700) {
+                        weatherEmoji = '❄️'; // Schnee
+                    } else if (weatherId >= 700 && weatherId < 800) {
+                        weatherEmoji = '🌫️'; // Nebel
+                    } else if (weatherId === 800) {
+                        weatherEmoji = '☀️'; // Klarer Himmel
+                    } else if (weatherId > 800) {
+                        weatherEmoji = '⛅'; // Bewölkt
+                    }
+                    
+                    dayElement.innerHTML = `
+                        <div class="day-name">${day}</div>
+                        <div class="day-icon">${weatherEmoji}</div>
+                        <div class="day-temp">${Math.round(forecast.main.temp)}°</div>
+                    `;
+                    
+                    forecastContainer.appendChild(dayElement);
+                });
+            }
+            
+            // Wetter-Anzeige auf UI aktualisieren (Icon und Hintergrund)
+            function updateWeatherDisplay(weatherId, currentTime, sunrise, sunset) {
+                // Leeren des vorherigen Icons
+                weatherIcon.innerHTML = '';
+                
+                // Überprüfen ob Tag oder Nacht
+                const now = currentTime;
+                const isDay = now > sunrise && now < sunset;
+                const body = document.body;
+                
+                // Alle Hintergrund-Animationen zurücksetzen
+                starsElement.classList.remove('active');
+                rainBgElement.classList.remove('active');
+                snowBgElement.classList.remove('active');
+                starsElement.innerHTML = '';
+                rainBgElement.innerHTML = '';
+                snowBgElement.innerHTML = '';
+                
+                // Wetter-ID basierte Icon und Hintergrund
+                if (weatherId >= 200 && weatherId < 300) {
+                    // Gewitter
+                    weatherIcon.innerHTML = `
+                        <div class="cloud"></div>
+                        <div class="rain">
+                            <div class="drop"></div>
+                            <div class="drop"></div>
+                            <div class="drop"></div>
+                            <div class="drop"></div>
+                        </div>
+                    `;
+                    body.className = isDay ? 'bg-cloudy-day' : 'bg-cloudy-night';
+                    createRainBackground();
+                } else if (weatherId >= 300 && weatherId < 500) {
+                    // Nieselregen
+                    weatherIcon.innerHTML = `
+                        <div class="cloud"></div>
+                        <div class="rain">
+                            <div class="drop"></div>
+                            <div class="drop"></div>
+                        </div>
+                    `;
+                    body.className = isDay ? 'bg-cloudy-day' : 'bg-cloudy-night';
+                    createRainBackground();
+                } else if (weatherId >= 500 && weatherId < 600) {
+                    // Regen
+                    weatherIcon.innerHTML = `
+                        <div class="cloud"></div>
+                        <div class="rain">
+                            <div class="drop"></div>
+                            <div class="drop"></div>
+                            <div class="drop"></div>
+                            <div class="drop"></div>
+                        </div>
+                    `;
+                    body.className = 'bg-rain';
+                    createRainBackground();
+                } else if (weatherId >= 600 && weatherId < 700) {
+                    // Schnee
+                    weatherIcon.innerHTML = `
+                        <div class="cloud"></div>
+                        <div class="snow">
+                            <div class="snowflake"></div>
+                            <div class="snowflake"></div>
+                            <div class="snowflake"></div>
+                            <div class="snowflake"></div>
+                        </div>
+                    `;
+                    body.className = 'bg-snow';
+                    createSnowBackground();
+                } else if (weatherId >= 700 && weatherId < 800) {
+                    // Nebel und andere
+                    weatherIcon.innerHTML = `<div class="cloud"></div>`;
+                    body.className = isDay ? 'bg-cloudy-day' : 'bg-cloudy-night';
+                } else if (weatherId === 800) {
+                    // Klarer Himmel
+                    if (isDay) {
+                        weatherIcon.innerHTML = `<div class="sun"></div>`;
+                        body.className = 'bg-clear-day';
+                    } else {
+                        weatherIcon.innerHTML = `<div class="moon"></div>`;
+                        body.className = 'bg-clear-night';
+                        createStarryBackground();
+                    }
+                } else if (weatherId > 800) {
+                    // Bewölkt
+                    weatherIcon.innerHTML = `<div class="cloud"></div>`;
+                    body.className = isDay ? 'bg-cloudy-day' : 'bg-cloudy-night';
+                    if (!isDay) {
+                        createStarryBackground();
+                    }
+                }
+            }
+            
+            // Sternen-Hintergrund erstellen
+            function createStarryBackground() {
+                // 100 Sterne erstellen
+                for (let i = 0; i < 100; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    star.style.top = `${Math.random() * 100}%`;
+                    star.style.left = `${Math.random() * 100}%`;
+                    star.style.animationDelay = `${Math.random() * 4}s`;
+                    star.style.width = `${Math.random() * 2 + 1}px`;
+                    star.style.height = star.style.width;
+                    
+                    starsElement.appendChild(star);
+                }
+                
+                starsElement.classList.add('active');
+            }
+            
+            // Regen-Hintergrund erstellen
+            function createRainBackground() {
+                // 100 Regentropfen erstellen
+                for (let i = 0; i < 100; i++) {
+                    const rainDrop = document.createElement('div');
+                    rainDrop.className = 'rain-drop';
+                    rainDrop.style.left = `${Math.random() * 100}%`;
+                    rainDrop.style.opacity = Math.random() * 0.4 + 0.1;
+                    rainDrop.style.animationDuration = `${Math.random() * 1 + 0.5}s`;
+                    rainDrop.style.animationDelay = `${Math.random() * 2}s`;
+                    
+                    rainBgElement.appendChild(rainDrop);
+                }
+                
+                rainBgElement.classList.add('active');
+            }
+            
+            // Schnee-Hintergrund erstellen
+            function createSnowBackground() {
+                // 50 Schneeflocken erstellen
+                for (let i = 0; i < 50; i++) {
+                    const snowParticle = document.createElement('div');
+                    snowParticle.className = 'snow-particle';
+                    snowParticle.style.left = `${Math.random() * 100}%`;
+                    snowParticle.style.opacity = Math.random() * 0.7 + 0.3;
+                    snowParticle.style.animationDuration = `${Math.random() * 10 + 5}s`;
+                    snowParticle.style.animationDelay = `${Math.random() * 5}s`;
+                    
+                    snowBgElement.appendChild(snowParticle);
+                }
+                
+                snowBgElement.classList.add('active');
+            }
+            
+            // Loader ausblenden
+            function hideLoader() {
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                }, 1500); // Verzögerung für bessere UX
+            }
+            
+            // Event-Listener für den Suchbutton
+            searchBtn.addEventListener('click', function() {
+                const cityName = cityInput.value.trim();
+                if (cityName) {
+                    loader.classList.remove('hidden');
+                    getWeatherByCity(cityName);
+                }
+            });
+            
+            // Event-Listener für Enter-Taste im Input-Feld
+            cityInput.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    const cityName = cityInput.value.trim();
+                    if (cityName) {
+                        loader.classList.remove('hidden');
+                        getWeatherByCity(cityName);
+                    }
+                }
+            });
+            
+            // API-Simulation (falls keine API verfügbar ist)
+            function simulateWeatherAPI() {
+                const simulatedData = {
+                    name: "Leipzig",
+                    main: {
+                        temp: 18,
+                        feels_like: 16,
+                        humidity: 65
+                    },
+                    weather: [
+                        {
+                            id: 800, // Klarer Himmel
+                            description: "klarer himmel"
+                        }
+                    ],
+                    wind: {
+                        speed: 3.5 // m/s
+                    },
+                    dt: Math.floor(Date.now() / 1000),
+                    sys: {
+                        sunrise: Math.floor(Date.now() / 1000) - 3600 * 5, // 5 Stunden vorher
+                        sunset: Math.floor(Date.now() / 1000) + 3600 * 5   // 5 Stunden später
+                    }
+                };
+                
+                const simulatedForecast = {
+                    list: [
+                        // Nächster Tag mittags
+                        {
+                            dt: Math.floor(Date.now() / 1000) + 86400,
+                            main: { temp: 20 },
+                            weather: [{ id: 800 }]
+                        },
+                        // Übernächster Tag mittags
+                        {
+                            dt: Math.floor(Date.now() / 1000) + 86400 * 2,
+                            main: { temp: 19 },
+                            weather: [{ id: 801 }]
+                        },
+                        // Dritter Tag mittags
+                        {
+                            dt: Math.floor(Date.now() / 1000) + 86400 * 3,
+                            main: { temp: 17 },
+                            weather: [{ id: 500 }]
+                        },
+                        // Vierter Tag mittags
+                        {
+                            dt: Math.floor(Date.now() / 1000) + 86400 * 4,
+                            main: { temp: 18 },
+                            weather: [{ id: 801 }]
+                        }
+                    ]
+                };
+                
+                updateWeatherUI(simulatedData);
+                updateForecastUI(simulatedForecast);
+                hideLoader();
+            }
+            
+            // App starten
+            if (apiKey === "IHREN_API_KEY_HIER_EINFÜGEN") {
+                // Wenn kein API-Key eingegeben wurde, simulierten Modus verwenden
+                console.log("Kein API-Key eingegeben - Simulationsmodus aktiv");
+                setTimeout(simulateWeatherAPI, 1500); // Verzögerung für die Startanimation
+            } else {
+                // Mit echter API starten
+                getCurrentLocation();
+            }
+        });
+    </script>
 </body>
 </html>
