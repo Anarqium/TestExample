@@ -559,13 +559,6 @@
             </form>
         </div>
         
-        <!-- Top Sites Section -->
-        <h2 class="section-title">Häufig besucht</h2>
-        <div class="top-sites" id="top-sites-container">
-            <!-- Top sites will be dynamically generated -->
-        </div>
-        
-        <h2 class="section-title">Verknüpfungen</h2>
         <div class="shortcuts" id="shortcuts">
             <!-- Shortcuts will be dynamically generated -->
         </div>
@@ -844,45 +837,63 @@
             border-radius: 50%;
         }
         
-        /* Top sites section */
-        .top-sites {
+        /* Firefox message popup */
+        .firefox-message {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
             display: flex;
-            flex-wrap: wrap;
             justify-content: center;
-            gap: 15px;
-            margin: 20px auto;
-            max-width: 800px;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
         }
         
-        .top-site-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 70px;
-            text-decoration: none;
-            color: var(--text-color);
-            opacity: 0.8;
+        .firefox-message.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .message-content {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .message-content h3 {
+            margin-bottom: 15px;
+            color: var(--accent-color);
+        }
+        
+        .message-content p {
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+        
+        .message-content button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
             transition: all 0.2s;
         }
         
-        .top-site-item:hover {
-            opacity: 1;
-            transform: translateY(-5px);
-        }
-        
-        .top-site-item img {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            margin-bottom: 5px;
-        }
-        
-        .section-title {
-            font-size: 18px;
-            font-weight: 500;
-            margin: 20px 0 10px;
-            text-align: center;
-            opacity: 0.8;
+        .message-content button:hover {
+            filter: brightness(1.1);
         }
         
         /* Light mode styles */
@@ -1274,29 +1285,7 @@
         
         // Function to check and handle most visited sites
         function loadTopSites() {
-            // This is just a mockup since we can't access the actual browser API
-            // In a real implementation, this would use browser.topSites API
-            const topSitesContainer = document.getElementById('top-sites-container');
-            if (!topSitesContainer) return;
-            
-            const mockTopSites = [
-                { title: 'Google', url: 'https://google.com', favicon: 'https://www.google.com/favicon.ico' },
-                { title: 'Facebook', url: 'https://facebook.com', favicon: 'https://static.xx.fbcdn.net/rsrc.php/yD/r/d4ZIVX-5C-b.ico' },
-                { title: 'Amazon', url: 'https://amazon.com', favicon: 'https://www.amazon.com/favicon.ico' },
-                { title: 'Wikipedia', url: 'https://wikipedia.org', favicon: 'https://en.wikipedia.org/static/favicon/wikipedia.ico' }
-            ];
-            
-            topSitesContainer.innerHTML = '';
-            mockTopSites.forEach(site => {
-                const siteElement = document.createElement('a');
-                siteElement.className = 'top-site-item';
-                siteElement.href = site.url;
-                siteElement.innerHTML = `
-                    <img src="${site.favicon}" alt="${site.title}">
-                    <span>${site.title}</span>
-                `;
-                topSitesContainer.appendChild(siteElement);
-            });
+            // This functionality has been removed
         }
         
         // Function to toggle dark/light mode
@@ -1305,22 +1294,29 @@
             localStorage.setItem('lightMode', isDark ? 'false' : 'true');
         }
         
-        // Function to open Firefox internal pages
-        function openInternalPage(page) {
-            try {
-                // In a real extension, this would use browser.tabs.create
-                // Here we'll use a fallback approach for demo purposes
-                if (typeof browser !== 'undefined' && browser.tabs) {
-                    browser.tabs.create({ url: page });
-                } else if (typeof chrome !== 'undefined' && chrome.tabs) {
-                    chrome.tabs.create({ url: page });
-                } else {
-                    window.location.href = page;
-                }
-            } catch (err) {
-                console.error("Could not open internal page:", err);
-                alert("Diese Funktion benötigt eine echte Firefox-Erweiterung.");
-            }
+        // Function to handle browser actions - DEMO VERSION
+        function handleBrowserAction(action) {
+            // Create a popup message explaining these features need a Firefox add-on
+            const message = document.createElement('div');
+            message.className = 'firefox-message';
+            message.innerHTML = `
+                <div class="message-content">
+                    <h3>Firefox-Funktion</h3>
+                    <p>Diese Funktion (${action}) würde in einer echten Firefox-Erweiterung funktionieren.</p>
+                    <p>Diese HTML-Seite kann nicht direkt auf Firefox-interne Seiten zugreifen.</p>
+                    <button id="close-message">OK</button>
+                </div>
+            `;
+            document.body.appendChild(message);
+            
+            // Add animation
+            setTimeout(() => message.classList.add('show'), 10);
+            
+            // Add close functionality
+            document.getElementById('close-message').addEventListener('click', function() {
+                message.classList.remove('show');
+                setTimeout(() => message.remove(), 300);
+            });
         }
 
         // Function to handle browser theme changes
@@ -1371,22 +1367,22 @@
             // Set up Firefox internal page buttons
             document.getElementById('bookmarks-button').addEventListener('click', function(e) {
                 e.preventDefault();
-                openInternalPage('about:bookmarks');
+                handleBrowserAction('Lesezeichen');
             });
             
             document.getElementById('downloads-button').addEventListener('click', function(e) {
                 e.preventDefault();
-                openInternalPage('about:downloads');
+                handleBrowserAction('Downloads');
             });
             
             document.getElementById('history-button').addEventListener('click', function(e) {
                 e.preventDefault();
-                openInternalPage('about:history');
+                handleBrowserAction('Verlauf');
             });
             
             document.getElementById('addons-button').addEventListener('click', function(e) {
                 e.preventDefault();
-                openInternalPage('about:addons');
+                handleBrowserAction('Add-ons');
             });
         });
     </script>
