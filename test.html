@@ -11,6 +11,9 @@
             --accent-color: #0071e3;
             --card-bg: rgba(40, 40, 40, 0.7);
             --card-border: rgba(80, 80, 80, 0.3);
+            --nav-bg: rgba(30, 30, 30, 0.9);
+            --firefox-red: #e66000;
+            --firefox-orange: #ff9500;
         }
         
         * {
@@ -23,21 +26,121 @@
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            height: 100vh;
+            min-height: 100vh;
             width: 100%;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
+            overflow-x: hidden;
             background: linear-gradient(145deg, #121212, #202020);
+            padding-top: 70px;
+            padding-bottom: 70px;
+        }
+        
+        /* Top Navigation Bar */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: var(--nav-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .firefox-logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .firefox-logo img {
+            height: 30px;
+            margin-right: 10px;
+        }
+        
+        .firefox-title {
+            font-weight: 600;
+            font-size: 18px;
+            background: linear-gradient(45deg, var(--firefox-orange), var(--firefox-red));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .top-nav-actions {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .top-nav-actions button {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        
+        .top-nav-actions button:hover {
+            opacity: 1;
+        }
+        
+        /* Bottom Navigation Bar */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: var(--nav-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-color);
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            text-decoration: none;
+            padding: 8px;
+            border-radius: 8px;
+        }
+        
+        .bottom-nav-item:hover, .bottom-nav-item.active {
+            opacity: 1;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .bottom-nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        
+        .bottom-nav-item span {
+            font-size: 11px;
         }
         
         .container {
             width: 100%;
-            max-width: 800px;
+            max-width: 1200px;
+            margin: 0 auto;
             text-align: center;
             padding: 20px;
+            flex: 1;
         }
         
         .search-container {
@@ -78,11 +181,13 @@
         }
         
         .shortcuts {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
             gap: 20px;
-            margin-top: 40px;
+            margin: 40px auto;
+            max-width: 800px;
+            justify-content: center;
+            padding: 0 15px;
         }
         
         .shortcut {
@@ -109,9 +214,11 @@
             background-color: rgba(60, 60, 60, 0.7);
         }
         
-        .shortcut i {
-            font-size: 24px;
+        .shortcut img {
+            width: 32px;
+            height: 32px;
             margin-bottom: 8px;
+            border-radius: 8px;
         }
         
         .shortcut span {
@@ -122,8 +229,9 @@
             display: flex;
             justify-content: center;
             gap: 20px;
-            margin-top: 40px;
+            margin: 20px auto;
             width: 100%;
+            max-width: 1000px;
         }
         
         .widget {
@@ -265,7 +373,7 @@
             font-size: 14px;
             font-style: italic;
             opacity: 0.8;
-            margin-top: 10px;
+            margin-top: 20px;
         }
         
         .location-input {
@@ -289,45 +397,25 @@
             margin-right: 10px;
         }
         
-        /* Custom icons for shortcuts */
-        .icon {
-            width: 36px;
-            height: 36px;
-            fill: var(--text-color);
-            margin-bottom: 8px;
+        .uv-meter {
+            height: 6px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-top: 5px;
+            position: relative;
+            overflow: hidden;
         }
         
-        @keyframes gradient {
-            0% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-        
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.05);
-            }
-            100% {
-                transform: scale(1);
-            }
+        .uv-value {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #22c55e, #eab308, #ef4444, #8b5cf6);
+            width: 0%;
+            transition: width 1s ease;
         }
         
         .settings-btn {
             position: fixed;
-            bottom: 20px;
+            bottom: 70px;
             right: 20px;
             width: 40px;
             height: 40px;
@@ -339,6 +427,7 @@
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s ease;
+            z-index: 900;
         }
         
         .settings-btn:hover {
@@ -348,7 +437,7 @@
         
         .settings-panel {
             position: fixed;
-            bottom: 70px;
+            bottom: 130px;
             right: 20px;
             width: 300px;
             background-color: var(--card-bg);
@@ -362,6 +451,7 @@
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 900;
         }
         
         .settings-panel.show {
@@ -453,22 +543,6 @@
             font-size: 12px;
         }
         
-        .uv-meter {
-            height: 6px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-            margin-top: 5px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .uv-value {
-            height: 100%;
-            background: linear-gradient(90deg, #3b82f6, #22c55e, #eab308, #ef4444, #8b5cf6);
-            width: 0%;
-            transition: width 1s ease;
-        }
-        
         /* For smaller screens */
         @media (max-width: 768px) {
             .widgets {
@@ -478,15 +552,75 @@
             
             .widget {
                 max-width: 100%;
+                margin-bottom: 20px;
             }
             
             .search-container {
                 max-width: 90%;
             }
+            
+            .shortcuts {
+                grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+                gap: 15px;
+            }
+            
+            .shortcut {
+                width: 70px;
+                height: 70px;
+            }
+            
+            .top-nav-actions {
+                gap: 8px;
+            }
+            
+            .bottom-nav-item span {
+                font-size: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .shortcuts {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+            }
+            
+            .shortcut {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .shortcut img {
+                width: 28px;
+                height: 28px;
+            }
+            
+            .firefox-title {
+                display: none;
+            }
         }
     </style>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
+    <!-- Top Navigation Bar -->
+    <div class="top-nav">
+        <div class="firefox-logo">
+            <img src="https://www.mozilla.org/media/protocol/img/logos/firefox/browser/logo.eb1324e44442.svg" alt="Firefox Logo">
+            <span class="firefox-title">Firefox</span>
+        </div>
+        <div class="top-nav-actions">
+            <button id="sync-button">
+                <span class="material-icons">sync</span>
+            </button>
+            <button id="tabs-button">
+                <span class="material-icons">tab</span>
+            </button>
+            <button id="menu-button">
+                <span class="material-icons">menu</span>
+            </button>
+        </div>
+    </div>
+
     <div class="container">
         <div class="search-container">
             <form class="search-form" action="https://www.google.com/search" method="GET">
@@ -495,7 +629,7 @@
         </div>
         
         <div class="shortcuts" id="shortcuts">
-            <!-- Shortcuts werden dynamisch generiert -->
+            <!-- Shortcuts will be dynamically generated -->
         </div>
         
         <div class="widgets">
@@ -579,7 +713,7 @@
                 
                 <div id="forecast-weather" class="weather-content">
                     <div class="forecast-container" id="forecast-container">
-                        <!-- Vorhersage wird dynamisch generiert -->
+                        <!-- Forecast will be dynamically generated -->
                     </div>
                 </div>
             </div>
@@ -593,11 +727,32 @@
         </div>
     </div>
     
+    <!-- Bottom Navigation Bar -->
+    <div class="bottom-nav">
+        <a href="#" class="bottom-nav-item active">
+            <span class="material-icons">home</span>
+            <span>Startseite</span>
+        </a>
+        <a href="about:bookmarks" class="bottom-nav-item">
+            <span class="material-icons">bookmark</span>
+            <span>Lesezeichen</span>
+        </a>
+        <a href="about:downloads" class="bottom-nav-item">
+            <span class="material-icons">download</span>
+            <span>Downloads</span>
+        </a>
+        <a href="about:history" class="bottom-nav-item">
+            <span class="material-icons">history</span>
+            <span>Verlauf</span>
+        </a>
+        <a href="about:addons" class="bottom-nav-item">
+            <span class="material-icons">extension</span>
+            <span>Add-ons</span>
+        </a>
+    </div>
+    
     <div class="settings-btn" id="settings-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-        </svg>
+        <span class="material-icons">settings</span>
     </div>
     
     <div class="settings-panel" id="settings-panel">
@@ -611,24 +766,24 @@
             <input type="text" id="shortcut-url" class="url-input" placeholder="z.B. https://youtube.com">
         </div>
         <div>
-            <label for="shortcut-icon">Icon (Emoji)</label>
-            <input type="text" id="shortcut-icon" class="url-input" placeholder="z.B. 📺 oder YouTube">
+            <label for="shortcut-icon">Icon URL (Optional)</label>
+            <input type="text" id="shortcut-icon" class="url-input" placeholder="Standard-Favicon wird verwendet">
         </div>
         <button class="add-btn" id="add-shortcut-btn">Hinzufügen</button>
     </div>
     
     <script>
-        // Standardverknüpfungen
+        // Default shortcuts with real favicon URLs
         const defaultShortcuts = [
-            { name: 'YouTube', url: 'https://youtube.com', icon: '📺' },
-            { name: 'Gmail', url: 'https://mail.google.com', icon: '📧' },
-            { name: 'Twitter', url: 'https://twitter.com', icon: '🐦' },
-            { name: 'GitHub', url: 'https://github.com', icon: '💻' },
-            { name: 'Netflix', url: 'https://netflix.com', icon: '🎬' },
-            { name: 'Amazon', url: 'https://amazon.com', icon: '🛒' }
+            { name: 'YouTube', url: 'https://youtube.com', icon: 'https://www.youtube.com/favicon.ico' },
+            { name: 'Gmail', url: 'https://mail.google.com', icon: 'https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico' },
+            { name: 'Twitter', url: 'https://twitter.com', icon: 'https://twitter.com/favicon.ico' },
+            { name: 'GitHub', url: 'https://github.com', icon: 'https://github.com/favicon.ico' },
+            { name: 'Netflix', url: 'https://netflix.com', icon: 'https://assets.nflxext.com/us/ffe/siteui/common/icons/nficon2016.ico' },
+            { name: 'Amazon', url: 'https://amazon.com', icon: 'https://www.amazon.com/favicon.ico' }
         ];
         
-        // Verknüpfungen aus dem localStorage laden oder Standardwerte verwenden
+        // Load shortcuts from localStorage or use defaults
         function loadShortcuts() {
             const shortcuts = JSON.parse(localStorage.getItem('shortcuts')) || defaultShortcuts;
             const shortcutsContainer = document.getElementById('shortcuts');
@@ -639,8 +794,11 @@
                 shortcutElement.className = 'shortcut';
                 shortcutElement.href = shortcut.url;
                 
+                // Use Google's favicon service as fallback if no icon provided
+                const iconUrl = shortcut.icon || `https://www.google.com/s2/favicons?domain=${new URL(shortcut.url).hostname}&sz=64`;
+                
                 shortcutElement.innerHTML = `
-                    <div class="icon">${shortcut.icon}</div>
+                    <img src="${iconUrl}" alt="${shortcut.name}" onerror="this.src='https://www.google.com/s2/favicons?domain=${new URL(shortcut.url).hostname}&sz=64'">
                     <span>${shortcut.name}</span>
                 `;
                 
@@ -648,7 +806,7 @@
             });
         }
         
-        // Uhr und Datum aktualisieren
+        // Update clock and date
         function updateClock() {
             const now = new Date();
             const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
@@ -658,14 +816,14 @@
             document.getElementById('date').textContent = now.toLocaleDateString('de-DE', dateOptions);
         }
         
-        // Mondphase berechnen (einfache Berechnung)
+        // Calculate moon phase (simple calculation)
         function getMoonPhase(date) {
             const year = date.getFullYear();
             const month = date.getMonth() + 1;
             const day = date.getDate();
             
-            // Berechnung der Phase (0-29)
-            // Approximation nach "Astronomical Algorithms" von Jean Meeus
+            // Calculation of phase (0-29)
+            // Approximation based on "Astronomical Algorithms" by Jean Meeus
             let r = year % 100;
             r %= 19;
             if (r > 9) r -= 19;
@@ -675,7 +833,7 @@
             r = Math.floor(r + 0.5) % 30;
             if (r < 0) r += 30;
             
-            // Mondphase-Icon und Text basierend auf der Phase
+            // Moon phase icon and text based on the phase
             let moonIcon, moonText;
             
             if (r < 1) {
@@ -707,62 +865,62 @@
             return { icon: moonIcon, text: moonText };
         }
         
-        // Wetter-API-Funktion
+        // Weather API function
         async function getWeather(location) {
             try {
-                // Verwendung einer CORS-Proxy, um auf die Wetter-API zuzugreifen
+                // Using a CORS proxy to access the weather API
                 const url = `https://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&lang=de&appid=9de243494c0b295cca9337e1e96b00e2`;
                 const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${location}&units=metric&lang=de&appid=9de243494c0b295cca9337e1e96b00e2`;
                 
-                // Wetterdaten abrufen
+                // Get weather data
                 const response = await fetch(url);
                 const data = await response.json();
                 
-                // Für Vorhersage
+                // For forecast
                 const forecastResponse = await fetch(forecastUrl);
                 const forecastData = await forecastResponse.json();
                 
                 if (data.cod === 200) {
-                    // UI mit Wetterdaten aktualisieren
+                    // Update UI with weather data
                     const temp = Math.round(data.main.temp);
                     const feelsLike = Math.round(data.main.feels_like);
                     const description = data.weather[0].description;
                     const humidity = data.main.humidity;
-                    const windSpeed = Math.round(data.wind.speed * 3.6); // Umrechnung in km/h
+                    const windSpeed = Math.round(data.wind.speed * 3.6); // Convert to km/h
                     const pressure = data.main.pressure;
-                    const visibility = (data.visibility / 1000).toFixed(1); // Umrechnung in km
+                    const visibility = (data.visibility / 1000).toFixed(1); // Convert to km
                     const clouds = data.clouds.all;
                     
-                    // Für Sonnenaufgang und Sonnenuntergang
+                    // For sunrise and sunset
                     const sunrise = new Date(data.sys.sunrise * 1000);
                     const sunset = new Date(data.sys.sunset * 1000);
                     const sunriseTime = sunrise.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
                     const sunsetTime = sunset.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
                     
-                    // Taupunkt berechnen
+                    // Calculate dew point
                     const dewPoint = Math.round(temp - ((100 - humidity) / 5));
                     
-                    // Wetter-Icon holen
+                    // Get weather icon
                     let weatherIcon = '🌤️';
                     const weatherCode = data.weather[0].id;
                     
                     if (weatherCode < 300) {
-                        weatherIcon = '⛈️'; // Gewitter
+                        weatherIcon = '⛈️'; // Thunderstorm
                     } else if (weatherCode < 400) {
-                        weatherIcon = '🌧️'; // Nieselregen
+                        weatherIcon = '🌧️'; // Drizzle
                     } else if (weatherCode < 600) {
-                        weatherIcon = '🌧️'; // Regen
+                        weatherIcon = '🌧️'; // Rain
                     } else if (weatherCode < 700) {
-                        weatherIcon = '❄️'; // Schnee
+                        weatherIcon = '❄️'; // Snow
                     } else if (weatherCode < 800) {
-                        weatherIcon = '🌫️'; // Atmosphäre (Nebel, Dunst, etc.)
+                        weatherIcon = '🌫️'; // Atmosphere (fog, mist, etc.)
                     } else if (weatherCode === 800) {
-                        weatherIcon = '☀️'; // Klarer Himmel
+                        weatherIcon = '☀️'; // Clear sky
                     } else if (weatherCode < 900) {
-                        weatherIcon = '☁️'; // Wolken
+                        weatherIcon = '☁️'; // Clouds
                     }
                     
-                    // UI-Elemente aktualisieren
+                    // Update UI elements
                     document.querySelector('.weather-icon').textContent = weatherIcon;
                     document.querySelector('.weather-temp').textContent = `${temp}°C`;
                     document.querySelector('.weather-desc').textContent = description;
@@ -776,20 +934,20 @@
                     document.getElementById('sunrise').textContent = sunriseTime;
                     document.getElementById('sunset').textContent = sunsetTime;
                     
-                    // Geschätzter UV-Index basierend auf Wolkenbedeckung und Tageszeit
+                    // Estimated UV index based on cloud coverage and time of day
                     let uvIndex = 0;
                     const hour = new Date().getHours();
                     const isSunUp = hour >= 7 && hour <= 19;
                     
                     if (isSunUp) {
-                        const baseUV = 8; // Basis-UV-Wert für Sonnenschein
-                        uvIndex = Math.round(baseUV * (1 - clouds / 100)); // Reduzierung basierend auf Wolkenbedeckung
+                        const baseUV = 8; // Base UV value for sunshine
+                        uvIndex = Math.round(baseUV * (1 - clouds / 100)); // Reduction based on cloud coverage
                     }
                     
                     document.getElementById('uv-index').textContent = uvIndex;
                     document.getElementById('uv-meter-value').style.width = `${(uvIndex / 11) * 100}%`;
                     
-                    // Min/Max Temperaturen
+                    // Min/Max temperatures
                     if (forecastData.cod === '200') {
                         const today = new Date().setHours(0, 0, 0, 0);
                         const todayForecasts = forecastData.list.filter(item => {
@@ -806,11 +964,11 @@
                             document.getElementById('max-temp').textContent = `Max: ${maxTemp}°C`;
                         }
                         
-                        // 5-Tage-Vorhersage
+                        // 5-day forecast
                         const forecastContainer = document.getElementById('forecast-container');
                         forecastContainer.innerHTML = '';
                         
-                        // Gruppiere nach Tagen und nehme nur einen Eintrag pro Tag
+                        // Group by days and take only one entry per day
                         const dailyForecasts = {};
                         forecastData.list.forEach(item => {
                             const date = new Date(item.dt * 1000);
@@ -821,7 +979,7 @@
                             }
                         });
                         
-                        // Erstelle Elemente für jeden Tag
+                        // Create elements for each day
                         Object.values(dailyForecasts).slice(0, 5).forEach(item => {
                             const date = new Date(item.dt * 1000);
                             const dayName = date.toLocaleDateString('de-DE', { weekday: 'short' });
@@ -857,12 +1015,12 @@
                         });
                     }
                     
-                    // Mondphase aktualisieren
+                    // Update moon phase
                     const moonPhase = getMoonPhase(new Date());
                     document.getElementById('moon-icon').textContent = moonPhase.icon;
                     document.getElementById('moon-phase').textContent = moonPhase.text;
                     
-                    // Standort im localStorage speichern
+                    // Save location in localStorage
                     localStorage.setItem('weatherLocation', location);
                 } else {
                     throw new Error('Stadt nicht gefunden');
@@ -873,7 +1031,7 @@
             }
         }
         
-        // Zufälliges Zitat holen
+        // Get random quote
         function getQuote() {
             try {
                 const quotes = [
@@ -896,14 +1054,14 @@
             }
         }
         
-        // Wetter-Tabs
+        // Weather tabs
         document.querySelectorAll('.weather-tab').forEach(tab => {
             tab.addEventListener('click', function() {
-                // Aktiven Tab setzen
+                // Set active tab
                 document.querySelectorAll('.weather-tab').forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
                 
-                // Aktiven Inhalt anzeigen
+                // Show active content
                 const tabId = this.getAttribute('data-tab');
                 document.querySelectorAll('.weather-content').forEach(content => content.classList.remove('active'));
                 
@@ -917,53 +1075,53 @@
             });
         });
         
-        // Einstellungen Panel Ein-/Ausblenden
+        // Show/hide settings panel
         document.getElementById('settings-btn').addEventListener('click', function() {
             document.getElementById('settings-panel').classList.toggle('show');
         });
         
-        // Neue Verknüpfung hinzufügen
+        // Add new shortcut
         document.getElementById('add-shortcut-btn').addEventListener('click', function() {
             const name = document.getElementById('shortcut-name').value.trim();
             let url = document.getElementById('shortcut-url').value.trim();
-            const icon = document.getElementById('shortcut-icon').value.trim();
+            const iconUrl = document.getElementById('shortcut-icon').value.trim();
             
             if (!name || !url) {
                 alert('Bitte gib sowohl Namen als auch URL ein');
                 return;
             }
             
-            // https:// hinzufügen, falls nicht vorhanden
+            // Add https:// if not present
             if (!url.startsWith('http://') && !url.startsWith('https://')) {
                 url = 'https://' + url;
             }
             
-            // Bestehende Verknüpfungen holen
+            // Get existing shortcuts
             const shortcuts = JSON.parse(localStorage.getItem('shortcuts')) || defaultShortcuts;
             
-            // Neue Verknüpfung hinzufügen
+            // Add new shortcut
             shortcuts.push({
                 name,
                 url,
-                icon: icon || '🔗' // Standard-Icon, falls nicht angegeben
+                icon: iconUrl || `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=64` // Use Google's favicon service if none provided
             });
             
-            // Im localStorage speichern
+            // Save in localStorage
             localStorage.setItem('shortcuts', JSON.stringify(shortcuts));
             
-            // Verknüpfungen neu laden
+            // Reload shortcuts
             loadShortcuts();
             
-            // Eingabefelder leeren
+            // Clear input fields
             document.getElementById('shortcut-name').value = '';
             document.getElementById('shortcut-url').value = '';
             document.getElementById('shortcut-icon').value = '';
             
-            // Einstellungen Panel ausblenden
+            // Hide settings panel
             document.getElementById('settings-panel').classList.remove('show');
         });
         
-        // Wetter-Standort-Eingabe
+        // Weather location input
         document.getElementById('location-input').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 const location = this.value.trim();
@@ -973,21 +1131,21 @@
             }
         });
         
-        // Initialisierung
+        // Initialization
         document.addEventListener('DOMContentLoaded', function() {
-            // Verknüpfungen laden
+            // Load shortcuts
             loadShortcuts();
             
-            // Uhr initial aktualisieren und dann jede Sekunde
+            // Update clock initially and then every second
             updateClock();
             setInterval(updateClock, 1000);
             
-            // Wetter laden
+            // Load weather
             const savedLocation = localStorage.getItem('weatherLocation') || 'Berlin';
             document.getElementById('location-input').value = savedLocation;
             getWeather(savedLocation);
             
-            // Zufälliges Zitat laden
+            // Load random quote
             getQuote();
         });
     </script>
