@@ -32,63 +32,8 @@
             flex-direction: column;
             overflow-x: hidden;
             background: linear-gradient(145deg, #121212, #202020);
-            padding-top: 70px;
+            padding-top: 20px;
             padding-bottom: 70px;
-        }
-        
-        /* Top Navigation Bar */
-        .top-nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            background-color: var(--nav-bg);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 16px;
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .firefox-logo {
-            display: flex;
-            align-items: center;
-        }
-        
-        .firefox-logo img {
-            height: 30px;
-            margin-right: 10px;
-        }
-        
-        .firefox-title {
-            font-weight: 600;
-            font-size: 18px;
-            background: linear-gradient(45deg, var(--firefox-orange), var(--firefox-red));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-        
-        .top-nav-actions {
-            display: flex;
-            gap: 16px;
-        }
-        
-        .top-nav-actions button {
-            background: none;
-            border: none;
-            color: var(--text-color);
-            cursor: pointer;
-            opacity: 0.8;
-            transition: opacity 0.2s;
-        }
-        
-        .top-nav-actions button:hover {
-            opacity: 1;
         }
         
         /* Bottom Navigation Bar */
@@ -602,32 +547,25 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
-    <!-- Top Navigation Bar -->
-    <div class="top-nav">
-        <div class="firefox-logo">
-            <img src="https://www.mozilla.org/media/protocol/img/logos/firefox/browser/logo.eb1324e44442.svg" alt="Firefox Logo">
-            <span class="firefox-title">Firefox</span>
-        </div>
-        <div class="top-nav-actions">
-            <button id="sync-button">
-                <span class="material-icons">sync</span>
-            </button>
-            <button id="tabs-button">
-                <span class="material-icons">tab</span>
-            </button>
-            <button id="menu-button">
-                <span class="material-icons">menu</span>
-            </button>
-        </div>
+    <!-- Firefox Logo -->
+    <div style="text-align: center; margin-bottom: 20px;">
+        <img src="https://www.mozilla.org/media/protocol/img/logos/firefox/browser/logo.eb1324e44442.svg" alt="Firefox Logo" style="height: 50px;">
     </div>
 
     <div class="container">
         <div class="search-container">
-            <form class="search-form" action="https://www.google.com/search" method="GET">
+            <form class="search-form" id="search-form" action="https://www.google.com/search" method="GET">
                 <input type="text" name="q" class="search-input" placeholder="Mit Google suchen" autocomplete="off">
             </form>
         </div>
         
+        <!-- Top Sites Section -->
+        <h2 class="section-title">Häufig besucht</h2>
+        <div class="top-sites" id="top-sites-container">
+            <!-- Top sites will be dynamically generated -->
+        </div>
+        
+        <h2 class="section-title">Verknüpfungen</h2>
         <div class="shortcuts" id="shortcuts">
             <!-- Shortcuts will be dynamically generated -->
         </div>
@@ -729,23 +667,23 @@
     
     <!-- Bottom Navigation Bar -->
     <div class="bottom-nav">
-        <a href="#" class="bottom-nav-item active">
+        <a href="#" class="bottom-nav-item active" id="home-button">
             <span class="material-icons">home</span>
             <span>Startseite</span>
         </a>
-        <a href="about:bookmarks" class="bottom-nav-item">
+        <a href="#" class="bottom-nav-item" id="bookmarks-button">
             <span class="material-icons">bookmark</span>
             <span>Lesezeichen</span>
         </a>
-        <a href="about:downloads" class="bottom-nav-item">
+        <a href="#" class="bottom-nav-item" id="downloads-button">
             <span class="material-icons">download</span>
             <span>Downloads</span>
         </a>
-        <a href="about:history" class="bottom-nav-item">
+        <a href="#" class="bottom-nav-item" id="history-button">
             <span class="material-icons">history</span>
             <span>Verlauf</span>
         </a>
-        <a href="about:addons" class="bottom-nav-item">
+        <a href="#" class="bottom-nav-item" id="addons-button">
             <span class="material-icons">extension</span>
             <span>Add-ons</span>
         </a>
@@ -756,21 +694,224 @@
     </div>
     
     <div class="settings-panel" id="settings-panel">
-        <div class="settings-title">Verknüpfung hinzufügen</div>
-        <div>
-            <label for="shortcut-name">Name</label>
-            <input type="text" id="shortcut-name" class="url-input" placeholder="z.B. YouTube">
+        <div class="settings-title">Einstellungen</div>
+        
+        <div class="settings-section">
+            <h3>Verknüpfung hinzufügen</h3>
+            <div>
+                <label for="shortcut-name">Name</label>
+                <input type="text" id="shortcut-name" class="url-input" placeholder="z.B. YouTube">
+            </div>
+            <div>
+                <label for="shortcut-url">URL</label>
+                <input type="text" id="shortcut-url" class="url-input" placeholder="z.B. https://youtube.com">
+            </div>
+            <div>
+                <label for="shortcut-icon">Icon URL (Optional)</label>
+                <input type="text" id="shortcut-icon" class="url-input" placeholder="Standard-Favicon wird verwendet">
+            </div>
+            <button class="add-btn" id="add-shortcut-btn">Hinzufügen</button>
         </div>
-        <div>
-            <label for="shortcut-url">URL</label>
-            <input type="text" id="shortcut-url" class="url-input" placeholder="z.B. https://youtube.com">
+        
+        <div class="divider"></div>
+        
+        <div class="settings-section">
+            <h3>Theme</h3>
+            <div class="theme-options">
+                <button class="theme-btn" data-theme="firefox" style="background: linear-gradient(45deg, #ff9500, #e66000)"></button>
+                <button class="theme-btn" data-theme="blue" style="background: #0071e3"></button>
+                <button class="theme-btn" data-theme="green" style="background: #28cd41"></button>
+                <button class="theme-btn" data-theme="purple" style="background: #8A2BE2"></button>
+            </div>
         </div>
-        <div>
-            <label for="shortcut-icon">Icon URL (Optional)</label>
-            <input type="text" id="shortcut-icon" class="url-input" placeholder="Standard-Favicon wird verwendet">
+        
+        <div class="divider"></div>
+        
+        <div class="settings-section">
+            <h3>Anzeigemodus</h3>
+            <div class="display-mode-toggle">
+                <span>Dunkel</span>
+                <label class="switch">
+                    <input type="checkbox" id="dark-mode-toggle">
+                    <span class="slider round"></span>
+                </label>
+                <span>Hell</span>
+            </div>
         </div>
-        <button class="add-btn" id="add-shortcut-btn">Hinzufügen</button>
+        
+        <div class="divider"></div>
+        
+        <div class="settings-section">
+            <h3>Suchmaschine</h3>
+            <select id="search-engine-select" class="url-input">
+                <option value="https://www.google.com/search">Google</option>
+                <option value="https://www.bing.com/search">Bing</option>
+                <option value="https://search.yahoo.com/search">Yahoo</option>
+                <option value="https://duckduckgo.com/">DuckDuckGo</option>
+            </select>
+        </div>
     </div>
+    
+    <style>
+        .settings-section {
+            margin-bottom: 15px;
+        }
+        
+        .settings-section h3 {
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        
+        .theme-options {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        
+        .theme-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .theme-btn:hover, .theme-btn.active {
+            transform: scale(1.1);
+            border-color: white;
+        }
+        
+        .display-mode-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.2);
+            transition: .4s;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--accent-color);
+        }
+        
+        input:focus + .slider {
+            box-shadow: 0 0 1px var(--accent-color);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .slider.round {
+            border-radius: 34px;
+        }
+        
+        .slider.round:before {
+            border-radius: 50%;
+        }
+        
+        /* Top sites section */
+        .top-sites {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px auto;
+            max-width: 800px;
+        }
+        
+        .top-site-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 70px;
+            text-decoration: none;
+            color: var(--text-color);
+            opacity: 0.8;
+            transition: all 0.2s;
+        }
+        
+        .top-site-item:hover {
+            opacity: 1;
+            transform: translateY(-5px);
+        }
+        
+        .top-site-item img {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin: 20px 0 10px;
+            text-align: center;
+            opacity: 0.8;
+        }
+        
+        /* Light mode styles */
+        body.light-mode {
+            background: linear-gradient(145deg, #f5f5f7, #e2e2e7);
+            color: #333;
+        }
+        
+        body.light-mode .widget,
+        body.light-mode .shortcut,
+        body.light-mode .settings-panel,
+        body.light-mode .settings-btn,
+        body.light-mode .bottom-nav {
+            background-color: rgba(255, 255, 255, 0.7);
+            border-color: rgba(200, 200, 200, 0.3);
+        }
+        
+        body.light-mode .search-input,
+        body.light-mode .url-input,
+        body.light-mode .location-input {
+            background-color: rgba(255, 255, 255, 0.4);
+            color: #333;
+        }
+        
+        body.light-mode .bottom-nav-item,
+        body.light-mode .settings-btn {
+            color: #333;
+        }
+    </style>
     
     <script>
         // Default shortcuts with real favicon URLs
@@ -1131,6 +1272,73 @@
             }
         });
         
+        // Function to check and handle most visited sites
+        function loadTopSites() {
+            // This is just a mockup since we can't access the actual browser API
+            // In a real implementation, this would use browser.topSites API
+            const topSitesContainer = document.getElementById('top-sites-container');
+            if (!topSitesContainer) return;
+            
+            const mockTopSites = [
+                { title: 'Google', url: 'https://google.com', favicon: 'https://www.google.com/favicon.ico' },
+                { title: 'Facebook', url: 'https://facebook.com', favicon: 'https://static.xx.fbcdn.net/rsrc.php/yD/r/d4ZIVX-5C-b.ico' },
+                { title: 'Amazon', url: 'https://amazon.com', favicon: 'https://www.amazon.com/favicon.ico' },
+                { title: 'Wikipedia', url: 'https://wikipedia.org', favicon: 'https://en.wikipedia.org/static/favicon/wikipedia.ico' }
+            ];
+            
+            topSitesContainer.innerHTML = '';
+            mockTopSites.forEach(site => {
+                const siteElement = document.createElement('a');
+                siteElement.className = 'top-site-item';
+                siteElement.href = site.url;
+                siteElement.innerHTML = `
+                    <img src="${site.favicon}" alt="${site.title}">
+                    <span>${site.title}</span>
+                `;
+                topSitesContainer.appendChild(siteElement);
+            });
+        }
+        
+        // Function to toggle dark/light mode
+        function toggleDarkMode() {
+            const isDark = document.body.classList.toggle('light-mode');
+            localStorage.setItem('lightMode', isDark ? 'false' : 'true');
+        }
+        
+        // Function to open Firefox internal pages
+        function openInternalPage(page) {
+            try {
+                // In a real extension, this would use browser.tabs.create
+                // Here we'll use a fallback approach for demo purposes
+                if (typeof browser !== 'undefined' && browser.tabs) {
+                    browser.tabs.create({ url: page });
+                } else if (typeof chrome !== 'undefined' && chrome.tabs) {
+                    chrome.tabs.create({ url: page });
+                } else {
+                    window.location.href = page;
+                }
+            } catch (err) {
+                console.error("Could not open internal page:", err);
+                alert("Diese Funktion benötigt eine echte Firefox-Erweiterung.");
+            }
+        }
+
+        // Function to handle browser theme changes
+        function setBrowserTheme(theme) {
+            localStorage.setItem('browserTheme', theme);
+            const root = document.documentElement;
+            
+            if (theme === 'firefox') {
+                root.style.setProperty('--accent-color', '#ff9500');
+            } else if (theme === 'blue') {
+                root.style.setProperty('--accent-color', '#0071e3');
+            } else if (theme === 'green') {
+                root.style.setProperty('--accent-color', '#28cd41');
+            } else if (theme === 'purple') {
+                root.style.setProperty('--accent-color', '#8A2BE2');
+            }
+        }
+        
         // Initialization
         document.addEventListener('DOMContentLoaded', function() {
             // Load shortcuts
@@ -1147,6 +1355,39 @@
             
             // Load random quote
             getQuote();
+            
+            // Load top sites
+            loadTopSites();
+            
+            // Set theme from localStorage
+            const savedTheme = localStorage.getItem('browserTheme') || 'firefox';
+            setBrowserTheme(savedTheme);
+            
+            // Check for light/dark mode preference
+            if (localStorage.getItem('lightMode') === 'true') {
+                document.body.classList.add('light-mode');
+            }
+            
+            // Set up Firefox internal page buttons
+            document.getElementById('bookmarks-button').addEventListener('click', function(e) {
+                e.preventDefault();
+                openInternalPage('about:bookmarks');
+            });
+            
+            document.getElementById('downloads-button').addEventListener('click', function(e) {
+                e.preventDefault();
+                openInternalPage('about:downloads');
+            });
+            
+            document.getElementById('history-button').addEventListener('click', function(e) {
+                e.preventDefault();
+                openInternalPage('about:history');
+            });
+            
+            document.getElementById('addons-button').addEventListener('click', function(e) {
+                e.preventDefault();
+                openInternalPage('about:addons');
+            });
         });
     </script>
 </body>
