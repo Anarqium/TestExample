@@ -2227,6 +2227,321 @@
             <button id="close-message">Verstanden</button>
         </div>
     </div>
+
+    <!-- Add this right after the closing </div> of your last widget in the widgets-row section -->
+<!-- Chat Widget (New) -->
+<div class="widget">
+    <div class="widget-header">
+        <div class="widget-title">
+            <span class="material-icons">chat</span> Freunde-Chat
+        </div>
+        <div class="widget-actions">
+            <button class="widget-action" id="refresh-chat" title="Aktualisieren">
+                <span class="material-icons">refresh</span>
+            </button>
+        </div>
+    </div>
+    
+    <div id="chat-login-area" style="display: block;">
+        <input type="text" id="username-input" class="url-input" placeholder="Dein Benutzername">
+        <button id="login-button" class="add-btn" style="width: 100%;">
+            <span class="material-icons">login</span> Einloggen
+        </button>
+    </div>
+    
+    <div id="chat-area" style="display: none;">
+        <div class="chat-header">
+            <span id="logged-in-as">Eingeloggt als: </span>
+            <button id="logout-button" class="note-clear" style="margin-left: auto; padding: 4px 8px;">
+                <span class="material-icons" style="font-size: 16px;">logout</span>
+            </button>
+        </div>
+        
+        <div id="chat-messages" class="chat-messages">
+            <!-- Messages will appear here -->
+        </div>
+        
+        <div class="chat-input-area">
+            <input type="text" id="message-input" class="url-input" placeholder="Nachricht schreiben...">
+            <button id="send-button" class="add-btn" style="margin-top: 8px; width: 100%;">
+                <span class="material-icons">send</span> Senden
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Add these style rules to your existing style section -->
+<style>
+    .chat-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        font-size: 14px;
+        opacity: 0.8;
+    }
+    
+    .chat-messages {
+        max-height: 250px;
+        overflow-y: auto;
+        margin-bottom: 10px;
+        padding: 10px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 10px;
+        scrollbar-width: thin;
+        scrollbar-color: var(--accent-color) rgba(255,255,255,0.1);
+    }
+    
+    .chat-messages::-webkit-scrollbar {
+        width: 5px;
+    }
+    
+    .chat-messages::-webkit-scrollbar-track {
+        background: rgba(255,255,255,0.1);
+        border-radius: 10px;
+    }
+    
+    .chat-messages::-webkit-scrollbar-thumb {
+        background-color: var(--accent-color);
+        border-radius: 10px;
+    }
+    
+    .chat-message {
+        margin-bottom: 10px;
+        padding: 8px 12px;
+        border-radius: 10px;
+        animation: fadeIn 0.3s ease;
+        word-wrap: break-word;
+    }
+    
+    .chat-message-own {
+        background: rgba(var(--accent-color-rgb), 0.2);
+        margin-left: 20px;
+        border-top-right-radius: 2px;
+    }
+    
+    .chat-message-other {
+        background: rgba(255,255,255,0.1);
+        margin-right: 20px;
+        border-top-left-radius: 2px;
+    }
+    
+    .chat-username {
+        font-weight: 500;
+        font-size: 12px;
+        opacity: 0.8;
+        margin-bottom: 3px;
+    }
+    
+    .chat-text {
+        font-size: 14px;
+    }
+    
+    .chat-time {
+        text-align: right;
+        font-size: 10px;
+        opacity: 0.6;
+        margin-top: 3px;
+    }
+    
+    .chat-input-area {
+        margin-top: 10px;
+    }
+    
+    /* Add this to your :root variables section */
+    :root {
+        /* Existing variables */
+        --accent-color-rgb: 255, 149, 0; /* RGB version of accent color for transparency */
+    }
+</style>
+
+<!-- Add Firebase scripts right before your closing </body> tag -->
+<!-- Firebase App (the core Firebase SDK) -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<!-- Firebase Auth -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<!-- Firebase Database -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<!-- Add the chat functionality to your existing script -->
+<script>
+    // Initialize Firebase - Replace with your Firebase configuration
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+        databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT_ID.appspot.com",
+        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+        appId: "YOUR_APP_ID"
+    };
+    
+    // Initialize Firebase if not already initialized
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    
+    // Get Firebase services
+    const auth = firebase.auth();
+    const database = firebase.database();
+    
+    // Chat functionality
+    function initChat() {
+        const loginArea = document.getElementById('chat-login-area');
+        const chatArea = document.getElementById('chat-area');
+        const usernameInput = document.getElementById('username-input');
+        const loginButton = document.getElementById('login-button');
+        const logoutButton = document.getElementById('logout-button');
+        const loggedInAs = document.getElementById('logged-in-as');
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+        const chatMessages = document.getElementById('chat-messages');
+        const refreshChat = document.getElementById('refresh-chat');
+        
+        let currentUser = null;
+        
+        // Login with username
+        loginButton.addEventListener('click', () => {
+            const username = usernameInput.value.trim();
+            if (username) {
+                // Save username to localStorage
+                localStorage.setItem('chatUsername', username);
+                currentUser = username;
+                
+                // Update UI
+                loginArea.style.display = 'none';
+                chatArea.style.display = 'block';
+                loggedInAs.textContent = `Eingeloggt als: ${username}`;
+                
+                // Load messages
+                loadMessages();
+            }
+        });
+        
+        // Logout
+        logoutButton.addEventListener('click', () => {
+            localStorage.removeItem('chatUsername');
+            currentUser = null;
+            
+            // Update UI
+            loginArea.style.display = 'block';
+            chatArea.style.display = 'none';
+            chatMessages.innerHTML = '';
+        });
+        
+        // Send message
+        sendButton.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // Refresh chat
+        refreshChat.addEventListener('click', () => {
+            refreshChat.classList.add('animate-spin');
+            loadMessages().then(() => {
+                setTimeout(() => {
+                    refreshChat.classList.remove('animate-spin');
+                }, 500);
+            });
+        });
+        
+        // Send message function
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message && currentUser) {
+                // Create message object
+                const newMessage = {
+                    username: currentUser,
+                    text: message,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                };
+                
+                // Add to Firebase
+                database.ref('messages').push(newMessage)
+                    .then(() => {
+                        // Clear input field
+                        messageInput.value = '';
+                        
+                        // Scroll to bottom
+                        setTimeout(() => {
+                            chatMessages.scrollTop = chatMessages.scrollHeight;
+                        }, 100);
+                    })
+                    .catch(error => {
+                        console.error('Error sending message:', error);
+                    });
+            }
+        }
+        
+        // Load messages
+        async function loadMessages() {
+            // Reference to messages in database
+            const messagesRef = database.ref('messages');
+            
+            // Get last 50 messages
+            messagesRef.orderByChild('timestamp').limitToLast(50).on('value', (snapshot) => {
+                // Clear previous messages
+                chatMessages.innerHTML = '';
+                
+                // Get message data
+                const messages = snapshot.val();
+                
+                if (messages) {
+                    // Convert to array and sort by timestamp
+                    const messagesList = Object.entries(messages).map(([id, data]) => ({
+                        id,
+                        ...data
+                    })).sort((a, b) => a.timestamp - b.timestamp);
+                    
+                    // Add messages to UI
+                    messagesList.forEach(message => {
+                        const messageElement = document.createElement('div');
+                        
+                        // Check if message is from current user
+                        const isOwnMessage = message.username === currentUser;
+                        messageElement.className = `chat-message ${isOwnMessage ? 'chat-message-own' : 'chat-message-other'}`;
+                        
+                        // Format timestamp
+                        const date = new Date(message.timestamp);
+                        const timeString = date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                        
+                        // Add message content
+                        messageElement.innerHTML = `
+                            <div class="chat-username">${message.username}</div>
+                            <div class="chat-text">${message.text}</div>
+                            <div class="chat-time">${timeString}</div>
+                        `;
+                        
+                        chatMessages.appendChild(messageElement);
+                    });
+                    
+                    // Scroll to bottom
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+            });
+            
+            return Promise.resolve();
+        }
+        
+        // Check if user is already logged in
+        const savedUsername = localStorage.getItem('chatUsername');
+        if (savedUsername) {
+            currentUser = savedUsername;
+            loginArea.style.display = 'none';
+            chatArea.style.display = 'block';
+            loggedInAs.textContent = `Eingeloggt als: ${savedUsername}`;
+            loadMessages();
+        }
+    }
+    
+    // Initialize chat when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add initChat to your initializations
+        initChat();
+    });
+</script>
     
     <script>
         // Default shortcuts with real favicon URLs
