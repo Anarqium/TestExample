@@ -3,933 +3,357 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord Clone</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-auth.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-storage.js"></script>
+    <title>Cosmic Rusher</title>
     <style>
-        * {
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
             display: flex;
-            height: 100vh;
-            background-color: #36393f;
-            color: #dcddde;
-            overflow: hidden;
-        }
-
-        /* Server List */
-        .server-list {
-            width: 72px;
-            background-color: #202225;
-            padding: 8px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            overflow-y: auto;
-        }
-
-        .server-icon {
-            width: 48px;
-            height: 48px;
-            background-color: #36393f;
-            border-radius: 24px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: border-radius 0.2s;
-            color: #dcddde;
-            font-weight: bold;
-        }
-
-        .server-icon:hover {
-            border-radius: 16px;
-            background-color: #5865f2;
-        }
-
-        .active-server {
-            border-radius: 16px;
-            background-color: #5865f2;
-        }
-
-        .add-server {
-            background-color: #36393f;
-            font-size: 24px;
-        }
-
-        /* Channel List */
-        .channel-list {
-            width: 240px;
-            background-color: #2f3136;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .server-header {
-            padding: 16px;
-            border-bottom: 1px solid #232428;
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .server-name {
-            font-size: 16px;
-        }
-
-        .dropdown {
-            cursor: pointer;
-        }
-
-        .channels-container {
-            padding: 16px;
-            flex-grow: 1;
-            overflow-y: auto;
-        }
-
-        .channel-category {
-            margin-bottom: 8px;
-            font-size: 12px;
-            text-transform: uppercase;
-            color: #96989d;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-        }
-
-        .channel-category:hover {
-            color: #dcddde;
-        }
-
-        .channel {
-            display: flex;
-            align-items: center;
-            padding: 6px 8px;
-            margin-bottom: 2px;
-            border-radius: 4px;
-            cursor: pointer;
-            color: #96989d;
-        }
-
-        .channel:hover {
-            background-color: #42464d;
-            color: #dcddde;
-        }
-
-        .active-channel {
-            background-color: #42464d;
-            color: #dcddde;
-        }
-
-        .channel-icon {
-            margin-right: 6px;
-            font-size: 16px;
-        }
-
-        .user-controls {
-            height: 52px;
-            background-color: #292b2f;
-            display: flex;
-            align-items: center;
-            padding: 0 8px;
-        }
-
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 16px;
-            background-color: #5865f2;
-            margin-right: 8px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .user-info {
-            flex-grow: 1;
-        }
-
-        .username {
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .user-status {
-            font-size: 12px;
-            color: #96989d;
-        }
-
-        .user-icons {
-            display: flex;
-            gap: 8px;
-            color: #96989d;
-            font-size: 16px;
-        }
-
-        .icon {
-            cursor: pointer;
-        }
-
-        .icon:hover {
-            color: #dcddde;
-        }
-
-        /* Chat Area */
-        .chat-area {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .chat-header {
-            height: 48px;
-            padding: 0 16px;
-            border-bottom: 1px solid #232428;
-            display: flex;
-            align-items: center;
-        }
-
-        .channel-name {
-            font-weight: bold;
-            margin-right: 8px;
-        }
-
-        .channel-topic {
-            color: #96989d;
-            font-size: 14px;
-        }
-
-        .messages-container {
-            flex-grow: 1;
-            padding: 16px;
-            overflow-y: auto;
-        }
-
-        .message {
-            display: flex;
-            margin-bottom: 16px;
-        }
-
-        .message-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #5865f2;
-            margin-right: 16px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-weight: bold;
-            font-size: 16px;
-        }
-
-        .message-content {
-            flex-grow: 1;
-        }
-
-        .message-header {
-            display: flex;
-            align-items: baseline;
-            margin-bottom: 4px;
-        }
-
-        .message-author {
-            font-weight: 500;
-            margin-right: 8px;
-        }
-
-        .message-time {
-            font-size: 12px;
-            color: #96989d;
-        }
-
-        .message-text {
-            color: #dcddde;
-        }
-
-        .message-input-container {
-            padding: 0 16px 24px;
-        }
-
-        .message-input {
-            background-color: #40444b;
-            border-radius: 8px;
-            padding: 12px 16px;
-            color: #dcddde;
-            width: 100%;
-            border: none;
-            outline: none;
-            font-size: 16px;
-        }
-
-        /* Members List */
-        .members-list {
-            width: 240px;
-            background-color: #2f3136;
-            padding: 16px;
-            overflow-y: auto;
-        }
-
-        .members-category {
-            margin-bottom: 8px;
-            font-size: 12px;
-            text-transform: uppercase;
-            color: #96989d;
-            font-weight: 600;
-        }
-
-        .member {
-            display: flex;
-            align-items: center;
-            padding: 6px 8px;
-            margin-bottom: 2px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .member:hover {
-            background-color: #36393f;
-        }
-
-        .member-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background-color: #5865f2;
-            margin-right: 8px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .member-name {
-            color: #96989d;
-        }
-
-        .online {
-            color: #dcddde;
-        }
-
-        .online::before {
-            content: "";
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background-color: #3ba55d;
-            border-radius: 50%;
-            margin-right: 4px;
-        }
-
-        /* Auth Forms */
-        .auth-container {
-            display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            width: 100vw;
-            background-color: #36393f;
+            background-color: #0c0c1c;
+            color: #fff;
+            font-family: 'Consolas', 'Courier New', monospace;
+            overflow: hidden; /* Hide scrollbars */
         }
-
-        .auth-form {
-            background-color: #2f3136;
-            padding: 32px;
-            border-radius: 8px;
-            width: 100%;
-            max-width: 480px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        #game-container {
+            position: relative;
+            border: 2px solid #00ffff;
+            box-shadow: 0 0 20px #00ffff, inset 0 0 10px #00ffff;
         }
-
-        .auth-title {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 8px;
-            text-align: center;
-            color: #ffffff;
-        }
-
-        .auth-subtitle {
-            font-size: 16px;
-            margin-bottom: 20px;
-            text-align: center;
-            color: #96989d;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
+        canvas {
             display: block;
-            margin-bottom: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            color: #b9bbbe;
-            text-transform: uppercase;
+            background-color: #000;
         }
-
-        .form-input {
-            width: 100%;
-            padding: 10px;
-            background-color: #40444b;
-            border: 1px solid rgba(0, 0, 0, 0.3);
-            border-radius: 3px;
-            color: #dcddde;
-            font-size: 16px;
-        }
-
-        .form-input:focus {
-            border-color: #7289da;
-            outline: none;
-        }
-
-        .form-button {
-            width: 100%;
-            padding: 12px;
-            background-color: #5865f2;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .form-button:hover {
-            background-color: #4752c4;
-        }
-
-        .auth-switch {
-            margin-top: 16px;
-            font-size: 14px;
-            color: #96989d;
-            text-align: center;
-        }
-
-        .auth-link {
-            color: #00b0f4;
-            cursor: pointer;
-            text-decoration: none;
-        }
-
-        .auth-link:hover {
-            text-decoration: underline;
-        }
-
-        /* Image Upload */
-        .image-upload {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .avatar-preview {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background-color: #5865f2;
-            margin-right: 16px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-weight: bold;
-            font-size: 24px;
-            overflow: hidden;
-        }
-
-        .avatar-preview img {
+        .ui {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            pointer-events: none; /* Allows clicks to go through to canvas if needed */
         }
-
-        .upload-button {
-            background-color: #4f545c;
-            color: white;
+        #score-display {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            font-size: 2em;
+            color: #fff;
+            text-shadow: 0 0 5px #ff00ff;
+        }
+        #high-score-display {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.5em;
+            color: #aaa;
+        }
+        #start-screen, #game-over-screen {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        #game-over-screen.hidden {
+            display: none;
+        }
+        h1 {
+            font-size: 4em;
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+            margin: 0;
+        }
+        p {
+            font-size: 1.2em;
+            color: #ddd;
+            margin: 20px;
+        }
+        .button {
+            padding: 15px 30px;
+            font-size: 1.5em;
+            color: #0c0c1c;
+            background-color: #00ffff;
             border: none;
-            border-radius: 3px;
-            padding: 8px 16px;
-            font-size: 14px;
             cursor: pointer;
-            transition: background-color 0.2s;
+            box-shadow: 0 0 15px #00ffff;
+            transition: all 0.2s ease;
+            pointer-events: all; /* Make buttons clickable */
         }
-
-        .upload-button:hover {
-            background-color: #72767d;
-        }
-
-        .file-input {
-            display: none;
-        }
-        
-        .hidden {
-            display: none;
+        .button:hover {
+            background-color: #fff;
+            color: #000;
+            box-shadow: 0 0 25px #fff;
         }
     </style>
 </head>
 <body>
-    <!-- Auth Container -->
-    <div class="auth-container" id="authContainer">
-        <div class="auth-form" id="loginForm">
-            <h2 class="auth-title">Welcome back!</h2>
-            <div class="auth-subtitle">We're so excited to see you again!</div>
-            
-            <div class="form-group">
-                <label class="form-label">Email</label>
-                <input type="email" id="loginEmail" class="form-input" placeholder="Enter your email">
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Password</label>
-                <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password">
-            </div>
-            
-            <button class="form-button" id="loginButton">Login</button>
-            
-            <div class="auth-switch">
-                Need an account? <a class="auth-link" id="switchToRegister">Register</a>
-            </div>
-        </div>
+
+    <div id="game-container">
+        <canvas id="gameCanvas" width="600" height="800"></canvas>
         
-        <div class="auth-form hidden" id="registerForm">
-            <h2 class="auth-title">Create an account</h2>
-            
-            <div class="image-upload">
-                <div class="avatar-preview" id="avatarPreview">
-                    <span>+</span>
-                </div>
-                <button class="upload-button" id="uploadButton">Upload Avatar</button>
-                <input type="file" id="fileInput" class="file-input" accept="image/*">
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Email</label>
-                <input type="email" id="registerEmail" class="form-input" placeholder="Enter your email">
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Username</label>
-                <input type="text" id="registerUsername" class="form-input" placeholder="Choose a username">
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Password</label>
-                <input type="password" id="registerPassword" class="form-input" placeholder="Choose a password">
-            </div>
-            
-            <button class="form-button" id="registerButton">Register</button>
-            
-            <div class="auth-switch">
-                Already have an account? <a class="auth-link" id="switchToLogin">Login</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main App (initially hidden) -->
-    <div id="app" class="hidden">
-        <!-- Server List -->
-        <div class="server-list">
-            <div class="server-icon active-server">H</div>
-            <div class="server-icon">C</div>
-            <div class="server-icon">G</div>
-            <div class="server-icon add-server">+</div>
+        <!-- Score and High Score Display -->
+        <div id="score-display">0</div>
+        <div id="high-score-display">HI: 0</div>
+        
+        <!-- Start Screen UI -->
+        <div id="start-screen" class="ui">
+            <h1>COSMIC RUSHER</h1>
+            <p>Use LEFT and RIGHT arrow keys to dodge asteroids.<br>The longer you survive, the higher your score.</p>
+            <button id="start-button" class="button">START GAME</button>
         </div>
 
-        <!-- Channel List -->
-        <div class="channel-list">
-            <div class="server-header">
-                <div class="server-name">Hangout Server</div>
-                <div class="dropdown">▼</div>
-            </div>
-            <div class="channels-container">
-                <div class="channel-category">
-                    <span>▼</span> Text Channels
-                </div>
-                <div class="channel active-channel">
-                    <span class="channel-icon">#</span> general
-                </div>
-                <div class="channel">
-                    <span class="channel-icon">#</span> random
-                </div>
-                <div class="channel">
-                    <span class="channel-icon">#</span> memes
-                </div>
-                <div class="channel-category">
-                    <span>▼</span> Voice Channels
-                </div>
-                <div class="channel">
-                    <span class="channel-icon">🔊</span> Lobby
-                </div>
-                <div class="channel">
-                    <span class="channel-icon">🔊</span> Gaming
-                </div>
-            </div>
-            <div class="user-controls">
-                <div class="user-avatar" id="currentUserAvatar">U</div>
-                <div class="user-info">
-                    <div class="username" id="currentUsername">Username</div>
-                    <div class="user-status">Online</div>
-                </div>
-                <div class="user-icons">
-                    <div class="icon" id="logoutButton">🚪</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Chat Area -->
-        <div class="chat-area">
-            <div class="chat-header">
-                <span class="channel-name"># general</span>
-                <span class="channel-topic">General chat channel</span>
-            </div>
-            <div class="messages-container" id="messagesContainer">
-                <!-- Messages will be added here dynamically -->
-            </div>
-            <div class="message-input-container">
-                <input type="text" class="message-input" id="messageInput" placeholder="Message #general">
-            </div>
-        </div>
-
-        <!-- Members List -->
-        <div class="members-list">
-            <div class="members-category">Online — 3</div>
-            <div class="member">
-                <div class="member-avatar">U</div>
-                <div class="member-name online">User123</div>
-            </div>
-            <div class="member">
-                <div class="member-avatar">J</div>
-                <div class="member-name online">John</div>
-            </div>
-            <div class="member">
-                <div class="member-avatar">S</div>
-                <div class="member-name online">Sarah</div>
-            </div>
+        <!-- Game Over UI -->
+        <div id="game-over-screen" class="ui hidden">
+            <h1>GAME OVER</h1>
+            <p>Your Score: <span id="final-score">0</span></p>
+            <button id="restart-button" class="button">PLAY AGAIN</button>
         </div>
     </div>
 
     <script>
-        // Firebase Configuration - Replace with your Firebase project config
-        const firebaseConfig = {
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
 
-  apiKey: "AIzaSyBaC41bX-5nEiJAx4av43mAuqGqGH9zmck",
+        // UI Elements
+        const scoreDisplay = document.getElementById('score-display');
+        const highScoreDisplay = document.getElementById('high-score-display');
+        const startScreen = document.getElementById('start-screen');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const startButton = document.getElementById('start-button');
+        const restartButton = document.getElementById('restart-button');
+        const finalScoreSpan = document.getElementById('final-score');
 
-  authDomain: "cord-499cd.firebaseapp.com",
+        // Game state
+        let score = 0;
+        let highScore = localStorage.getItem('cosmicRusherHighScore') || 0;
+        let gameOver = true;
+        let gameFrame = 0;
+        let keys = {};
 
-  databaseURL: "https://cord-499cd-default-rtdb.europe-west1.firebasedatabase.app",
+        // Update High Score display on load
+        highScoreDisplay.innerText = `HI: ${highScore}`;
 
-  projectId: "cord-499cd",
+        // Player Ship
+        const player = {
+            x: canvas.width / 2 - 20,
+            y: canvas.height - 70,
+            width: 40,
+            height: 40,
+            speed: 7,
+            dx: 0
+        };
 
-  storageBucket: "cord-499cd.firebasestorage.app",
+        // Arrays for entities
+        let obstacles = [];
+        let stars = [];
 
-  messagingSenderId: "216780562627",
-
-  appId: "1:216780562627:web:54fe7959a7e04e0ece4276",
-
-  measurementId: "G-DVSVTG7TBY"
-
-};
-
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        
-        // Get Firebase services
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        const storage = firebase.storage();
-        
-        // DOM Elements
-        const authContainer = document.getElementById('authContainer');
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
-        const switchToRegister = document.getElementById('switchToRegister');
-        const switchToLogin = document.getElementById('switchToLogin');
-        const loginButton = document.getElementById('loginButton');
-        const registerButton = document.getElementById('registerButton');
-        const loginEmail = document.getElementById('loginEmail');
-        const loginPassword = document.getElementById('loginPassword');
-        const registerEmail = document.getElementById('registerEmail');
-        const registerUsername = document.getElementById('registerUsername');
-        const registerPassword = document.getElementById('registerPassword');
-        const app = document.getElementById('app');
-        const uploadButton = document.getElementById('uploadButton');
-        const fileInput = document.getElementById('fileInput');
-        const avatarPreview = document.getElementById('avatarPreview');
-        const currentUserAvatar = document.getElementById('currentUserAvatar');
-        const currentUsername = document.getElementById('currentUsername');
-        const logoutButton = document.getElementById('logoutButton');
-        const messagesContainer = document.getElementById('messagesContainer');
-        const messageInput = document.getElementById('messageInput');
-        
-        // Avatar Upload Preview
-        let selectedFile = null;
-        
-        uploadButton.addEventListener('click', () => {
-            fileInput.click();
-        });
-        
-        fileInput.addEventListener('change', (e) => {
-            selectedFile = e.target.files[0];
-            if (selectedFile) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    avatarPreview.innerHTML = `<img src="${e.target.result}" alt="Avatar">`;
-                };
-                reader.readAsDataURL(selectedFile);
+        class Obstacle {
+            constructor() {
+                this.width = Math.random() * 40 + 20; // width between 20 and 60
+                this.height = this.width; // keep it square-ish
+                this.x = Math.random() * (canvas.width - this.width);
+                this.y = -this.height;
+                this.speed = Math.random() * 2 + 2; // base speed
+                this.color = `hsl(${Math.random() * 60 + 180}, 100%, 50%)`; // Shades of cyan/blue
             }
-        });
-        
-        // Switch between login and register forms
-        switchToRegister.addEventListener('click', () => {
-            loginForm.classList.add('hidden');
-            registerForm.classList.remove('hidden');
-        });
-        
-        switchToLogin.addEventListener('click', () => {
-            registerForm.classList.add('hidden');
-            loginForm.classList.remove('hidden');
-        });
-        
-        // Login
-        loginButton.addEventListener('click', () => {
-            const email = loginEmail.value;
-            const password = loginPassword.value;
-            
-            if (email && password) {
-                auth.signInWithEmailAndPassword(email, password)
-                    .then((userCredential) => {
-                        // Logged in successfully
-                        const user = userCredential.user;
-                        console.log('Logged in as:', user.uid);
-                    })
-                    .catch((error) => {
-                        alert('Login Error: ' + error.message);
-                    });
-            } else {
-                alert('Please enter both email and password');
+            update(gameSpeed) {
+                this.y += this.speed + gameSpeed;
             }
-        });
-        
-        // Register
-        registerButton.addEventListener('click', () => {
-            const email = registerEmail.value;
-            const username = registerUsername.value;
-            const password = registerPassword.value;
-            
-            if (email && username && password) {
-                auth.createUserWithEmailAndPassword(email, password)
-                    .then((userCredential) => {
-                        const user = userCredential.user;
-                        
-                        // If avatar was selected, upload it
-                        let avatarUrl = '';
-                        
-                        const uploadAvatar = () => {
-                            return new Promise((resolve, reject) => {
-                                if (selectedFile) {
-                                    const storageRef = storage.ref();
-                                    const avatarRef = storageRef.child(`avatars/${user.uid}`);
-                                    
-                                    avatarRef.put(selectedFile).then((snapshot) => {
-                                        return snapshot.ref.getDownloadURL();
-                                    }).then((downloadURL) => {
-                                        avatarUrl = downloadURL;
-                                        resolve();
-                                    }).catch((error) => {
-                                        console.error('Avatar upload error:', error);
-                                        resolve(); // Continue even if avatar upload fails
-                                    });
-                                } else {
-                                    resolve(); // No avatar to upload
-                                }
-                            });
-                        };
-                        
-                        // Create user profile in Firestore
-                        uploadAvatar().then(() => {
-                            return db.collection('users').doc(user.uid).set({
-                                email: email,
-                                username: username,
-                                avatarUrl: avatarUrl,
-                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                            });
-                        }).then(() => {
-                            console.log('User registered successfully');
-                        }).catch((error) => {
-                            console.error('Error creating user profile:', error);
-                        });
-                    })
-                    .catch((error) => {
-                        alert('Registration Error: ' + error.message);
-                    });
-            } else {
-                alert('Please fill in all fields');
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.shadowColor = this.color;
+                ctx.shadowBlur = 10;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+                ctx.shadowBlur = 0;
             }
-        });
-        
-        // Logout
-        logoutButton.addEventListener('click', () => {
-            auth.signOut().then(() => {
-                console.log('Logged out');
-            }).catch((error) => {
-                console.error('Logout error:', error);
-            });
-        });
-        
-        // Authentication state change listener
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                // User is signed in, show the app and hide auth forms
-                authContainer.classList.add('hidden');
-                app.classList.remove('hidden');
-                
-                // Load user profile data
-                db.collection('users').doc(user.uid).get().then((doc) => {
-                    if (doc.exists) {
-                        const userData = doc.data();
-                        currentUsername.textContent = userData.username;
-                        
-                        if (userData.avatarUrl) {
-                            currentUserAvatar.innerHTML = `<img src="${userData.avatarUrl}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">`;
-                        } else {
-                            // Set first letter of username as avatar
-                            currentUserAvatar.textContent = userData.username.charAt(0).toUpperCase();
-                        }
-                    }
-                });
-                
-                // Load messages
-                loadMessages();
-                
-                // Set up message input
-                messageInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter' && messageInput.value.trim() !== '') {
-                        sendMessage(user.uid, messageInput.value.trim());
-                        messageInput.value = '';
-                    }
-                });
-            } else {
-                // User is signed out, show auth forms and hide app
-                authContainer.classList.remove('hidden');
-                loginForm.classList.remove('hidden');
-                registerForm.classList.add('hidden');
-                app.classList.add('hidden');
-                
-                // Clear message input listener
-                messageInput.removeEventListener('keypress', () => {});
-            }
-        });
-        
-        // Load messages from Firestore
-        function loadMessages() {
-            db.collection('messages')
-                .orderBy('timestamp', 'asc')
-                .onSnapshot((snapshot) => {
-                    // Clear messages container before adding new messages
-                    messagesContainer.innerHTML = '';
-                    
-                    snapshot.forEach((doc) => {
-                        const message = doc.data();
-                        addMessageToUI(message);
-                    });
-                    
-                    // Scroll to bottom
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                });
         }
-        
-        // Add a message to the UI
-        function addMessageToUI(message) {
-            // Get user data for the message author
-            db.collection('users').doc(message.userId).get().then((doc) => {
-                if (doc.exists) {
-                    const userData = doc.data();
-                    
-                    // Create message element
-                    const messageElement = document.createElement('div');
-                    messageElement.className = 'message';
-                    
-                    // Create avatar element
-                    const avatarElement = document.createElement('div');
-                    avatarElement.className = 'message-avatar';
-                    
-                    if (userData.avatarUrl) {
-                        avatarElement.innerHTML = `<img src="${userData.avatarUrl}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">`;
-                    } else {
-                        avatarElement.textContent = userData.username.charAt(0).toUpperCase();
-                    }
-                    
-                    // Create message content
-                    const contentElement = document.createElement('div');
-                    contentElement.className = 'message-content';
-                    
-                    // Create message header
-                    const headerElement = document.createElement('div');
-                    headerElement.className = 'message-header';
-                    
-                    const authorElement = document.createElement('div');
-                    authorElement.className = 'message-author';
-                    authorElement.textContent = userData.username;
-                    
-                    const timeElement = document.createElement('div');
-                    timeElement.className = 'message-time';
-                    
-                    // Format the timestamp
-                    const date = message.timestamp ? message.timestamp.toDate() : new Date();
-                    const options = { hour: '2-digit', minute: '2-digit' };
-                    timeElement.textContent = date.toLocaleTimeString([], options);
-                    
-                    headerElement.appendChild(authorElement);
-                    headerElement.appendChild(timeElement);
-                    
-                    // Create message text
-                    const textElement = document.createElement('div');
-                    textElement.className = 'message-text';
-                    textElement.textContent = message.text;
-                    
-                    // Assemble message
-                    contentElement.appendChild(headerElement);
-                    contentElement.appendChild(textElement);
-                    
-                    messageElement.appendChild(avatarElement);
-                    messageElement.appendChild(contentElement);
-                    
-                    // Add message to container
-                    messagesContainer.appendChild(messageElement);
+
+        class Star {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.radius = Math.random() * 1.5;
+                this.speed = Math.random() * 0.5 + 0.2;
+            }
+            update() {
+                this.y += this.speed;
+                if (this.y > canvas.height) {
+                    this.y = 0;
+                    this.x = Math.random() * canvas.width;
                 }
+            }
+            draw() {
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        function initStars() {
+            for (let i = 0; i < 150; i++) {
+                stars.push(new Star());
+            }
+        }
+
+        function drawPlayer() {
+            ctx.fillStyle = '#ff00ff';
+            ctx.shadowColor = '#ff00ff';
+            ctx.shadowBlur = 15;
+            
+            // Ship body
+            ctx.beginPath();
+            ctx.moveTo(player.x + player.width / 2, player.y);
+            ctx.lineTo(player.x, player.y + player.height);
+            ctx.lineTo(player.x + player.width, player.y + player.height);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Thruster flame
+            if (gameFrame % 4 < 2) {
+                 ctx.fillStyle = '#ffcc00';
+                 ctx.shadowColor = '#ffcc00';
+                 ctx.shadowBlur = 10;
+                 ctx.beginPath();
+                 ctx.moveTo(player.x + player.width * 0.3, player.y + player.height);
+                 ctx.lineTo(player.x + player.width * 0.7, player.y + player.height);
+                 ctx.lineTo(player.x + player.width / 2, player.y + player.height + Math.random() * 15 + 10);
+                 ctx.closePath();
+                 ctx.fill();
+            }
+            ctx.shadowBlur = 0;
+        }
+
+        function movePlayer() {
+            player.x += player.dx;
+
+            // Wall detection
+            if (player.x < 0) player.x = 0;
+            if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+        }
+        
+        function handleObstacles() {
+            const gameSpeed = score / 2000; // Game gets faster as score increases
+            let obstacleSpawnRate = Math.max(20, 100 - score / 100);
+
+            // Add new obstacles periodically
+            if (gameFrame % obstacleSpawnRate < 1) {
+                obstacles.push(new Obstacle());
+            }
+            
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                obstacles[i].update(gameSpeed);
+                obstacles[i].draw();
+
+                // Remove obstacles that go off-screen
+                if (obstacles[i].y > canvas.height) {
+                    obstacles.splice(i, 1);
+                    continue;
+                }
+
+                // Collision Detection (AABB)
+                if (
+                    player.x < obstacles[i].x + obstacles[i].width &&
+                    player.x + player.width > obstacles[i].x &&
+                    player.y < obstacles[i].y + obstacles[i].height &&
+                    player.y + player.height > obstacles[i].y
+                ) {
+                    endGame();
+                }
+            }
+        }
+        
+        function handleStars() {
+            stars.forEach(star => {
+                star.update();
+                star.draw();
             });
         }
         
-        // Send a message to Firestore
-        function sendMessage(userId, text) {
-            db.collection('messages').add({
-                userId: userId,
-                text: text,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            }).catch((error) => {
-                console.error('Error sending message:', error);
-            });
+        function updateScore() {
+            score++;
+            scoreDisplay.innerText = score;
         }
+
+        function resetGame() {
+            player.x = canvas.width / 2 - 20;
+            player.y = canvas.height - 70;
+            player.dx = 0;
+            obstacles = [];
+            score = 0;
+            gameFrame = 0;
+            scoreDisplay.innerText = '0';
+        }
+
+        function startGame() {
+            resetGame();
+            gameOver = false;
+            startScreen.classList.add('hidden');
+            gameOverScreen.classList.add('hidden');
+            animate();
+        }
+
+        function endGame() {
+            gameOver = true;
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('cosmicRusherHighScore', highScore);
+                highScoreDisplay.innerText = `HI: ${highScore}`;
+            }
+            finalScoreSpan.innerText = score;
+            gameOverScreen.classList.remove('hidden');
+        }
+
+        function animate() {
+            if (gameOver) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            handleStars();
+            handleObstacles();
+            drawPlayer();
+            movePlayer();
+            updateScore();
+            
+            gameFrame++;
+            requestAnimationFrame(animate);
+        }
+
+        // Event Listeners
+        window.addEventListener('keydown', e => {
+            keys[e.key] = true;
+            updatePlayerMovement();
+        });
+
+        window.addEventListener('keyup', e => {
+            keys[e.key] = false;
+            updatePlayerMovement();
+        });
+        
+        function updatePlayerMovement() {
+             if (keys['ArrowLeft'] || keys['a']) {
+                player.dx = -player.speed;
+            } else if (keys['ArrowRight'] || keys['d']) {
+                player.dx = player.speed;
+            } else {
+                player.dx = 0;
+            }
+        }
+
+        startButton.addEventListener('click', startGame);
+        restartButton.addEventListener('click', startGame);
+        
+        // Initial setup
+        initStars();
+
+        // Draw initial static scene
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        handleStars();
+        drawPlayer();
+        
     </script>
 </body>
 </html>
