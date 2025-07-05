@@ -1,3 +1,4 @@
+html
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -13,12 +14,14 @@
             --card-bg: rgba(40, 40, 40, 0.7);
             --card-border: rgba(80, 80, 80, 0.3);
             --nav-bg: rgba(30, 30, 30, 0.9);
-            --firefox-red: #e66000;
-            --firefox-orange: #ff9500;
+            --input-bg: rgba(255, 255, 255, 0.1);
+            --item-bg: rgba(255,255,255,0.05);
+            --divider-bg: rgba(255, 255, 255, 0.1);
             --card-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
             --card-hover-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
             --card-radius: 16px;
             --transition-speed: 0.3s;
+            --accent-color-rgb: 255, 149, 0; /* RGB version of accent color for transparency */
         }
         
         * {
@@ -40,6 +43,10 @@
             padding-top: 20px;
             padding-bottom: 80px;
             transition: background 0.5s ease;
+            /* Added for custom background images */
+            background-size: cover;
+            background-position: center center;
+            background-attachment: fixed;
         }
         
         /* Bottom Navigation Bar */
@@ -165,7 +172,7 @@
             font-size: 16px;
             border: none;
             border-radius: 20px;
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: var(--input-bg);
             color: var(--text-color);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
@@ -512,7 +519,7 @@
         
         .divider {
             height: 1px;
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: var(--divider-bg);
             margin: 15px 0;
             width: 100%;
         }
@@ -541,7 +548,7 @@
         .weather-tabs {
             display: flex;
             margin-top: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid var(--divider-bg);
         }
         
         .weather-tab {
@@ -617,7 +624,7 @@
             margin-top: 15px;
             overflow-x: auto;
             scrollbar-width: thin;
-            scrollbar-color: var(--accent-color) rgba(255,255,255,0.1);
+            scrollbar-color: var(--accent-color) var(--item-bg);
             padding-bottom: 10px;
             gap: 10px;
         }
@@ -627,7 +634,7 @@
         }
         
         .forecast-container::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.1);
+            background: var(--item-bg);
             border-radius: 10px;
         }
         
@@ -641,7 +648,7 @@
             text-align: center;
             padding: 10px;
             min-width: 70px;
-            background: rgba(255,255,255,0.05);
+            background: var(--item-bg);
             border-radius: 10px;
             transition: transform 0.2s;
         }
@@ -713,7 +720,7 @@
             max-height: 400px;
             overflow-y: auto;
             scrollbar-width: thin;
-            scrollbar-color: var(--accent-color) rgba(255,255,255,0.1);
+            scrollbar-color: var(--accent-color) var(--item-bg);
         }
         
         .news-widget::-webkit-scrollbar {
@@ -721,7 +728,7 @@
         }
         
         .news-widget::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.1);
+            background: var(--item-bg);
             border-radius: 10px;
         }
         
@@ -733,7 +740,7 @@
         .news-item {
             margin-bottom: 15px;
             padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid var(--divider-bg);
             transition: transform 0.2s;
         }
         
@@ -784,7 +791,7 @@
         
         .todo-input {
             flex: 1;
-            background: rgba(255,255,255,0.1);
+            background: var(--input-bg);
             border: none;
             padding: 10px 15px;
             border-radius: 10px 0 0 10px;
@@ -814,7 +821,7 @@
             max-height: 250px;
             overflow-y: auto;
             scrollbar-width: thin;
-            scrollbar-color: var(--accent-color) rgba(255,255,255,0.1);
+            scrollbar-color: var(--accent-color) var(--item-bg);
         }
         
         .todo-list::-webkit-scrollbar {
@@ -822,7 +829,7 @@
         }
         
         .todo-list::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.1);
+            background: var(--item-bg);
             border-radius: 10px;
         }
         
@@ -836,7 +843,7 @@
             align-items: center;
             padding: 10px;
             margin-bottom: 8px;
-            background: rgba(255,255,255,0.05);
+            background: var(--item-bg);
             border-radius: 10px;
             transition: all 0.2s;
         }
@@ -925,8 +932,8 @@
         .note-editor {
             width: 100%;
             min-height: 100px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: var(--input-bg);
+            border: 1px solid var(--divider-bg);
             border-radius: 10px;
             padding: 10px;
             color: var(--text-color);
@@ -962,7 +969,7 @@
         
         .note-clear {
             background: none;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid var(--divider-bg);
             color: var(--text-color);
             padding: 8px 15px;
             border-radius: 8px;
@@ -1068,7 +1075,7 @@
         }
         
         .status-item {
-            background: rgba(255,255,255,0.05);
+            background: var(--item-bg);
             border-radius: 10px;
             padding: 10px;
             display: flex;
@@ -1216,7 +1223,7 @@
             font-size: 14px;
             border: none;
             border-radius: 10px;
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: var(--input-bg);
             color: var(--text-color);
             margin-top: 8px;
             transition: all 0.2s;
@@ -1355,7 +1362,7 @@
             font-size: 14px;
             border: none;
             border-radius: 10px;
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: var(--input-bg);
             color: var(--text-color);
             -webkit-appearance: none;
             appearance: none;
@@ -1425,6 +1432,11 @@
             border-radius: 10px;
             background: rgba(255,255,255,0.1);
             cursor: pointer;
+        }
+
+        #custom-bg-container {
+            display: none;
+            margin-top: 8px;
         }
         
         /* Firefox message popup */
@@ -1502,49 +1514,47 @@
             box-shadow: 0 6px 15px rgba(0,0,0,0.25);
         }
         
-        /* Light mode styles */
+        /* Light mode styles - The Pink/White Theme */
         body.light-mode {
-            background: linear-gradient(145deg, #f5f5f7, #e2e2e7);
-            color: #333;
+            background-image: none;
+            --bg-color: #ffffff; /* White background */
+            --text-color: #5C474D; /* Dark, desaturated pink text */
+            --accent-color: #D9899A; /* A stronger pink accent */
+            --accent-gradient: linear-gradient(145deg, #E5A8B6, #D9899A); /* Pink gradient */
+            --card-bg: rgba(249, 235, 239, 0.8); /* Soft pink for cards with transparency */
+            --card-border: rgba(229, 168, 182, 0.4); /* Transparent pink border */
+            --nav-bg: rgba(249, 235, 239, 0.9); /* Slightly transparent pink for nav */
+            --input-bg: rgba(255, 255, 255, 0.7);
+            --item-bg: rgba(247, 222, 229, 0.5); /* Background for smaller items */
+            --divider-bg: rgba(229, 168, 182, 0.2); /* Transparent pink divider */
+            --card-shadow: 0 5px 15px rgba(180, 150, 160, 0.1);
+            --card-hover-shadow: 0 10px 20px rgba(180, 150, 160, 0.15);
+            --accent-color-rgb: 217, 137, 154;
         }
-        
-        body.light-mode .widget,
-        body.light-mode .shortcut,
-        body.light-mode .settings-panel,
-        body.light-mode .settings-btn,
-        body.light-mode .bottom-nav {
-            background-color: rgba(255, 255, 255, 0.7);
-            border-color: rgba(200, 200, 200, 0.3);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+
+        body.light-mode .shortcut:hover {
+            background-color: var(--card-bg);
+            opacity: 0.9;
         }
-        
-        body.light-mode .search-input,
-        body.light-mode .url-input,
-        body.light-mode .location-input,
-        body.light-mode .todo-input,
-        body.light-mode .note-editor,
-        body.light-mode .select-input {
-            background-color: rgba(255, 255, 255, 0.4);
-            color: #333;
-        }
-        
-        body.light-mode .bottom-nav-item,
-        body.light-mode .settings-btn,
-        body.light-mode .widget-action {
-            color: #333;
-        }
-        
-        body.light-mode .todo-item,
-        body.light-mode .status-item,
-        body.light-mode .forecast-item,
+
+        body.light-mode .quote,
         body.light-mode .moon-phase-container,
-        body.light-mode .minmax-temp,
-        body.light-mode .quote {
-            background: rgba(0,0,0,0.05);
+        body.light-mode .minmax-temp {
+            background: var(--item-bg);
         }
-        
-        body.light-mode .divider {
-            background-color: rgba(0, 0, 0, 0.1);
+
+        body.light-mode .url-input::placeholder,
+        body.light-mode .search-input::placeholder {
+            color: var(--text-color);
+            opacity: 0.6;
+        }
+
+        body.light-mode .slider:before {
+            background-color: #333;
+        }
+
+        body.light-mode .switch input:checked + .slider:before {
+            background-color: white;
         }
         
         /* Tooltip styles */
@@ -1804,6 +1814,82 @@
         @keyframes spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .chat-messages {
+            max-height: 250px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: var(--item-bg);
+            border-radius: 10px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-color) var(--item-bg);
+        }
+        
+        .chat-messages::-webkit-scrollbar {
+            width: 5px;
+        }
+        
+        .chat-messages::-webkit-scrollbar-track {
+            background: var(--item-bg);
+            border-radius: 10px;
+        }
+        
+        .chat-messages::-webkit-scrollbar-thumb {
+            background-color: var(--accent-color);
+            border-radius: 10px;
+        }
+        
+        .chat-message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            animation: fadeIn 0.3s ease;
+            word-wrap: break-word;
+        }
+        
+        .chat-message-own {
+            background: rgba(var(--accent-color-rgb), 0.2);
+            margin-left: 20px;
+            border-top-right-radius: 2px;
+        }
+        
+        .chat-message-other {
+            background: var(--item-bg);
+            margin-right: 20px;
+            border-top-left-radius: 2px;
+        }
+        
+        .chat-username {
+            font-weight: 500;
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 3px;
+        }
+        
+        .chat-text {
+            font-size: 14px;
+        }
+        
+        .chat-time {
+            text-align: right;
+            font-size: 10px;
+            opacity: 0.6;
+            margin-top: 3px;
+        }
+        
+        .chat-input-area {
+            margin-top: 10px;
         }
     </style>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -2087,6 +2173,47 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Chat Widget (New) -->
+                <div class="widget">
+                    <div class="widget-header">
+                        <div class="widget-title">
+                            <span class="material-icons">chat</span> Freunde-Chat
+                        </div>
+                        <div class="widget-actions">
+                            <button class="widget-action" id="refresh-chat" title="Aktualisieren">
+                                <span class="material-icons">refresh</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="chat-login-area" style="display: block;">
+                        <input type="text" id="username-input" class="url-input" placeholder="Dein Benutzername">
+                        <button id="login-button" class="add-btn" style="width: 100%;">
+                            <span class="material-icons">login</span> Einloggen
+                        </button>
+                    </div>
+                    
+                    <div id="chat-area" style="display: none;">
+                        <div class="chat-header">
+                            <span id="logged-in-as">Eingeloggt als: </span>
+                            <button id="logout-button" class="note-clear" style="margin-left: auto; padding: 4px 8px;">
+                                <span class="material-icons" style="font-size: 16px;">logout</span>
+                            </button>
+                        </div>
+                        
+                        <div id="chat-messages" class="chat-messages">
+                            <!-- Messages will appear here -->
+                        </div>
+                        
+                        <div class="chat-input-area">
+                            <input type="text" id="message-input" class="url-input" placeholder="Nachricht schreiben...">
+                            <button id="send-button" class="add-btn" style="margin-top: 8px; width: 100%;">
+                                <span class="material-icons">send</span> Senden
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -2215,7 +2342,13 @@
                 <input type="radio" id="bg-solid" name="bg-pattern" value="solid" class="bg-radio">
                 <label for="bg-solid" class="bg-label">Einfarbig</label>
             </div>
-            <div class="background-preview" id="bg-preview"></div>
+            <div class="bg-option">
+                <input type="radio" id="bg-custom" name="bg-pattern" value="custom" class="bg-radio">
+                <label for="bg-custom" class="bg-label">Benutzerdefiniert</label>
+            </div>
+            <div id="custom-bg-container">
+                 <input type="text" id="custom-bg-url" class="url-input" placeholder="Bild-URL einfügen...">
+            </div>
         </div>
     </div>
     
@@ -2227,135 +2360,7 @@
             <button id="close-message">Verstanden</button>
         </div>
     </div>
-
-    <!-- Add this right after the closing </div> of your last widget in the widgets-row section -->
-<!-- Chat Widget (New) -->
-<div class="widget">
-    <div class="widget-header">
-        <div class="widget-title">
-            <span class="material-icons">chat</span> Freunde-Chat
-        </div>
-        <div class="widget-actions">
-            <button class="widget-action" id="refresh-chat" title="Aktualisieren">
-                <span class="material-icons">refresh</span>
-            </button>
-        </div>
-    </div>
     
-    <div id="chat-login-area" style="display: block;">
-        <input type="text" id="username-input" class="url-input" placeholder="Dein Benutzername">
-        <button id="login-button" class="add-btn" style="width: 100%;">
-            <span class="material-icons">login</span> Einloggen
-        </button>
-    </div>
-    
-    <div id="chat-area" style="display: none;">
-        <div class="chat-header">
-            <span id="logged-in-as">Eingeloggt als: </span>
-            <button id="logout-button" class="note-clear" style="margin-left: auto; padding: 4px 8px;">
-                <span class="material-icons" style="font-size: 16px;">logout</span>
-            </button>
-        </div>
-        
-        <div id="chat-messages" class="chat-messages">
-            <!-- Messages will appear here -->
-        </div>
-        
-        <div class="chat-input-area">
-            <input type="text" id="message-input" class="url-input" placeholder="Nachricht schreiben...">
-            <button id="send-button" class="add-btn" style="margin-top: 8px; width: 100%;">
-                <span class="material-icons">send</span> Senden
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Add these style rules to your existing style section -->
-<style>
-    .chat-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 10px;
-        font-size: 14px;
-        opacity: 0.8;
-    }
-    
-    .chat-messages {
-        max-height: 250px;
-        overflow-y: auto;
-        margin-bottom: 10px;
-        padding: 10px;
-        background: rgba(255,255,255,0.05);
-        border-radius: 10px;
-        scrollbar-width: thin;
-        scrollbar-color: var(--accent-color) rgba(255,255,255,0.1);
-    }
-    
-    .chat-messages::-webkit-scrollbar {
-        width: 5px;
-    }
-    
-    .chat-messages::-webkit-scrollbar-track {
-        background: rgba(255,255,255,0.1);
-        border-radius: 10px;
-    }
-    
-    .chat-messages::-webkit-scrollbar-thumb {
-        background-color: var(--accent-color);
-        border-radius: 10px;
-    }
-    
-    .chat-message {
-        margin-bottom: 10px;
-        padding: 8px 12px;
-        border-radius: 10px;
-        animation: fadeIn 0.3s ease;
-        word-wrap: break-word;
-    }
-    
-    .chat-message-own {
-        background: rgba(var(--accent-color-rgb), 0.2);
-        margin-left: 20px;
-        border-top-right-radius: 2px;
-    }
-    
-    .chat-message-other {
-        background: rgba(255,255,255,0.1);
-        margin-right: 20px;
-        border-top-left-radius: 2px;
-    }
-    
-    .chat-username {
-        font-weight: 500;
-        font-size: 12px;
-        opacity: 0.8;
-        margin-bottom: 3px;
-    }
-    
-    .chat-text {
-        font-size: 14px;
-    }
-    
-    .chat-time {
-        text-align: right;
-        font-size: 10px;
-        opacity: 0.6;
-        margin-top: 3px;
-    }
-    
-    .chat-input-area {
-        margin-top: 10px;
-    }
-    
-    /* Add this to your :root variables section */
-    :root {
-        /* Existing variables */
-        --accent-color-rgb: 255, 149, 0; /* RGB version of accent color for transparency */
-    }
-</style>
-
-<!-- Add Firebase scripts right before your closing </body> tag -->
 <!-- Firebase App (the core Firebase SDK) -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <!-- Firebase Auth -->
@@ -2363,199 +2368,25 @@
 <!-- Firebase Database -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-<!-- Add the chat functionality to your existing script -->
 <script>
     // Initialize Firebase - Replace with your Firebase configuration
     const firebaseConfig = {
-
-  apiKey: "AIzaSyCgbZEjTgLsQ4NadP3afaS8nBW7_RByo5E",
-
-  authDomain: "browserhost.firebaseapp.com",
-
-  databaseURL: "https://browserhost-default-rtdb.europe-west1.firebasedatabase.app",
-
-  projectId: "browserhost",
-
-  storageBucket: "browserhost.firebasestorage.app",
-
-  messagingSenderId: "1019208612410",
-
-  appId: "1:1019208612410:web:1b57c879e16a4a87485303",
-
-  measurementId: "G-5TM78L2J2Y"
-
-};
-
+      apiKey: "AIzaSyCgbZEjTgLsQ4NadP3afaS8nBW7_RByo5E",
+      authDomain: "browserhost.firebaseapp.com",
+      databaseURL: "https://browserhost-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "browserhost",
+      storageBucket: "browserhost.firebasestorage.app",
+      messagingSenderId: "1019208612410",
+      appId: "1:1019208612410:web:1b57c879e16a4a87485303",
+      measurementId: "G-5TM78L2J2Y"
+    };
     
     // Initialize Firebase if not already initialized
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
     }
-    
-    // Get Firebase services
-    const auth = firebase.auth();
-    const database = firebase.database();
-    
-    // Chat functionality
-    function initChat() {
-        const loginArea = document.getElementById('chat-login-area');
-        const chatArea = document.getElementById('chat-area');
-        const usernameInput = document.getElementById('username-input');
-        const loginButton = document.getElementById('login-button');
-        const logoutButton = document.getElementById('logout-button');
-        const loggedInAs = document.getElementById('logged-in-as');
-        const messageInput = document.getElementById('message-input');
-        const sendButton = document.getElementById('send-button');
-        const chatMessages = document.getElementById('chat-messages');
-        const refreshChat = document.getElementById('refresh-chat');
-        
-        let currentUser = null;
-        
-        // Login with username
-        loginButton.addEventListener('click', () => {
-            const username = usernameInput.value.trim();
-            if (username) {
-                // Save username to localStorage
-                localStorage.setItem('chatUsername', username);
-                currentUser = username;
-                
-                // Update UI
-                loginArea.style.display = 'none';
-                chatArea.style.display = 'block';
-                loggedInAs.textContent = `Eingeloggt als: ${username}`;
-                
-                // Load messages
-                loadMessages();
-            }
-        });
-        
-        // Logout
-        logoutButton.addEventListener('click', () => {
-            localStorage.removeItem('chatUsername');
-            currentUser = null;
-            
-            // Update UI
-            loginArea.style.display = 'block';
-            chatArea.style.display = 'none';
-            chatMessages.innerHTML = '';
-        });
-        
-        // Send message
-        sendButton.addEventListener('click', sendMessage);
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-        
-        // Refresh chat
-        refreshChat.addEventListener('click', () => {
-            refreshChat.classList.add('animate-spin');
-            loadMessages().then(() => {
-                setTimeout(() => {
-                    refreshChat.classList.remove('animate-spin');
-                }, 500);
-            });
-        });
-        
-        // Send message function
-        function sendMessage() {
-            const message = messageInput.value.trim();
-            if (message && currentUser) {
-                // Create message object
-                const newMessage = {
-                    username: currentUser,
-                    text: message,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                };
-                
-                // Add to Firebase
-                database.ref('messages').push(newMessage)
-                    .then(() => {
-                        // Clear input field
-                        messageInput.value = '';
-                        
-                        // Scroll to bottom
-                        setTimeout(() => {
-                            chatMessages.scrollTop = chatMessages.scrollHeight;
-                        }, 100);
-                    })
-                    .catch(error => {
-                        console.error('Error sending message:', error);
-                    });
-            }
-        }
-        
-        // Load messages
-        async function loadMessages() {
-            // Reference to messages in database
-            const messagesRef = database.ref('messages');
-            
-            // Get last 50 messages
-            messagesRef.orderByChild('timestamp').limitToLast(50).on('value', (snapshot) => {
-                // Clear previous messages
-                chatMessages.innerHTML = '';
-                
-                // Get message data
-                const messages = snapshot.val();
-                
-                if (messages) {
-                    // Convert to array and sort by timestamp
-                    const messagesList = Object.entries(messages).map(([id, data]) => ({
-                        id,
-                        ...data
-                    })).sort((a, b) => a.timestamp - b.timestamp);
-                    
-                    // Add messages to UI
-                    messagesList.forEach(message => {
-                        const messageElement = document.createElement('div');
-                        
-                        // Check if message is from current user
-                        const isOwnMessage = message.username === currentUser;
-                        messageElement.className = `chat-message ${isOwnMessage ? 'chat-message-own' : 'chat-message-other'}`;
-                        
-                        // Format timestamp
-                        const date = new Date(message.timestamp);
-                        const timeString = date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-                        
-                        // Add message content
-                        messageElement.innerHTML = `
-                            <div class="chat-username">${message.username}</div>
-                            <div class="chat-text">${message.text}</div>
-                            <div class="chat-time">${timeString}</div>
-                        `;
-                        
-                        chatMessages.appendChild(messageElement);
-                    });
-                    
-                    // Scroll to bottom
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                }
-            });
-            
-            return Promise.resolve();
-        }
-        
-        // Check if user is already logged in
-        const savedUsername = localStorage.getItem('chatUsername');
-        if (savedUsername) {
-            currentUser = savedUsername;
-            loginArea.style.display = 'none';
-            chatArea.style.display = 'block';
-            loggedInAs.textContent = `Eingeloggt als: ${savedUsername}`;
-            loadMessages();
-        }
-    }
-    
-    // Initialize chat when the page loads
+
     document.addEventListener('DOMContentLoaded', function() {
-        // Add initChat to your initializations
-        initChat();
-    });
-</script>
-    
-    <script>
-        // Default shortcuts with real favicon URLs
         const defaultShortcuts = [
             { name: 'YouTube', url: 'https://youtube.com', icon: 'https://www.youtube.com/favicon.ico' },
             { name: 'Gmail', url: 'https://mail.google.com', icon: 'https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico' },
@@ -2567,17 +2398,6 @@
             { name: 'Wikipedia', url: 'https://wikipedia.org', icon: 'https://en.wikipedia.org/static/favicon/wikipedia.ico' }
         ];
         
-        // German News Sources for the News Widget
-        const germanNewsSources = [
-            { name: 'Tagesschau', url: 'https://www.tagesschau.de' },
-            { name: 'Spiegel', url: 'https://www.spiegel.de' },
-            { name: 'Zeit', url: 'https://www.zeit.de' },
-            { name: 'Süddeutsche', url: 'https://www.sueddeutsche.de' },
-            { name: 'Focus', url: 'https://www.focus.de' },
-            { name: 'Bild', url: 'https://www.bild.de' }
-        ];
-        
-        // Load shortcuts from localStorage or use defaults
         function loadShortcuts() {
             const shortcuts = JSON.parse(localStorage.getItem('shortcuts')) || defaultShortcuts;
             const shortcutsContainer = document.getElementById('shortcuts');
@@ -2588,7 +2408,6 @@
                 shortcutElement.className = 'shortcut';
                 shortcutElement.href = shortcut.url;
                 
-                // Use Google's favicon service as fallback if no icon provided
                 const iconUrl = shortcut.icon || `https://www.google.com/s2/favicons?domain=${new URL(shortcut.url).hostname}&sz=64`;
                 
                 shortcutElement.innerHTML = `
@@ -2600,7 +2419,6 @@
                 shortcutsContainer.appendChild(shortcutElement);
             });
             
-            // Add event listeners for remove buttons
             document.querySelectorAll('.remove-shortcut').forEach(button => {
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -2611,15 +2429,13 @@
             });
         }
         
-        // Remove shortcut
         function removeShortcut(index) {
-            const shortcuts = JSON.parse(localStorage.getItem('shortcuts')) || defaultShortcuts;
+            let shortcuts = JSON.parse(localStorage.getItem('shortcuts')) || defaultShortcuts;
             shortcuts.splice(index, 1);
             localStorage.setItem('shortcuts', JSON.stringify(shortcuts));
             loadShortcuts();
         }
         
-        // Update clock and date
         function updateClock() {
             const now = new Date();
             const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
@@ -2629,14 +2445,10 @@
             document.getElementById('date').textContent = now.toLocaleDateString('de-DE', dateOptions);
         }
         
-        // Calculate moon phase (enhanced calculation)
         function getMoonPhase(date) {
             const year = date.getFullYear();
             const month = date.getMonth() + 1;
             const day = date.getDate();
-            
-            // Calculation of phase (0-29)
-            // Approximation based on "Astronomical Algorithms" by Jean Meeus
             let r = year % 100;
             r %= 19;
             if (r > 9) r -= 19;
@@ -2646,99 +2458,54 @@
             r = Math.floor(r + 0.5) % 30;
             if (r < 0) r += 30;
             
-            // Moon phase icon and text based on the phase
             let moonIcon, moonText;
-            
-            if (r < 1) {
-                moonIcon = '🌑';
-                moonText = 'Neumond';
-            } else if (r < 7) {
-                moonIcon = '🌒';
-                moonText = 'Zunehmender Sichelmond';
-            } else if (r < 8) {
-                moonIcon = '🌓';
-                moonText = 'Erstes Viertel';
-            } else if (r < 14) {
-                moonIcon = '🌔';
-                moonText = 'Zunehmender Mond';
-            } else if (r < 16) {
-                moonIcon = '🌕';
-                moonText = 'Vollmond';
-            } else if (r < 22) {
-                moonIcon = '🌖';
-                moonText = 'Abnehmender Mond';
-            } else if (r < 23) {
-                moonIcon = '🌗';
-                moonText = 'Letztes Viertel';
-            } else {
-                moonIcon = '🌘';
-                moonText = 'Abnehmender Sichelmond';
-            }
-            
+            if (r < 1) { moonIcon = '🌑'; moonText = 'Neumond'; }
+            else if (r < 7) { moonIcon = '🌒'; moonText = 'Zunehmender Sichelmond'; }
+            else if (r < 8) { moonIcon = '🌓'; moonText = 'Erstes Viertel'; }
+            else if (r < 14) { moonIcon = '🌔'; moonText = 'Zunehmender Mond'; }
+            else if (r < 16) { moonIcon = '🌕'; moonText = 'Vollmond'; }
+            else if (r < 22) { moonIcon = '🌖'; moonText = 'Abnehmender Mond'; }
+            else if (r < 23) { moonIcon = '🌗'; moonText = 'Letztes Viertel'; }
+            else { moonIcon = '🌘'; moonText = 'Abnehmender Sichelmond'; }
             return { icon: moonIcon, text: moonText };
         }
         
-        // Weather API function (with enhanced error handling and UI updates)
         async function getWeather(location) {
             try {
-                // Update UI to show loading state
                 document.querySelector('.weather-desc').textContent = 'Wird geladen...';
                 document.querySelector('.weather-icon').classList.add('animate-pulse');
                 
-                // Using OpenWeatherMap API
-                const apiKey = '9de243494c0b295cca9337e1e96b00e2'; // Demo API key
+                const apiKey = '9de243494c0b295cca9337e1e96b00e2';
                 const url = `https://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&lang=de&appid=${apiKey}`;
                 const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${location}&units=metric&lang=de&appid=${apiKey}`;
                 
-                // Get weather data
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                // For forecast
-                const forecastResponse = await fetch(forecastUrl);
+                const [weatherResponse, forecastResponse] = await Promise.all([fetch(url), fetch(forecastUrl)]);
+                const data = await weatherResponse.json();
                 const forecastData = await forecastResponse.json();
                 
                 if (data.cod === 200) {
-                    // Update UI with weather data
-                    const temp = Math.round(data.main.temp);
-                    const feelsLike = Math.round(data.main.feels_like);
-                    const description = data.weather[0].description.charAt(0).toUpperCase() + data.weather[0].description.slice(1);
-                    const humidity = data.main.humidity;
-                    const windSpeed = Math.round(data.wind.speed * 3.6); // Convert to km/h
-                    const pressure = data.main.pressure;
-                    const visibility = (data.visibility / 1000).toFixed(1); // Convert to km
-                    const clouds = data.clouds.all;
-                    
-                    // For sunrise and sunset
-                    const sunrise = new Date(data.sys.sunrise * 1000);
-                    const sunset = new Date(data.sys.sunset * 1000);
-                    const sunriseTime = sunrise.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-                    const sunsetTime = sunset.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-                    
-                    // Calculate dew point
+                    const { main, weather, wind, visibility: vis, clouds, sys, name } = data;
+                    const temp = Math.round(main.temp);
+                    const feelsLike = Math.round(main.feels_like);
+                    const description = weather[0].description.charAt(0).toUpperCase() + weather[0].description.slice(1);
+                    const humidity = main.humidity;
+                    const windSpeed = Math.round(wind.speed * 3.6);
+                    const pressure = main.pressure;
+                    const visibilityKm = (vis / 1000).toFixed(1);
+                    const cloudsPercent = clouds.all;
+                    const sunriseTime = new Date(sys.sunrise * 1000).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                    const sunsetTime = new Date(sys.sunset * 1000).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
                     const dewPoint = Math.round(temp - ((100 - humidity) / 5));
-                    
-                    // Get weather icon
+
                     let weatherIcon = '🌤️';
-                    const weatherCode = data.weather[0].id;
+                    const weatherCode = weather[0].id;
+                    if (weatherCode < 300) weatherIcon = '⛈️';
+                    else if (weatherCode < 600) weatherIcon = '🌧️';
+                    else if (weatherCode < 700) weatherIcon = '❄️';
+                    else if (weatherCode < 800) weatherIcon = '🌫️';
+                    else if (weatherCode === 800) weatherIcon = '☀️';
+                    else if (weatherCode < 900) weatherIcon = '☁️';
                     
-                    if (weatherCode < 300) {
-                        weatherIcon = '⛈️'; // Thunderstorm
-                    } else if (weatherCode < 400) {
-                        weatherIcon = '🌧️'; // Drizzle
-                    } else if (weatherCode < 600) {
-                        weatherIcon = '🌧️'; // Rain
-                    } else if (weatherCode < 700) {
-                        weatherIcon = '❄️'; // Snow
-                    } else if (weatherCode < 800) {
-                        weatherIcon = '🌫️'; // Atmosphere (fog, mist, etc.)
-                    } else if (weatherCode === 800) {
-                        weatherIcon = '☀️'; // Clear sky
-                    } else if (weatherCode < 900) {
-                        weatherIcon = '☁️'; // Clouds
-                    }
-                    
-                    // Update UI elements
                     document.querySelector('.weather-icon').textContent = weatherIcon;
                     document.querySelector('.weather-icon').classList.remove('animate-pulse');
                     document.querySelector('.weather-temp').textContent = `${temp}°C`;
@@ -2747,988 +2514,379 @@
                     document.getElementById('humidity').textContent = `${humidity}%`;
                     document.getElementById('wind').textContent = `${windSpeed} km/h`;
                     document.getElementById('pressure').textContent = `${pressure} hPa`;
-                    document.getElementById('visibility').textContent = `${visibility} km`;
-                    document.getElementById('clouds').textContent = `${clouds}%`;
+                    document.getElementById('visibility').textContent = `${visibilityKm} km`;
+                    document.getElementById('clouds').textContent = `${cloudsPercent}%`;
                     document.getElementById('dew-point').textContent = `${dewPoint}°C`;
                     document.getElementById('sunrise').textContent = sunriseTime;
                     document.getElementById('sunset').textContent = sunsetTime;
-                    
-                    // Estimated UV index based on cloud coverage and time of day
+
                     let uvIndex = 0;
                     const hour = new Date().getHours();
-                    const isSunUp = hour >= 7 && hour <= 19;
-                    
-                    if (isSunUp) {
-                        const baseUV = 8; // Base UV value for sunshine
-                        uvIndex = Math.round(baseUV * (1 - clouds / 100)); // Reduction based on cloud coverage
+                    if (hour >= 7 && hour <= 19) {
+                        uvIndex = Math.round(8 * (1 - cloudsPercent / 100));
                     }
-                    
                     document.getElementById('uv-index').textContent = uvIndex;
                     document.getElementById('uv-meter-value').style.width = `${(uvIndex / 11) * 100}%`;
                     
-                    // Min/Max temperatures
                     if (forecastData.cod === '200') {
-                        const today = new Date().setHours(0, 0, 0, 0);
-                        const todayForecasts = forecastData.list.filter(item => {
-                            const itemDate = new Date(item.dt * 1000).setHours(0, 0, 0, 0);
-                            return itemDate === today;
-                        });
-                        
+                        const todayForecasts = forecastData.list.filter(item => new Date(item.dt * 1000).setHours(0,0,0,0) === new Date().setHours(0,0,0,0));
                         if (todayForecasts.length > 0) {
                             const temps = todayForecasts.map(item => item.main.temp);
-                            const minTemp = Math.round(Math.min(...temps));
-                            const maxTemp = Math.round(Math.max(...temps));
-                            
-                            document.getElementById('min-temp').textContent = `Min: ${minTemp}°C`;
-                            document.getElementById('max-temp').textContent = `Max: ${maxTemp}°C`;
+                            document.getElementById('min-temp').textContent = `Min: ${Math.round(Math.min(...temps))}°C`;
+                            document.getElementById('max-temp').textContent = `Max: ${Math.round(Math.max(...temps))}°C`;
                         }
                         
-                        // 5-day forecast
                         const forecastContainer = document.getElementById('forecast-container');
                         forecastContainer.innerHTML = '';
-                        
-                        // Group by days and take only one entry per day
-                        const dailyForecasts = {};
-                        forecastData.list.forEach(item => {
-                            const date = new Date(item.dt * 1000);
-                            const day = date.setHours(0, 0, 0, 0);
-                            
-                            if (!dailyForecasts[day] || date.getHours() === 12) {
-                                dailyForecasts[day] = item;
-                            }
-                        });
-                        
-                        // Create elements for each day
-                        Object.values(dailyForecasts).slice(0, 5).forEach(item => {
+                        const dailyForecasts = forecastData.list.filter((item, index) => index % 8 === 0).slice(0, 5);
+                        dailyForecasts.forEach(item => {
                             const date = new Date(item.dt * 1000);
                             const dayName = date.toLocaleDateString('de-DE', { weekday: 'short' });
-                            
-                            let forecastIcon = '🌤️';
-                            const forecastCode = item.weather[0].id;
-                            
-                            if (forecastCode < 300) {
-                                forecastIcon = '⛈️';
-                            } else if (forecastCode < 400) {
-                                forecastIcon = '🌧️';
-                            } else if (forecastCode < 600) {
-                                forecastIcon = '🌧️';
-                            } else if (forecastCode < 700) {
-                                forecastIcon = '❄️';
-                            } else if (forecastCode < 800) {
-                                forecastIcon = '🌫️';
-                            } else if (forecastCode === 800) {
-                                forecastIcon = '☀️';
-                            } else if (forecastCode < 900) {
-                                forecastIcon = '☁️';
-                            }
-                            
+                            let fIcon = '🌤️';
+                            const fCode = item.weather[0].id;
+                            if (fCode < 300) fIcon = '⛈️';
+                            else if (fCode < 600) fIcon = '🌧️';
+                            else if (fCode < 700) fIcon = '❄️';
+                            else if (fCode < 800) fIcon = '🌫️';
+                            else if (fCode === 800) fIcon = '☀️';
+                            else fIcon = '☁️';
                             const forecastElement = document.createElement('div');
                             forecastElement.className = 'forecast-item';
-                            forecastElement.innerHTML = `
-                                <div class="forecast-day">${dayName}</div>
-                                <div class="forecast-icon">${forecastIcon}</div>
-                                <div class="forecast-temp">${Math.round(item.main.temp)}°C</div>
-                            `;
-                            
+                            forecastElement.innerHTML = `<div class="forecast-day">${dayName}</div><div class="forecast-icon">${fIcon}</div><div class="forecast-temp">${Math.round(item.main.temp)}°C</div>`;
                             forecastContainer.appendChild(forecastElement);
                         });
                     }
                     
-                    // Update moon phase
                     const moonPhase = getMoonPhase(new Date());
                     document.getElementById('moon-icon').textContent = moonPhase.icon;
                     document.getElementById('moon-phase').textContent = moonPhase.text;
-                    
-                    // Save location in localStorage
                     localStorage.setItem('weatherLocation', location);
                 } else {
                     throw new Error('Stadt nicht gefunden');
                 }
             } catch (error) {
                 console.error('Fehler beim Abrufen der Wetterdaten:', error);
-                document.querySelector('.weather-desc').textContent = 'Stadt nicht gefunden. Versuche es erneut.';
+                document.querySelector('.weather-desc').textContent = 'Stadt nicht gefunden';
                 document.querySelector('.weather-icon').classList.remove('animate-pulse');
                 document.querySelector('.weather-icon').textContent = '❓';
             }
         }
-        
-        // Get random quote from curated list
+
         function getQuote() {
-            try {
-                const quotes = [
-                    "Der einzige Weg, großartige Arbeit zu leisten, ist zu lieben, was man tut.",
-                    "Innovation unterscheidet den Anführer vom Nachfolger.",
-                    "Deine Zeit ist begrenzt, also verschwende sie nicht damit, das Leben eines anderen zu leben.",
-                    "Die Zukunft gehört denen, die an die Schönheit ihrer Träume glauben.",
-                    "Das Leben ist das, was passiert, während du beschäftigt bist, andere Pläne zu machen.",
-                    "Die Reise von tausend Meilen beginnt mit einem Schritt.",
-                    "Einfachheit ist die ultimative Raffinesse.",
-                    "Design ist nicht nur, wie es aussieht und sich anfühlt. Design ist, wie es funktioniert.",
-                    "Bleib hungrig, bleib närrisch.",
-                    "Denke anders.",
-                    "Es ist nicht die stärkste Spezies, die überlebt, auch nicht die intelligenteste, sondern die, die am besten auf Veränderungen reagiert.",
-                    "Wissen ist begrenzt, Phantasie umfasst die Welt.",
-                    "Das Geheimnis des Erfolgs ist anzufangen.",
-                    "Erfolg besteht darin, von einem Misserfolg zum anderen zu gehen, ohne den Enthusiasmus zu verlieren.",
-                    "Das Leben ist wie Fahrradfahren. Um die Balance zu halten, musst du in Bewegung bleiben."
-                ];
-                
-                const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-                document.getElementById('quote').textContent = `"${randomQuote}"`;
-            } catch (error) {
-                console.error('Fehler beim Abrufen des Zitats:', error);
-            }
+            const quotes = [ "Der einzige Weg, großartige Arbeit zu leisten, ist zu lieben, was man tut.", "Innovation unterscheidet den Anführer vom Nachfolger.", "Deine Zeit ist begrenzt, also verschwende sie nicht damit, das Leben eines anderen zu leben.", "Die Zukunft gehört denen, die an die Schönheit ihrer Träume glauben.", "Das Leben ist das, was passiert, während du beschäftigt bist, andere Pläne zu machen." ];
+            document.getElementById('quote').textContent = `"${quotes[Math.floor(Math.random() * quotes.length)]}"`;
         }
         
-        // Load news (simulated function)
         function loadNews() {
             const newsContainer = document.getElementById('news-container');
             newsContainer.innerHTML = '<div class="news-item"><div class="news-title">Nachrichten werden geladen...</div></div>';
-            
-            // Simulate loading delay for realistic feel
             setTimeout(() => {
                 newsContainer.innerHTML = '';
-                
-                // Sample news (in a real app, this would come from an API)
-                const newsItems = [
-                    {
-                        title: 'Bundesregierung kündigt neue Klimaschutzmaßnahmen an',
-                        source: 'Tagesschau',
-                        url: 'https://www.tagesschau.de',
-                        date: 'Heute'
-                    },
-                    {
-                        title: 'Spannende technologische Innovationen auf der Tech Expo vorgestellt',
-                        source: 'Spiegel',
-                        url: 'https://www.spiegel.de',
-                        date: 'Gestern'
-                    },
-                    {
-                        title: 'Neuer Rekord bei erneuerbaren Energien in Deutschland',
-                        source: 'Zeit',
-                        url: 'https://www.zeit.de',
-                        date: 'Gestern'
-                    },
-                    {
-                        title: 'Fortschritte bei der Impfstoffentwicklung gegen neue Virusvarianten',
-                        source: 'Süddeutsche',
-                        url: 'https://www.sueddeutsche.de',
-                        date: '2 Tage'
-                    },
-                    {
-                        title: 'Wirtschaftsexperten prognostizieren Wachstum für das nächste Quartal',
-                        source: 'Focus',
-                        url: 'https://www.focus.de',
-                        date: '2 Tage'
-                    }
-                ];
-                
-                // Create news items
+                const newsItems = [{ title: 'Bundesregierung kündigt neue Klimaschutzmaßnahmen an', source: 'Tagesschau', url: '#', date: 'Heute' }, { title: 'Spannende technologische Innovationen auf der Tech Expo', source: 'Spiegel', url: '#', date: 'Gestern' }, { title: 'Neuer Rekord bei erneuerbaren Energien in Deutschland', source: 'Zeit', url: '#', date: 'Gestern' }];
                 newsItems.forEach(item => {
                     const newsItem = document.createElement('div');
                     newsItem.className = 'news-item';
-                    newsItem.innerHTML = `
-                        <div class="news-title"><a href="${item.url}" target="_blank">${item.title}</a></div>
-                        <div class="news-source">
-                            <span>${item.source}</span>
-                            <span class="news-date">${item.date}</span>
-                        </div>
-                    `;
+                    newsItem.innerHTML = `<div class="news-title"><a href="${item.url}" target="_blank">${item.title}</a></div><div class="news-source"><span>${item.source}</span><span class="news-date">${item.date}</span></div>`;
                     newsContainer.appendChild(newsItem);
                 });
             }, 1000);
         }
-        
-        // Todo list functionality
+
         function initTodoList() {
-            const todoList = document.getElementById('todo-list');
-            const todoForm = document.getElementById('todo-form');
-            const todoInput = document.getElementById('todo-input');
-            const clearCompleted = document.getElementById('clear-completed');
-            
-            // Load todos from localStorage
-            function loadTodos() {
+            const todoList = document.getElementById('todo-list'), todoForm = document.getElementById('todo-form'), todoInput = document.getElementById('todo-input'), clearCompleted = document.getElementById('clear-completed');
+            const loadTodos = () => {
                 const todos = JSON.parse(localStorage.getItem('todos')) || [];
-                todoList.innerHTML = '';
-                
-                if (todos.length === 0) {
-                    todoList.innerHTML = '<div style="text-align:center; padding:20px; opacity:0.7;">Keine Aufgaben vorhanden</div>';
-                    return;
-                }
-                
+                todoList.innerHTML = todos.length ? '' : '<div style="text-align:center; padding:20px; opacity:0.7;">Keine Aufgaben vorhanden</div>';
                 todos.forEach((todo, index) => {
                     const todoItem = document.createElement('div');
                     todoItem.className = `todo-item ${todo.completed ? 'completed' : ''}`;
-                    todoItem.innerHTML = `
-                        <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''} data-index="${index}">
-                        <span class="todo-text">${todo.text}</span>
-                        <button class="todo-delete" data-index="${index}">
-                            <span class="material-icons">delete</span>
-                        </button>
-                    `;
+                    todoItem.innerHTML = `<input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''} data-index="${index}"><span class="todo-text">${todo.text}</span><button class="todo-delete" data-index="${index}"><span class="material-icons">delete</span></button>`;
                     todoList.appendChild(todoItem);
                 });
-                
-                // Add event listeners
-                document.querySelectorAll('.todo-checkbox').forEach(checkbox => {
-                    checkbox.addEventListener('change', function() {
-                        const index = this.getAttribute('data-index');
-                        toggleTodo(index);
-                    });
-                });
-                
-                document.querySelectorAll('.todo-delete').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const index = this.getAttribute('data-index');
-                        deleteTodo(index);
-                    });
-                });
-            }
-            
-            // Add new todo
-            function addTodo(text) {
-                const todos = JSON.parse(localStorage.getItem('todos')) || [];
-                todos.push({ text, completed: false });
-                localStorage.setItem('todos', JSON.stringify(todos));
-                loadTodos();
-            }
-            
-            // Toggle todo completion
-            function toggleTodo(index) {
-                const todos = JSON.parse(localStorage.getItem('todos')) || [];
-                todos[index].completed = !todos[index].completed;
-                localStorage.setItem('todos', JSON.stringify(todos));
-                loadTodos();
-            }
-            
-            // Delete todo
-            function deleteTodo(index) {
-                const todos = JSON.parse(localStorage.getItem('todos')) || [];
-                todos.splice(index, 1);
-                localStorage.setItem('todos', JSON.stringify(todos));
-                loadTodos();
-            }
-            
-            // Clear completed todos
-            function clearCompletedTodos() {
-                const todos = JSON.parse(localStorage.getItem('todos')) || [];
-                const filteredTodos = todos.filter(todo => !todo.completed);
-                localStorage.setItem('todos', JSON.stringify(filteredTodos));
-                loadTodos();
-            }
-            
-            // Event listeners
-            todoForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const text = todoInput.value.trim();
-                if (text) {
-                    addTodo(text);
-                    todoInput.value = '';
-                }
-            });
-            
+                document.querySelectorAll('.todo-checkbox').forEach(c => c.addEventListener('change', (e) => toggleTodo(e.target.dataset.index)));
+                document.querySelectorAll('.todo-delete').forEach(b => b.addEventListener('click', (e) => deleteTodo(e.currentTarget.dataset.index)));
+            }, saveTodos = (todos) => localStorage.setItem('todos', JSON.stringify(todos)), getTodos = () => JSON.parse(localStorage.getItem('todos')) || [],
+            addTodo = (text) => saveTodos([...getTodos(), { text, completed: false }]),
+            toggleTodo = (index) => { let todos = getTodos(); todos[index].completed = !todos[index].completed; saveTodos(todos); loadTodos(); },
+            deleteTodo = (index) => saveTodos(getTodos().filter((_, i) => i != index)),
+            clearCompletedTodos = () => { saveTodos(getTodos().filter(todo => !todo.completed)); loadTodos(); };
+            todoForm.addEventListener('submit', (e) => { e.preventDefault(); const text = todoInput.value.trim(); if (text) { addTodo(text); todoInput.value = ''; loadTodos(); }});
             clearCompleted.addEventListener('click', clearCompletedTodos);
-            
-            // Initial load
             loadTodos();
         }
-        
-        // Notes functionality
+
         function initNotes() {
-            const noteEditor = document.getElementById('note-editor');
-            const saveNote = document.getElementById('save-note');
-            const clearNote = document.getElementById('clear-note');
-            
-            // Load note from localStorage
-            function loadNote() {
-                const note = localStorage.getItem('note') || '';
-                noteEditor.value = note;
-            }
-            
-            // Save note to localStorage
-            function saveNoteToStorage() {
-                localStorage.setItem('note', noteEditor.value);
-                // Show success animation
-                saveNote.classList.add('animate-pulse');
-                setTimeout(() => {
-                    saveNote.classList.remove('animate-pulse');
-                }, 1000);
-            }
-            
-            // Clear note
-            function clearNoteFromStorage() {
-                noteEditor.value = '';
-                localStorage.removeItem('note');
-            }
-            
-            // Event listeners
-            saveNote.addEventListener('click', saveNoteToStorage);
-            clearNote.addEventListener('click', clearNoteFromStorage);
-            
-            // Auto-save on typing (debounced)
-            let timeout;
-            noteEditor.addEventListener('input', function() {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => {
-                    saveNoteToStorage();
-                }, 1000);
-            });
-            
-            // Initial load
-            loadNote();
+            const noteEditor = document.getElementById('note-editor'), saveNote = document.getElementById('save-note'), clearNote = document.getElementById('clear-note');
+            noteEditor.value = localStorage.getItem('note') || '';
+            saveNote.addEventListener('click', () => { localStorage.setItem('note', noteEditor.value); saveNote.classList.add('animate-pulse'); setTimeout(() => saveNote.classList.remove('animate-pulse'), 1000); });
+            clearNote.addEventListener('click', () => { noteEditor.value = ''; localStorage.removeItem('note'); });
+            let timeout; noteEditor.addEventListener('input', () => { clearTimeout(timeout); timeout = setTimeout(() => saveNote.click(), 1000); });
         }
         
-        // Calendar functionality
         function initCalendar() {
-            const calendarMonth = document.getElementById('calendar-month');
-            const calendarWeekdays = document.getElementById('calendar-weekdays');
-            const calendarDays = document.getElementById('calendar-days');
-            const prevMonthBtn = document.getElementById('prev-month');
-            const nextMonthBtn = document.getElementById('next-month');
-            
-            let currentDate = new Date();
-            let currentMonth = currentDate.getMonth();
-            let currentYear = currentDate.getFullYear();
-            
-            // Generate weekday headers
-            function generateWeekdays() {
-                const weekdays = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
-                calendarWeekdays.innerHTML = '';
-                
-                weekdays.forEach(day => {
-                    const weekdayElement = document.createElement('div');
-                    weekdayElement.className = 'calendar-weekday';
-                    weekdayElement.textContent = day;
-                    calendarWeekdays.appendChild(weekdayElement);
-                });
-            }
-            
-            // Generate calendar days
-            function generateCalendar() {
-                // Update month/year display
-                const monthNames = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 
-                                   'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
-                calendarMonth.textContent = `${monthNames[currentMonth]} ${currentYear}`;
-                
-                // Clear previous days
-                calendarDays.innerHTML = '';
-                
-                // Get first day of month and number of days
-                const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-                const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-                
-                // Get days from previous month
-                const daysInPrevMonth = new Date(currentYear, currentMonth, 0).getDate();
-                
-                // Generate previous month days
-                for (let i = firstDay - 1; i >= 0; i--) {
-                    const dayElement = document.createElement('div');
-                    dayElement.className = 'calendar-day other-month';
-                    dayElement.textContent = daysInPrevMonth - i;
-                    calendarDays.appendChild(dayElement);
+            const calMonth = document.getElementById('calendar-month'), calWeekdays = document.getElementById('calendar-weekdays'), calDays = document.getElementById('calendar-days');
+            let date = new Date(), month = date.getMonth(), year = date.getFullYear();
+            const generateCalendar = () => {
+                calMonth.textContent = `${new Date(year, month).toLocaleString('de-DE', { month: 'long', year: 'numeric' })}`;
+                calDays.innerHTML = '';
+                const firstDay = new Date(year, month, 1).getDay(), daysInMonth = new Date(year, month + 1, 0).getDate(),
+                daysInPrevMonth = new Date(year, month, 0).getDate();
+                for (let i = firstDay === 0 ? 6 : firstDay - 1; i > 0; i--) {
+                    calDays.innerHTML += `<div class="calendar-day other-month">${daysInPrevMonth - i + 1}</div>`;
                 }
-                
-                // Generate current month days
                 const today = new Date();
-                const isCurrentMonth = today.getMonth() === currentMonth && today.getFullYear() === currentYear;
-                
                 for (let i = 1; i <= daysInMonth; i++) {
-                    const dayElement = document.createElement('div');
-                    dayElement.className = 'calendar-day';
-                    dayElement.textContent = i;
-                    
-                    // Highlight today
-                    if (isCurrentMonth && i === today.getDate()) {
-                        dayElement.classList.add('today');
-                    }
-                    
-                    // Add random events for demo
-                    if (Math.random() < 0.15) {
-                        dayElement.classList.add('has-event');
-                    }
-                    
-                    calendarDays.appendChild(dayElement);
+                    const isToday = i === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+                    calDays.innerHTML += `<div class="calendar-day ${isToday ? 'today' : ''} ${Math.random() < 0.15 ? 'has-event' : ''}">${i}</div>`;
                 }
-                
-                // Generate next month days (to fill grid)
-                const totalCells = firstDay + daysInMonth;
-                const cellsToAdd = 7 - (totalCells % 7);
-                
-                if (cellsToAdd < 7) {
-                    for (let i = 1; i <= cellsToAdd; i++) {
-                        const dayElement = document.createElement('div');
-                        dayElement.className = 'calendar-day other-month';
-                        dayElement.textContent = i;
-                        calendarDays.appendChild(dayElement);
-                    }
-                }
-            }
-            
-            // Navigate to previous month
-            function goToPrevMonth() {
-                currentMonth--;
-                if (currentMonth < 0) {
-                    currentMonth = 11;
-                    currentYear--;
-                }
-                generateCalendar();
-            }
-            
-            // Navigate to next month
-            function goToNextMonth() {
-                currentMonth++;
-                if (currentMonth > 11) {
-                    currentMonth = 0;
-                    currentYear++;
-                }
-                generateCalendar();
-            }
-            
-            // Event listeners
-            prevMonthBtn.addEventListener('click', goToPrevMonth);
-            nextMonthBtn.addEventListener('click', goToNextMonth);
-            
-            // Initialize calendar
-            generateWeekdays();
+            };
+            calWeekdays.innerHTML = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map(d => `<div class="calendar-weekday">${d}</div>`).join('');
+            document.getElementById('prev-month').addEventListener('click', () => { month--; if (month < 0) { month = 11; year--; } generateCalendar(); });
+            document.getElementById('next-month').addEventListener('click', () => { month++; if (month > 11) { month = 0; year++; } generateCalendar(); });
             generateCalendar();
         }
-        
-        // System status functionality (simulated)
+
         function initSystemStatus() {
-            const batteryStatus = document.getElementById('battery-status');
-            const batteryLevel = document.getElementById('battery-level');
-            const memoryStatus = document.getElementById('memory-status');
-            const networkStatus = document.getElementById('network-status');
-            const pageLoad = document.getElementById('page-load');
-            
-            // Simulate battery status
-            function updateBatteryStatus() {
-                // Generate random battery level between 15% and 100%
-                const level = Math.floor(Math.random() * (100 - 15 + 1)) + 15;
-                const isCharging = Math.random() > 0.5;
-                
-                batteryStatus.textContent = `${level}% ${isCharging ? '⚡' : ''}`;
-                batteryLevel.style.width = `${level}%`;
-                
-                if (level < 20) {
-                    batteryLevel.parentElement.classList.add('battery-critical');
-                } else {
-                    batteryLevel.parentElement.classList.remove('battery-critical');
-                }
-            }
-            
-            // Simulate memory usage
-            function updateMemoryStatus() {
-                // Generate random memory usage between 40% and 85%
-                const usage = Math.floor(Math.random() * (85 - 40 + 1)) + 40;
-                memoryStatus.textContent = `${usage}% verwendet`;
-            }
-            
-            // Simulate network status
-            function updateNetworkStatus() {
-                const networkTypes = ['WLAN', '4G', '5G'];
-                const type = networkTypes[Math.floor(Math.random() * networkTypes.length)];
-                
-                // Generate random speed
-                const speed = Math.floor(Math.random() * 100) + 10;
-                networkStatus.textContent = `${type} (${speed} Mbps)`;
-            }
-            
-            // Page load time
-            function updatePageLoadTime() {
-                const loadTime = (Math.random() * 2 + 0.5).toFixed(2);
-                pageLoad.textContent = `${loadTime} Sekunden`;
-            }
-            
-            // Update system status
-            function updateSystemStatus() {
-                updateBatteryStatus();
-                updateMemoryStatus();
-                updateNetworkStatus();
-                updatePageLoadTime();
-            }
-            
-            // Initialize
-            updateSystemStatus();
-            
-            // Add refresh event
-            document.querySelector('.refresh-status').addEventListener('click', function() {
-                this.classList.add('animate-spin');
-                setTimeout(() => {
-                    this.classList.remove('animate-spin');
-                    updateSystemStatus();
-                }, 1000);
-            });
+            const updateStatus = () => {
+                document.getElementById('battery-status').textContent = `${Math.floor(Math.random()*85)+15}% ${Math.random()>0.5 ? '⚡' : ''}`;
+                document.getElementById('battery-level').style.width = `${document.getElementById('battery-status').textContent.split('%')[0]}%`;
+                document.getElementById('memory-status').textContent = `${Math.floor(Math.random()*45)+40}% verwendet`;
+                document.getElementById('network-status').textContent = `WLAN (${Math.floor(Math.random()*100)+10} Mbps)`;
+                document.getElementById('page-load').textContent = `${((new Date().getTime() - performance.timing.navigationStart) / 1000).toFixed(2)}s`;
+            };
+            document.querySelector('.refresh-status').addEventListener('click', function(){ this.classList.add('animate-spin'); setTimeout(() => { this.classList.remove('animate-spin'); updateStatus(); }, 1000); });
+            updateStatus();
         }
         
-        // Voice search functionality
         function initVoiceSearch() {
-            const voiceButton = document.getElementById('voice-search');
-            const searchInput = document.querySelector('.search-input');
-            
-            voiceButton.addEventListener('click', function() {
-                // Check if browser supports speech recognition
-                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                    const recognition = new SpeechRecognition();
-                    
-                    recognition.lang = 'de-DE';
-                    recognition.continuous = false;
-                    recognition.interimResults = false;
-                    
-                    // Start listening
-                    recognition.start();
-                    voiceButton.classList.add('speech-recognition-active');
-                    
-                    // Show feedback to user
-                    searchInput.placeholder = 'Ich höre zu...';
-                    
-                    recognition.onresult = function(event) {
-                        const transcript = event.results[0][0].transcript;
-                        searchInput.value = transcript;
-                        voiceButton.classList.remove('speech-recognition-active');
-                        searchInput.placeholder = 'Mit Google suchen';
-                        
-                        // Auto-submit after a short delay
-                        setTimeout(() => {
-                            document.getElementById('search-form').submit();
-                        }, 500);
-                    };
-                    
-                    recognition.onerror = function() {
-                        voiceButton.classList.remove('speech-recognition-active');
-                        searchInput.placeholder = 'Mit Google suchen';
-                        
-                        // Show error message
-                        const message = document.getElementById('firefox-message');
-                        document.getElementById('message-text').textContent = 'Spracherkennung nicht verfügbar oder erlaubt. Bitte prüfe deine Browsereinstellungen.';
-                        message.classList.add('show');
-                    };
-                    
-                    recognition.onend = function() {
-                        voiceButton.classList.remove('speech-recognition-active');
-                        searchInput.placeholder = 'Mit Google suchen';
-                    };
-                } else {
-                    // Browser doesn't support speech recognition
-                    const message = document.getElementById('firefox-message');
-                    document.getElementById('message-text').textContent = 'Dein Browser unterstützt keine Spracherkennung.';
-                    message.classList.add('show');
-                }
+            document.getElementById('voice-search').addEventListener('click', () => {
+                if (!('webkitSpeechRecognition' in window)) { return alert('Spracherkennung wird nicht unterstützt.'); }
+                const recognition = new webkitSpeechRecognition();
+                recognition.lang = 'de-DE'; recognition.start();
+                document.getElementById('voice-search').classList.add('speech-recognition-active');
+                recognition.onresult = (e) => { document.querySelector('.search-input').value = e.results[0][0].transcript; setTimeout(() => document.getElementById('search-form').submit(), 500); };
+                recognition.onend = () => document.getElementById('voice-search').classList.remove('speech-recognition-active');
             });
         }
         
-        // Weather tabs
         function initWeatherTabs() {
             document.querySelectorAll('.weather-tab').forEach(tab => {
                 tab.addEventListener('click', function() {
-                    // Set active tab
                     document.querySelectorAll('.weather-tab').forEach(t => t.classList.remove('active'));
                     this.classList.add('active');
-                    
-                    // Show active content
-                    const tabId = this.getAttribute('data-tab');
-                    document.querySelectorAll('.weather-content').forEach(content => content.classList.remove('active'));
-                    
-                    if (tabId === 'current') {
-                        document.getElementById('current-weather').classList.add('active');
-                    } else if (tabId === 'details') {
-                        document.getElementById('details-weather').classList.add('active');
-                    } else if (tabId === 'forecast') {
-                        document.getElementById('forecast-weather').classList.add('active');
-                    }
+                    document.querySelectorAll('.weather-content').forEach(c => c.classList.remove('active'));
+                    document.getElementById(`${this.dataset.tab}-weather`).classList.add('active');
                 });
             });
         }
         
-        // Show/hide settings panel
         function initSettingsPanel() {
-            document.getElementById('settings-btn').addEventListener('click', function() {
-                document.getElementById('settings-panel').classList.toggle('show');
-            });
-            
-            // Close settings when clicking outside
-            document.addEventListener('click', function(e) {
-                const settingsPanel = document.getElementById('settings-panel');
-                const settingsBtn = document.getElementById('settings-btn');
-                
-                if (!settingsPanel.contains(e.target) && e.target !== settingsBtn && !settingsBtn.contains(e.target)) {
-                    settingsPanel.classList.remove('show');
-                }
+            const settingsPanel = document.getElementById('settings-panel'), settingsBtn = document.getElementById('settings-btn');
+            settingsBtn.addEventListener('click', () => settingsPanel.classList.toggle('show'));
+            document.addEventListener('click', (e) => {
+                if (!settingsPanel.contains(e.target) && !settingsBtn.contains(e.target)) settingsPanel.classList.remove('show');
             });
         }
         
-        // Add new shortcut via settings
         function initShortcutManager() {
-            document.getElementById('add-shortcut-btn').addEventListener('click', function() {
-                const name = document.getElementById('shortcut-name').value.trim();
-                let url = document.getElementById('shortcut-url').value.trim();
-                const iconUrl = document.getElementById('shortcut-icon').value.trim();
-                
-                if (!name || !url) {
-                    alert('Bitte gib sowohl Namen als auch URL ein');
-                    return;
-                }
-                
-                // Add https:// if not present
-                if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                    url = 'https://' + url;
-                }
-                
-                // Get existing shortcuts
+            document.getElementById('add-shortcut-btn').addEventListener('click', () => {
+                let name = document.getElementById('shortcut-name').value.trim(), url = document.getElementById('shortcut-url').value.trim();
+                if (!name || !url) return alert('Name und URL sind erforderlich');
+                if (!url.startsWith('http')) url = 'https://' + url;
+                const icon = document.getElementById('shortcut-icon').value.trim();
                 const shortcuts = JSON.parse(localStorage.getItem('shortcuts')) || defaultShortcuts;
-                
-                // Add new shortcut
-                shortcuts.push({
-                    name,
-                    url,
-                    icon: iconUrl || `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=64` // Use Google's favicon service if none provided
-                });
-                
-                // Save in localStorage
+                shortcuts.push({ name, url, icon: icon || `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=64` });
                 localStorage.setItem('shortcuts', JSON.stringify(shortcuts));
-                
-                // Reload shortcuts
                 loadShortcuts();
-                
-                // Clear input fields
-                document.getElementById('shortcut-name').value = '';
-                document.getElementById('shortcut-url').value = '';
-                document.getElementById('shortcut-icon').value = '';
-                
-                // Hide settings panel
+                ['shortcut-name', 'shortcut-url', 'shortcut-icon'].forEach(id => document.getElementById(id).value = '');
                 document.getElementById('settings-panel').classList.remove('show');
             });
-            
-            // Quick add shortcut button
-            document.getElementById('quick-add-shortcut').addEventListener('click', function() {
-                document.getElementById('settings-panel').classList.add('show');
-                document.getElementById('shortcut-name').focus();
-            });
+            document.getElementById('quick-add-shortcut').addEventListener('click', () => { document.getElementById('settings-panel').classList.add('show'); document.getElementById('shortcut-name').focus(); });
         }
         
-        // Weather location input
         function initWeatherInput() {
-            document.getElementById('location-input').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    const location = this.value.trim();
-                    if (location) {
-                        getWeather(location);
+            const locationInput = document.getElementById('location-input');
+            locationInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') getWeather(locationInput.value.trim()); });
+            document.querySelector('.refresh-weather').addEventListener('click', function() { getWeather(locationInput.value.trim() || 'Berlin'); });
+        }
+
+        function setBackground(pattern, url = null) {
+            document.body.className = document.body.className.replace(/bg-pattern-\w+|bg-gradient-fancy/g, '');
+            document.body.style.backgroundImage = '';
+            document.body.style.backgroundColor = '';
+
+            switch (pattern) {
+                case 'custom':
+                    if (url) {
+                        document.body.style.backgroundImage = `url('${url}')`;
                     }
-                }
-            });
-            
-            // Refresh weather button
-            document.querySelector('.refresh-weather').addEventListener('click', function() {
-                const location = document.getElementById('location-input').value.trim() || 'Berlin';
-                this.classList.add('animate-spin');
-                setTimeout(() => {
-                    this.classList.remove('animate-spin');
-                    getWeather(location);
-                }, 500);
-            });
-            
-            // Get location button
-            document.querySelector('.widget-action[title="Standort"]').addEventListener('click', function() {
-                if (navigator.geolocation) {
-                    this.classList.add('animate-spin');
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            this.classList.remove('animate-spin');
-                            // In a real app, we would convert coordinates to location name via reverse geocoding
-                            // For this demo, just use a placeholder
-                            document.getElementById('location-input').value = 'Zerbst, Sachsen-Anhalt';
-                            getWeather('Zerbst');
-                        },
-                        (error) => {
-                            this.classList.remove('animate-spin');
-                            console.error('Geolocation error:', error);
-                            const message = document.getElementById('firefox-message');
-                            document.getElementById('message-text').textContent = 'Standortabfrage nicht möglich. Bitte erlaube den Zugriff in deinen Browsereinstellungen.';
-                            message.classList.add('show');
-                        }
-                    );
-                } else {
-                    const message = document.getElementById('firefox-message');
-                    document.getElementById('message-text').textContent = 'Dein Browser unterstützt keine Geolokalisierung.';
-                    message.classList.add('show');
-                }
-            });
+                    break;
+                case 'solid':
+                    // Uses --bg-color from the theme
+                    break;
+                case 'gradient':
+                    document.body.classList.add('bg-gradient-fancy');
+                    break;
+                default:
+                    document.body.classList.add(`bg-pattern-${pattern}`);
+                    break;
+            }
         }
         
-        // Theme settings
         function initThemeSettings() {
             const root = document.documentElement;
+            const customBgContainer = document.getElementById('custom-bg-container');
+            const customBgUrlInput = document.getElementById('custom-bg-url');
+
+            document.querySelectorAll('.theme-btn').forEach(btn => btn.addEventListener('click', function() {
+                const theme = this.getAttribute('data-theme');
+                document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                let color, gradient;
+                switch(theme) {
+                    case 'blue': color = '#0071e3'; gradient = 'linear-gradient(145deg, #0071e3, #005bb5)'; break;
+                    case 'green': color = '#28cd41'; gradient = 'linear-gradient(145deg, #28cd41, #1eb234)'; break;
+                    case 'purple': color = '#8A2BE2'; gradient = 'linear-gradient(145deg, #8A2BE2, #6a16c8)'; break;
+                    case 'pink': color = '#FF1493'; gradient = 'linear-gradient(145deg, #FF1493, #C71585)'; break;
+                    default: color = '#ff9500'; gradient = 'linear-gradient(145deg, #ff9500, #e66000)'; break;
+                }
+                root.style.setProperty('--accent-color', color);
+                root.style.setProperty('--accent-gradient', gradient);
+                localStorage.setItem('theme', theme);
+            }));
             
-            // Theme buttons
-            document.querySelectorAll('.theme-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const theme = this.getAttribute('data-theme');
-                    
-                    // Mark as active
-                    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // Set theme
-                    switch (theme) {
-                        case 'firefox':
-                            root.style.setProperty('--accent-color', '#ff9500');
-                            root.style.setProperty('--accent-gradient', 'linear-gradient(145deg, #ff9500, #e66000)');
-                            break;
-                        case 'blue':
-                            root.style.setProperty('--accent-color', '#0071e3');
-                            root.style.setProperty('--accent-gradient', 'linear-gradient(145deg, #0071e3, #005bb5)');
-                            break;
-                        case 'green':
-                            root.style.setProperty('--accent-color', '#28cd41');
-                            root.style.setProperty('--accent-gradient', 'linear-gradient(145deg, #28cd41, #1eb234)');
-                            break;
-                        case 'purple':
-                            root.style.setProperty('--accent-color', '#8A2BE2');
-                            root.style.setProperty('--accent-gradient', 'linear-gradient(145deg, #8A2BE2, #6a16c8)');
-                            break;
-                        case 'pink':
-                            root.style.setProperty('--accent-color', '#FF1493');
-                            root.style.setProperty('--accent-gradient', 'linear-gradient(145deg, #FF1493, #C71585)');
-                            break;
-                    }
-                    
-                    // Save theme preference
-                    localStorage.setItem('theme', theme);
-                });
-            });
-            
-            // Dark/Light mode toggle
             const darkModeToggle = document.getElementById('dark-mode-toggle');
             darkModeToggle.addEventListener('change', function() {
                 document.body.classList.toggle('light-mode', this.checked);
                 localStorage.setItem('lightMode', this.checked ? 'true' : 'false');
             });
             
-            // Search engine selection
-            const searchEngineSelect = document.getElementById('search-engine-select');
-            searchEngineSelect.addEventListener('change', function() {
-                const searchForm = document.getElementById('search-form');
-                searchForm.action = this.value;
+            document.getElementById('search-engine-select').addEventListener('change', function() {
+                document.getElementById('search-form').action = this.value;
                 localStorage.setItem('searchEngine', this.value);
             });
             
-            // Background pattern selection
-            const bgRadios = document.querySelectorAll('input[name="bg-pattern"]');
-            bgRadios.forEach(radio => {
-                radio.addEventListener('change', function() {
-                    const pattern = this.value;
-                    
-                    // Remove all pattern classes
-                    document.body.classList.remove('bg-pattern-dots', 'bg-pattern-grid', 'bg-pattern-waves', 'bg-pattern-circuit', 'bg-gradient-fancy');
-                    
-                    // Add selected pattern class
-                    switch (pattern) {
-                        case 'dots':
-                            document.body.classList.add('bg-pattern-dots');
-                            break;
-                        case 'grid':
-                            document.body.classList.add('bg-pattern-grid');
-                            break;
-                        case 'waves':
-                            document.body.classList.add('bg-pattern-waves');
-                            break;
-                        case 'circuit':
-                            document.body.classList.add('bg-pattern-circuit');
-                            break;
-                        case 'gradient':
-                            document.body.classList.add('bg-gradient-fancy');
-                            break;
-                    }
-                    
-                    // Update preview
-                    updateBgPreview(pattern);
-                    
-                    // Save preference
-                    localStorage.setItem('bgPattern', pattern);
-                });
+            document.querySelectorAll('input[name="bg-pattern"]').forEach(radio => radio.addEventListener('change', function() {
+                const pattern = this.value;
+                localStorage.setItem('bgPattern', pattern);
+                customBgContainer.style.display = pattern === 'custom' ? 'block' : 'none';
+                setBackground(pattern, customBgUrlInput.value.trim());
+            }));
+
+            customBgUrlInput.addEventListener('change', function() {
+                const url = this.value.trim();
+                localStorage.setItem('customBgUrl', url);
+                if (document.getElementById('bg-custom').checked) {
+                    setBackground('custom', url);
+                }
             });
-            
-            // Update background preview
-            function updateBgPreview(pattern) {
-                const preview = document.getElementById('bg-preview');
-                
-                // Remove all pattern classes
-                preview.classList.remove('bg-pattern-dots', 'bg-pattern-grid', 'bg-pattern-waves', 'bg-pattern-circuit', 'bg-gradient-fancy');
-                
-                // Add selected pattern class
-                switch (pattern) {
-                    case 'dots':
-                        preview.classList.add('bg-pattern-dots');
-                        break;
-                    case 'grid':
-                        preview.classList.add('bg-pattern-grid');
-                        break;
-                    case 'waves':
-                        preview.classList.add('bg-pattern-waves');
-                        break;
-                    case 'circuit':
-                        preview.classList.add('bg-pattern-circuit');
-                        break;
-                    case 'gradient':
-                        preview.classList.add('bg-gradient-fancy');
-                        break;
-                }
-            }
-            
-            // Load saved theme settings
-            function loadThemeSettings() {
-                // Load theme
-                const savedTheme = localStorage.getItem('theme') || 'firefox';
-                const themeBtn = document.querySelector(`.theme-btn[data-theme="${savedTheme}"]`);
-                if (themeBtn) {
-                    themeBtn.click();
-                }
-                
-                // Load light/dark mode
-                const isLightMode = localStorage.getItem('lightMode') === 'true';
-                darkModeToggle.checked = isLightMode;
-                document.body.classList.toggle('light-mode', isLightMode);
-                
-                // Load search engine
-                const savedSearchEngine = localStorage.getItem('searchEngine');
-                if (savedSearchEngine) {
-                    searchEngineSelect.value = savedSearchEngine;
-                    document.getElementById('search-form').action = savedSearchEngine;
-                }
-                
-                // Load background pattern
-                const savedPattern = localStorage.getItem('bgPattern') || 'dots';
-                const bgRadio = document.querySelector(`input[name="bg-pattern"][value="${savedPattern}"]`);
-                if (bgRadio) {
-                    bgRadio.checked = true;
-                    
-                    // Apply pattern
-                    document.body.classList.remove('bg-pattern-dots', 'bg-pattern-grid', 'bg-pattern-waves', 'bg-pattern-circuit', 'bg-gradient-fancy');
-                    
-                    switch (savedPattern) {
-                        case 'dots':
-                            document.body.classList.add('bg-pattern-dots');
-                            break;
-                        case 'grid':
-                            document.body.classList.add('bg-pattern-grid');
-                            break;
-                        case 'waves':
-                            document.body.classList.add('bg-pattern-waves');
-                            break;
-                        case 'circuit':
-                            document.body.classList.add('bg-pattern-circuit');
-                            break;
-                        case 'gradient':
-                            document.body.classList.add('bg-gradient-fancy');
-                            break;
-                    }
-                    
-                    // Update preview
-                    updateBgPreview(savedPattern);
-                }
-            }
-            
-            // Initialize theme settings
-            loadThemeSettings();
-        }
         
-        // Function to handle browser actions - DEMO VERSION
+            // LOAD SETTINGS ON STARTUP
+            const savedTheme = localStorage.getItem('theme') || 'firefox';
+            document.querySelector(`.theme-btn[data-theme="${savedTheme}"]`)?.click();
+            const isLightMode = localStorage.getItem('lightMode') === 'true';
+            darkModeToggle.checked = isLightMode;
+            document.body.classList.toggle('light-mode', isLightMode);
+            const savedSearchEngine = localStorage.getItem('searchEngine');
+            if (savedSearchEngine) document.getElementById('search-engine-select').value = savedSearchEngine;
+            
+            const savedPattern = localStorage.getItem('bgPattern') || 'dots';
+            const savedCustomUrl = localStorage.getItem('customBgUrl') || '';
+            document.querySelector(`input[name="bg-pattern"][value="${savedPattern}"]`).checked = true;
+            customBgUrlInput.value = savedCustomUrl;
+            if (savedPattern === 'custom') customBgContainer.style.display = 'block';
+            setBackground(savedPattern, savedCustomUrl);
+        }
+
         function initBrowserActions() {
-            // Handle Firefox internal page buttons
-            document.getElementById('bookmarks-button').addEventListener('click', function(e) {
-                e.preventDefault();
-                handleBrowserAction('Lesezeichen');
-            });
-            
-            document.getElementById('downloads-button').addEventListener('click', function(e) {
-                e.preventDefault();
-                handleBrowserAction('Downloads');
-            });
-            
-            document.getElementById('history-button').addEventListener('click', function(e) {
-                e.preventDefault();
-                handleBrowserAction('Verlauf');
-            });
-            
-            document.getElementById('addons-button').addEventListener('click', function(e) {
-                e.preventDefault();
-                handleBrowserAction('Add-ons');
-            });
-            
-            // Home button action
-            document.getElementById('home-button').addEventListener('click', function(e) {
-                e.preventDefault();
-                // Just refresh the page for the demo
-                window.location.reload();
-            });
-            
-            // Close message button
-            document.getElementById('close-message').addEventListener('click', function() {
-                document.getElementById('firefox-message').classList.remove('show');
-            });
-        }
-        
-        function handleBrowserAction(action) {
-            // Create a popup message explaining these features need a Firefox add-on
-            const message = document.getElementById('firefox-message');
-            document.getElementById('message-text').textContent = `Diese Funktion (${action}) würde in einer echten Firefox-Erweiterung funktionieren. Diese HTML-Seite kann nicht direkt auf Firefox-interne Seiten zugreifen.`;
-            message.classList.add('show');
-        }
-        
-        // Page load time calculation
-        function calculatePageLoadTime() {
-            const loadTime = ((new Date().getTime() - performance.timing.navigationStart) / 1000).toFixed(2);
-            document.getElementById('page-load').textContent = `${loadTime} Sekunden`;
-        }
-        
-        // Initialization
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load shortcuts
-            loadShortcuts();
-            
-            // Update clock initially and then every second
-            updateClock();
-            setInterval(updateClock, 1000);
-            
-            // Load weather
-            const savedLocation = localStorage.getItem('weatherLocation') || 'Berlin';
-            document.getElementById('location-input').value = savedLocation;
-            getWeather(savedLocation);
-            
-            // Load random quote
-            getQuote();
-            
-            // Initialize components
-            initWeatherTabs();
-            initSettingsPanel();
-            initShortcutManager();
-            initWeatherInput();
-            initThemeSettings();
-            initBrowserActions();
-            initTodoList();
-            initNotes();
-            initCalendar();
-            initSystemStatus();
-            initVoiceSearch();
-            
-            // Load news
-            loadNews();
-            
-            // Calculate page load time
-            calculatePageLoadTime();
-            
-            // Refresh data periodically
-            setInterval(updateClock, 1000); // Update clock every second
-            
-            // Add window click handler for message popup
-            window.addEventListener('click', function(e) {
+            const showMessage = (action) => {
                 const message = document.getElementById('firefox-message');
-                if (message.classList.contains('show') && !message.querySelector('.message-content').contains(e.target)) {
-                    message.classList.remove('show');
+                document.getElementById('message-text').textContent = `Die Funktion (${action}) ist in dieser Demo-Umgebung nicht verfügbar.`;
+                message.classList.add('show');
+            }
+            document.getElementById('bookmarks-button').addEventListener('click', (e) => { e.preventDefault(); showMessage('Lesezeichen'); });
+            document.getElementById('downloads-button').addEventListener('click', (e) => { e.preventDefault(); showMessage('Downloads'); });
+            document.getElementById('history-button').addEventListener('click', (e) => { e.preventDefault(); showMessage('Verlauf'); });
+            document.getElementById('addons-button').addEventListener('click', (e) => { e.preventDefault(); showMessage('Add-ons'); });
+            document.getElementById('home-button').addEventListener('click', (e) => e.preventDefault());
+            document.getElementById('close-message').addEventListener('click', () => document.getElementById('firefox-message').classList.remove('show'));
+        }
+
+        function initChat() {
+            const auth = firebase.auth(); const database = firebase.database();
+            const loginArea = document.getElementById('chat-login-area'), chatArea = document.getElementById('chat-area'),
+            usernameInput = document.getElementById('username-input'), loginButton = document.getElementById('login-button'),
+            logoutButton = document.getElementById('logout-button'), loggedInAs = document.getElementById('logged-in-as'),
+            messageInput = document.getElementById('message-input'), sendButton = document.getElementById('send-button'),
+            chatMessages = document.getElementById('chat-messages');
+            let currentUser = null;
+
+            const updateUI = (loggedIn) => {
+                loginArea.style.display = loggedIn ? 'none' : 'block';
+                chatArea.style.display = loggedIn ? 'block' : 'none';
+                if (loggedIn) {
+                    loggedInAs.textContent = `Eingeloggt als: ${currentUser}`;
+                    loadMessages();
+                } else {
+                    chatMessages.innerHTML = '';
                 }
-            });
-        });
-    </script>
+            };
+
+            const login = () => { const username = usernameInput.value.trim(); if(username){ localStorage.setItem('chatUsername', username); currentUser = username; updateUI(true); }};
+            const logout = () => { localStorage.removeItem('chatUsername'); currentUser = null; updateUI(false); };
+            const sendMessage = () => {
+                const message = messageInput.value.trim();
+                if(message && currentUser) {
+                    database.ref('messages').push({ username: currentUser, text: message, timestamp: firebase.database.ServerValue.TIMESTAMP });
+                    messageInput.value = '';
+                }
+            };
+            const loadMessages = () => {
+                database.ref('messages').orderByChild('timestamp').limitToLast(50).on('value', (snapshot) => {
+                    chatMessages.innerHTML = '';
+                    if (snapshot.exists()) {
+                        Object.values(snapshot.val()).sort((a,b) => a.timestamp - b.timestamp).forEach(msg => {
+                            const msgEl = document.createElement('div');
+                            const isOwn = msg.username === currentUser;
+                            msgEl.className = `chat-message ${isOwn ? 'chat-message-own' : 'chat-message-other'}`;
+                            const time = new Date(msg.timestamp).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                            msgEl.innerHTML = `<div class="chat-username">${msg.username}</div><div class="chat-text">${msg.text}</div><div class="chat-time">${time}</div>`;
+                            chatMessages.appendChild(msgEl);
+                        });
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    }
+                });
+            };
+
+            loginButton.addEventListener('click', login);
+            logoutButton.addEventListener('click', logout);
+            sendButton.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
+            document.getElementById('refresh-chat').addEventListener('click', loadMessages);
+            currentUser = localStorage.getItem('chatUsername');
+            if(currentUser) updateUI(true);
+        }
+
+        // --- INITIALIZE EVERYTHING ---
+        loadShortcuts();
+        updateClock();
+        setInterval(updateClock, 1000);
+        getWeather(localStorage.getItem('weatherLocation') || 'Berlin');
+        getQuote();
+        loadNews();
+        initTodoList();
+        initNotes();
+        initCalendar();
+        initSystemStatus();
+        initVoiceSearch();
+        initWeatherTabs();
+        initSettingsPanel();
+        initShortcutManager();
+        initWeatherInput();
+        initThemeSettings();
+        initBrowserActions();
+        initChat();
+    });
+</script>
 </body>
 </html>
