@@ -3,28 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cosmic Rusher</title>
+    <title>Void Dasher</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Major+Mono+Display&display=swap');
         body {
             margin: 0;
-            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #0c0c1c;
+            background: #0d011c;
             color: #fff;
-            font-family: 'Consolas', 'Courier New', monospace;
-            overflow: hidden; /* Hide scrollbars */
+            font-family: 'Major Mono Display', monospace;
+            overflow: hidden;
         }
         #game-container {
             position: relative;
-            border: 2px solid #00ffff;
-            box-shadow: 0 0 20px #00ffff, inset 0 0 10px #00ffff;
+            border: 3px solid #f0f;
+            box-shadow: 0 0 25px #f0f, 0 0 40px #f0f, inset 0 0 20px #f0f;
+            background: #000;
         }
         canvas {
             display: block;
-            background-color: #000;
         }
         .ui {
             position: absolute;
@@ -37,55 +37,71 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            pointer-events: none; /* Allows clicks to go through to canvas if needed */
+            pointer-events: none;
+            text-shadow: 0 0 8px #fff;
         }
-        #score-display {
+        #hud {
             position: absolute;
             top: 15px;
             left: 20px;
-            font-size: 2em;
-            color: #fff;
-            text-shadow: 0 0 5px #ff00ff;
-        }
-        #high-score-display {
-            position: absolute;
-            top: 15px;
             right: 20px;
-            font-size: 1.5em;
-            color: #aaa;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
         }
-        #start-screen, #game-over-screen {
-            background-color: rgba(0, 0, 0, 0.7);
+        #score-display {
+            font-size: 2.5em;
+            color: #0ff;
+            text-shadow: 0 0 8px #0ff;
         }
-        #game-over-screen.hidden {
-            display: none;
+        #abilities-display {
+            text-align: right;
+            font-size: 1.2em;
         }
+        #dash-charges, #focus-status {
+            color: #f0f;
+            text-shadow: 0 0 5px #f0f;
+        }
+        .screen {
+            background-color: rgba(13, 1, 28, 0.85);
+        }
+        .screen.hidden { display: none; }
         h1 {
-            font-size: 4em;
-            color: #00ffff;
-            text-shadow: 0 0 10px #00ffff;
+            font-size: 5em;
+            color: #0ff;
+            text-shadow: 0 0 15px #0ff;
             margin: 0;
         }
         p {
-            font-size: 1.2em;
+            font-size: 1.1em;
             color: #ddd;
-            margin: 20px;
+            margin: 20px 40px;
+            line-height: 1.6;
+        }
+        .key {
+            display: inline-block;
+            padding: 5px 10px;
+            border: 2px solid #f0f;
+            border-radius: 5px;
+            color: #f0f;
+            margin: 0 5px;
         }
         .button {
             padding: 15px 30px;
             font-size: 1.5em;
-            color: #0c0c1c;
-            background-color: #00ffff;
+            font-family: 'Major Mono Display', monospace;
+            color: #0d011c;
+            background-color: #0ff;
             border: none;
             cursor: pointer;
-            box-shadow: 0 0 15px #00ffff;
+            box-shadow: 0 0 15px #0ff;
             transition: all 0.2s ease;
-            pointer-events: all; /* Make buttons clickable */
+            pointer-events: all;
         }
         .button:hover {
             background-color: #fff;
             color: #000;
-            box-shadow: 0 0 25px #fff;
+            box-shadow: 0 0 25px #fff, 0 0 40px #0ff;
         }
     </style>
 </head>
@@ -94,266 +110,392 @@
     <div id="game-container">
         <canvas id="gameCanvas" width="600" height="800"></canvas>
         
-        <!-- Score and High Score Display -->
-        <div id="score-display">0</div>
-        <div id="high-score-display">HI: 0</div>
+        <div id="hud" class="ui">
+            <div id="score-display">0</div>
+            <div id="abilities-display">
+                <div id="dash-charges">DASH [SPACE]: READY</div>
+                <div id="focus-status">FOCUS [SHIFT]: READY</div>
+                <div id="high-score-display" style="color:#aaa; font-size: 0.8em; margin-top: 10px;">HI: 0</div>
+            </div>
+        </div>
         
-        <!-- Start Screen UI -->
-        <div id="start-screen" class="ui">
-            <h1>COSMIC RUSHER</h1>
-            <p>Use LEFT and RIGHT arrow keys to dodge asteroids.<br>The longer you survive, the higher your score.</p>
-            <button id="start-button" class="button">START GAME</button>
+        <div id="start-screen" class="ui screen">
+            <h1>VOID DASHER</h1>
+            <p>Use <span class="key">◀</span> and <span class="key">▶</span> to move.<br>
+               Press <span class="key">SPACE</span> to dash through obstacles.<br>
+               Press <span class="key">SHIFT</span> for slow-mo focus.</p>
+            <button id="start-button" class="button">ENGAGE</button>
         </div>
 
-        <!-- Game Over UI -->
-        <div id="game-over-screen" class="ui hidden">
-            <h1>GAME OVER</h1>
+        <div id="game-over-screen" class="ui screen hidden">
+            <h1>DISCONNECTED</h1>
             <p>Your Score: <span id="final-score">0</span></p>
-            <button id="restart-button" class="button">PLAY AGAIN</button>
+            <button id="restart-button" class="button">RECONNECT</button>
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-
-        // UI Elements
-        const scoreDisplay = document.getElementById('score-display');
-        const highScoreDisplay = document.getElementById('high-score-display');
-        const startScreen = document.getElementById('start-screen');
-        const gameOverScreen = document.getElementById('game-over-screen');
-        const startButton = document.getElementById('start-button');
-        const restartButton = document.getElementById('restart-button');
-        const finalScoreSpan = document.getElementById('final-score');
-
-        // Game state
-        let score = 0;
-        let highScore = localStorage.getItem('cosmicRusherHighScore') || 0;
-        let gameOver = true;
-        let gameFrame = 0;
-        let keys = {};
-
-        // Update High Score display on load
-        highScoreDisplay.innerText = `HI: ${highScore}`;
-
-        // Player Ship
-        const player = {
-            x: canvas.width / 2 - 20,
-            y: canvas.height - 70,
-            width: 40,
-            height: 40,
-            speed: 7,
-            dx: 0
-        };
-
-        // Arrays for entities
-        let obstacles = [];
-        let stars = [];
-
-        class Obstacle {
-            constructor() {
-                this.width = Math.random() * 40 + 20; // width between 20 and 60
-                this.height = this.width; // keep it square-ish
-                this.x = Math.random() * (canvas.width - this.width);
-                this.y = -this.height;
-                this.speed = Math.random() * 2 + 2; // base speed
-                this.color = `hsl(${Math.random() * 60 + 180}, 100%, 50%)`; // Shades of cyan/blue
-            }
-            update(gameSpeed) {
-                this.y += this.speed + gameSpeed;
-            }
-            draw() {
-                ctx.fillStyle = this.color;
-                ctx.shadowColor = this.color;
-                ctx.shadowBlur = 10;
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-                ctx.shadowBlur = 0;
-            }
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // UI Elements
+    const scoreDisplay = document.getElementById('score-display');
+    const highScoreDisplay = document.getElementById('high-score-display');
+    const dashDisplay = document.getElementById('dash-charges');
+    const focusDisplay = document.getElementById('focus-status');
+    const startScreen = document.getElementById('start-screen');
+    const gameOverScreen = document.getElementById('game-over-screen');
+    const startButton = document.getElementById('start-button');
+    const restartButton = document.getElementById('restart-button');
+    const finalScoreSpan = document.getElementById('final-score');
+    
+    // Game State
+    let score, highScore, gameOver, gameFrame, gameSpeedMultiplier;
+    let keys = {};
+    let particles = [];
+    let obstacles = [];
+    let stars = [];
+    let shake = { intensity: 0, duration: 0 };
+    
+    // Player State
+    const player = {
+        x: canvas.width / 2 - 20,
+        y: canvas.height - 100,
+        width: 30,
+        height: 40,
+        speed: 6,
+        isDashing: false,
+        dashTimer: 0,
+        dashDuration: 12, // frames
+        dashCooldown: 0,
+        dashMaxCooldown: 120, // frames
+        dashCharges: 3,
+        maxDashCharges: 3
+    };
+    
+    // Focus (Slow-Mo) State
+    const focus = {
+        active: false,
+        timer: 0,
+        duration: 180, // 3 seconds
+        cooldown: 0,
+        maxCooldown: 1200 // 20 seconds
+    };
+    
+    // Classes
+    class Particle {
+        constructor(x, y, color, size, speedX, speedY) {
+            this.x = x;
+            this.y = y;
+            this.color = color;
+            this.size = size;
+            this.speedX = speedX;
+            this.speedY = speedY;
+            this.life = 1;
         }
-
-        class Star {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.radius = Math.random() * 1.5;
-                this.speed = Math.random() * 0.5 + 0.2;
-            }
-            update() {
-                this.y += this.speed;
-                if (this.y > canvas.height) {
-                    this.y = 0;
-                    this.x = Math.random() * canvas.width;
-                }
-            }
-            draw() {
-                ctx.fillStyle = 'white';
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fill();
-            }
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            this.life -= 0.02;
         }
-        
-        function initStars() {
-            for (let i = 0; i < 150; i++) {
-                stars.push(new Star());
-            }
-        }
-
-        function drawPlayer() {
-            ctx.fillStyle = '#ff00ff';
-            ctx.shadowColor = '#ff00ff';
-            ctx.shadowBlur = 15;
-            
-            // Ship body
+        draw() {
+            ctx.fillStyle = this.color;
+            ctx.globalAlpha = this.life;
             ctx.beginPath();
-            ctx.moveTo(player.x + player.width / 2, player.y);
-            ctx.lineTo(player.x, player.y + player.height);
-            ctx.lineTo(player.x + player.width, player.y + player.height);
-            ctx.closePath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
             ctx.fill();
-            
-            // Thruster flame
-            if (gameFrame % 4 < 2) {
-                 ctx.fillStyle = '#ffcc00';
-                 ctx.shadowColor = '#ffcc00';
-                 ctx.shadowBlur = 10;
-                 ctx.beginPath();
-                 ctx.moveTo(player.x + player.width * 0.3, player.y + player.height);
-                 ctx.lineTo(player.x + player.width * 0.7, player.y + player.height);
-                 ctx.lineTo(player.x + player.width / 2, player.y + player.height + Math.random() * 15 + 10);
-                 ctx.closePath();
-                 ctx.fill();
+            ctx.globalAlpha = 1;
+        }
+    }
+
+    class Obstacle {
+        constructor() {
+            this.width = Math.random() * 40 + 20;
+            this.height = this.width;
+            this.x = Math.random() * (canvas.width - this.width);
+            this.y = -this.height;
+            this.speed = Math.random() * 2 + 1.5;
+            this.color = `hsl(${Math.random() * 60 + 270}, 100%, 60%)`; // Shades of purple/pink
+            this.angle = Math.random() * Math.PI * 2;
+            this.angleSpeed = (Math.random() - 0.5) * 0.05;
+        }
+        update() {
+            const baseSpeed = score / 2000;
+            this.y += (this.speed + baseSpeed) * gameSpeedMultiplier;
+            this.angle += this.angleSpeed * gameSpeedMultiplier;
+        }
+        draw() {
+            ctx.save();
+            ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
+            ctx.rotate(this.angle);
+            ctx.fillStyle = this.color;
+            ctx.shadowColor = this.color;
+            ctx.shadowBlur = 15;
+            ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
+            ctx.restore();
+        }
+    }
+
+    class Star {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 1.5;
+            this.speed = Math.random() * 0.8 + 0.2;
+        }
+        update() {
+            this.y += this.speed * gameSpeedMultiplier;
+            if (this.y > canvas.height) {
+                this.y = 0;
+                this.x = Math.random() * canvas.width;
             }
-            ctx.shadowBlur = 0;
         }
-
-        function movePlayer() {
-            player.x += player.dx;
-
-            // Wall detection
-            if (player.x < 0) player.x = 0;
-            if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+        draw() {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
         }
+    }
+    
+    // Game Logic
+    function init() {
+        score = 0;
+        highScore = localStorage.getItem('voidDasherHighScore') || 0;
+        gameOver = true;
+        gameFrame = 0;
+        gameSpeedMultiplier = 1;
+        player.x = canvas.width / 2 - player.width / 2;
+        player.dashCharges = player.maxDashCharges;
+        player.dashCooldown = 0;
+        focus.cooldown = 0;
+        obstacles = [];
+        particles = [];
+        stars = [];
+        for (let i=0; i < 200; i++) stars.push(new Star());
+
+        highScoreDisplay.innerText = `HI: ${highScore}`;
         
-        function handleObstacles() {
-            const gameSpeed = score / 2000; // Game gets faster as score increases
-            let obstacleSpawnRate = Math.max(20, 100 - score / 100);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        stars.forEach(s => s.draw());
+        drawPlayer();
+    }
 
-            // Add new obstacles periodically
-            if (gameFrame % obstacleSpawnRate < 1) {
-                obstacles.push(new Obstacle());
+    function startGame() {
+        init();
+        gameOver = false;
+        startScreen.classList.add('hidden');
+        gameOverScreen.classList.add('hidden');
+        animate();
+    }
+
+    function endGame() {
+        gameOver = true;
+        triggerShake(15, 30);
+        if (score > highScore) {
+            highScore = score;
+            localStorage.setItem('voidDasherHighScore', highScore);
+        }
+        finalScoreSpan.innerText = score;
+        setTimeout(() => gameOverScreen.classList.remove('hidden'), 500);
+    }
+    
+    function animate() {
+        if (gameOver) return;
+
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
+
+        ctx.save();
+        if (shake.duration > 0) {
+            ctx.translate(Math.random() * shake.intensity - shake.intensity / 2, Math.random() * shake.intensity - shake.intensity / 2);
+            shake.duration--;
+        }
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        handleBackground();
+        handlePlayer();
+        handleObstacles();
+        handleParticles();
+        handleAbilities();
+        
+        updateScoreAndUI();
+        
+        gameFrame++;
+        ctx.restore();
+        requestAnimationFrame(animate);
+    }
+    
+    function handleBackground() {
+        stars.forEach(s => { s.update(); s.draw(); });
+    }
+
+    function handlePlayer() {
+        // Movement
+        if (keys['ArrowLeft'] && player.x > 0) player.x -= player.speed * gameSpeedMultiplier;
+        if (keys['ArrowRight'] && player.x < canvas.width - player.width) player.x += player.speed * gameSpeedMultiplier;
+        
+        // Dash Trail
+        if (player.isDashing || (keys['ArrowLeft'] || keys['ArrowRight'])) {
+            const color = player.isDashing ? '#0ff' : 'rgba(255, 0, 255, 0.5)';
+            particles.push(new Particle(player.x + player.width/2, player.y + player.height, color, 2, 0, 2));
+        }
+
+        drawPlayer();
+    }
+    
+    function drawPlayer() {
+        ctx.fillStyle = player.isDashing ? '#0ff' : '#fff';
+        ctx.shadowColor = player.isDashing ? '#0ff' : '#f0f';
+        ctx.shadowBlur = 20;
+        ctx.beginPath();
+        ctx.moveTo(player.x + player.width / 2, player.y);
+        ctx.lineTo(player.x, player.y + player.height);
+        ctx.lineTo(player.x + player.width, player.y + player.height);
+        ctx.closePath();
+        ctx.fill();
+        ctx.shadowBlur = 0;
+    }
+
+    function handleObstacles() {
+        const spawnRate = Math.max(15, 80 - score / 150);
+        if (gameFrame % Math.floor(spawnRate / gameSpeedMultiplier) === 0) {
+            obstacles.push(new Obstacle());
+        }
+
+        for (let i = obstacles.length - 1; i >= 0; i--) {
+            obstacles[i].update();
+            obstacles[i].draw();
+
+            if (obstacles[i].y > canvas.height) {
+                obstacles.splice(i, 1);
+                continue;
             }
-            
-            for (let i = obstacles.length - 1; i >= 0; i--) {
-                obstacles[i].update(gameSpeed);
-                obstacles[i].draw();
 
-                // Remove obstacles that go off-screen
-                if (obstacles[i].y > canvas.height) {
+            // Collision check
+            if (
+                player.x < obstacles[i].x + obstacles[i].width &&
+                player.x + player.width > obstacles[i].x &&
+                player.y < obstacles[i].y + obstacles[i].height &&
+                player.y + player.height > obstacles[i].y
+            ) {
+                if (player.isDashing) {
+                    score += 50;
+                    triggerShake(5, 10);
+                    createExplosion(obstacles[i].x + obstacles[i].width/2, obstacles[i].y + obstacles[i].height/2, obstacles[i].color, 30);
                     obstacles.splice(i, 1);
-                    continue;
-                }
-
-                // Collision Detection (AABB)
-                if (
-                    player.x < obstacles[i].x + obstacles[i].width &&
-                    player.x + player.width > obstacles[i].x &&
-                    player.y < obstacles[i].y + obstacles[i].height &&
-                    player.y + player.height > obstacles[i].y
-                ) {
+                } else {
+                    createExplosion(player.x + player.width/2, player.y + player.height/2, '#fff', 50);
                     endGame();
                 }
             }
         }
+    }
+
+    function handleParticles() {
+        for (let i = particles.length - 1; i >= 0; i--) {
+            particles[i].update();
+            particles[i].draw();
+            if (particles[i].life <= 0) particles.splice(i, 1);
+        }
+    }
+    
+    function handleAbilities() {
+        // Dash
+        if (player.isDashing) {
+            player.dashTimer--;
+            if (player.dashTimer <= 0) player.isDashing = false;
+        } else {
+             if (player.dashCharges < player.maxDashCharges) {
+                player.dashCooldown--;
+                if(player.dashCooldown <= 0) {
+                    player.dashCharges++;
+                    if(player.dashCharges < player.maxDashCharges) player.dashCooldown = player.dashMaxCooldown;
+                }
+             }
+        }
         
-        function handleStars() {
-            stars.forEach(star => {
-                star.update();
-                star.draw();
-            });
-        }
-        
-        function updateScore() {
-            score++;
-            scoreDisplay.innerText = score;
-        }
-
-        function resetGame() {
-            player.x = canvas.width / 2 - 20;
-            player.y = canvas.height - 70;
-            player.dx = 0;
-            obstacles = [];
-            score = 0;
-            gameFrame = 0;
-            scoreDisplay.innerText = '0';
-        }
-
-        function startGame() {
-            resetGame();
-            gameOver = false;
-            startScreen.classList.add('hidden');
-            gameOverScreen.classList.add('hidden');
-            animate();
-        }
-
-        function endGame() {
-            gameOver = true;
-            if (score > highScore) {
-                highScore = score;
-                localStorage.setItem('cosmicRusherHighScore', highScore);
-                highScoreDisplay.innerText = `HI: ${highScore}`;
+        // Focus (Slow-Mo)
+        if (focus.active) {
+            gameSpeedMultiplier = 0.4;
+            focus.timer--;
+            if (focus.timer <= 0) {
+                focus.active = false;
+                focus.cooldown = focus.maxCooldown;
             }
-            finalScoreSpan.innerText = score;
-            gameOverScreen.classList.remove('hidden');
+        } else {
+            gameSpeedMultiplier = 1;
+            if (focus.cooldown > 0) focus.cooldown--;
         }
+    }
 
-        function animate() {
-            if (gameOver) return;
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            handleStars();
-            handleObstacles();
-            drawPlayer();
-            movePlayer();
-            updateScore();
-            
-            gameFrame++;
-            requestAnimationFrame(animate);
+    function createExplosion(x, y, color, count) {
+        for (let i=0; i < count; i++) {
+            const speedX = (Math.random() - 0.5) * (Math.random() * 8);
+            const speedY = (Math.random() - 0.5) * (Math.random() * 8);
+            const size = Math.random() * 3 + 1;
+            particles.push(new Particle(x, y, color, size, speedX, speedY));
         }
+    }
+    
+    function triggerShake(intensity, duration) {
+        shake.intensity = intensity;
+        shake.duration = duration;
+    }
 
-        // Event Listeners
-        window.addEventListener('keydown', e => {
-            keys[e.key] = true;
-            updatePlayerMovement();
-        });
-
-        window.addEventListener('keyup', e => {
-            keys[e.key] = false;
-            updatePlayerMovement();
-        });
+    function updateScoreAndUI() {
+        if (!focus.active) score++;
+        scoreDisplay.innerText = score;
         
-        function updatePlayerMovement() {
-             if (keys['ArrowLeft'] || keys['a']) {
-                player.dx = -player.speed;
-            } else if (keys['ArrowRight'] || keys['d']) {
-                player.dx = player.speed;
-            } else {
-                player.dx = 0;
+        // Dash UI
+        let dashText = 'DASH [SPACE]: ';
+        if (player.dashCharges > 0) {
+            dashText += 'READY ' + '● '.repeat(player.dashCharges) + '○ '.repeat(player.maxDashCharges - player.dashCharges);
+        } else {
+            const progress = 1 - player.dashCooldown / player.dashMaxCooldown;
+            dashText += `CHARGING ${Math.floor(progress * 100)}%`;
+        }
+        dashDisplay.textContent = dashText;
+
+        // Focus UI
+        let focusText = 'FOCUS [SHIFT]: ';
+        if(focus.cooldown <= 0) {
+            focusText += "READY";
+        } else if (focus.active) {
+            focusText += `ACTIVE ${Math.ceil(focus.timer / 60)}s`;
+        }
+        else {
+            focusText += `COOLDOWN ${Math.ceil(focus.cooldown/60)}s`;
+        }
+        focusDisplay.textContent = focusText;
+    }
+    
+    // Event Listeners
+    window.addEventListener('keydown', e => { 
+        keys[e.key] = true; 
+        if (e.key === ' ' && !player.isDashing && player.dashCharges > 0) {
+            player.isDashing = true;
+            player.dashTimer = player.dashDuration;
+            player.dashCharges--;
+            if (player.dashCharges < player.maxDashCharges && player.dashCooldown <= 0) {
+               player.dashCooldown = player.dashMaxCooldown;
             }
         }
+        if (e.key === 'Shift' && !focus.active && focus.cooldown <= 0) {
+            focus.active = true;
+            focus.timer = focus.duration;
+            triggerShake(8, 20);
+        }
+    });
+    window.addEventListener('keyup', e => { keys[e.key] = false; });
 
-        startButton.addEventListener('click', startGame);
-        restartButton.addEventListener('click', startGame);
-        
-        // Initial setup
-        initStars();
+    startButton.addEventListener('click', startGame);
+    restartButton.addEventListener('click', startGame);
 
-        // Draw initial static scene
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        handleStars();
-        drawPlayer();
-        
+    // Initial call
+    init();
+
     </script>
 </body>
 </html>
