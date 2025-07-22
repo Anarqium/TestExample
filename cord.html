@@ -9,9 +9,8 @@
         style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline'; 
         font-src 'self' https://fonts.gstatic.com; 
         connect-src 'self' https://generativelanguage.googleapis.com;
-        img-src 'self' data:;
     ">
-    <title>Project Genesis | AI Code Environment</title>
+    <title>Project Obsidian | AI Workspace</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/isotope.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
@@ -21,228 +20,192 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/css/css.min.js"></script>
     <style>
         :root {
-            --bg-dark-1: #1e1e1e; --bg-dark-2: #252526; --bg-dark-3: #333333;
-            --border-color: #3c3c3c; --text-primary: #cccccc; --text-secondary: #8c8c8c;
-            --font-main: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            --font-mono: 'Fira Code', 'Operator Mono', monospace;
-            --accent-blue: #0e639c; --accent-purple: #6a3798; --accent-red: #c94a4a;
+            --bg-base: #101114;
+            --bg-glass: rgba(25, 26, 30, 0.6);
+            --border-glass: rgba(255, 255, 255, 0.1);
+            --shadow-color: rgba(0,0,0,0.3);
+            --text-primary: #e1e1e6; --text-secondary: #a8a8b3;
+            --accent-primary: #8257e5; --accent-secondary: #27d88b;
+            --font-main: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-mono: 'Fira Code', monospace;
         }
         @import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');
+        
         * { box-sizing: border-box; }
-        body { font-family: var(--font-main); margin: 0; background-color: var(--bg-dark-1); color: var(--text-primary); height: 100vh; width: 100vw; display: flex; overflow: hidden; }
+        body { font-family: var(--font-main); margin: 0; background-color: var(--bg-base); color: var(--text-primary); height: 100vh; width: 100vw; overflow: hidden; }
 
-        .split-view { width: 100%; height: 100%; display: flex; }
-        .gutter { cursor: col-resize; background: var(--border-color); z-index: 10; }
+        #live-preview-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; z-index: 1; }
         
-        /* Links: Aktivitätsleiste (VS Code-Stil) */
-        .activity-bar { width: 50px; background-color: var(--bg-dark-3); flex-shrink: 0; padding: 10px 0; display: flex; flex-direction: column; align-items: center; gap: 10px; border-right: 1px solid var(--border-color); }
-        .activity-bar-btn { background: none; border: none; color: var(--text-secondary); padding: 10px; cursor: pointer; border-left: 2px solid transparent; width: 100%; transition: all 0.2s ease; }
-        .activity-bar-btn svg { width: 24px; height: 24px; }
-        .activity-bar-btn:hover { color: var(--text-primary); }
-        .activity-bar-btn.active { color: var(--text-primary); border-left-color: var(--accent-blue); }
-
-        /* Links: Haupt-Panel */
-        .main-panel { width: 450px; min-width: 350px; background-color: var(--bg-dark-2); display: flex; flex-direction: column; }
-        .panel-content { display: none; height: 100%; flex-direction: column; }
-        .panel-content.active { display: flex; }
-
-        .panel-header { padding: 0 1.25rem; height: 40px; line-height: 40px; text-transform: uppercase; font-size: 0.8rem; font-weight: 600; letter-spacing: 1px; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .ui-container { position: relative; z-index: 2; height: 100vh; width: 100vw; }
         
-        /* Chat Ansicht */
-        .chat-view { padding: 1.5rem; justify-content: flex-end; }
-        .chat-history { flex-grow: 1; overflow-y: auto; margin-bottom: 1.5rem; }
-        .chat-message { line-height: 1.6; margin-bottom: 1rem; }
-        .chat-message .author { text-transform: uppercase; font-size: 0.8rem; color: var(--text-secondary); font-weight: bold; margin-bottom: 0.5rem; }
-        .chat-message.user { text-align: right; }
-        .chat-message.ai { text-align: left; }
-        .chat-message .msg-bubble { padding: 0.75rem 1rem; border-radius: 1rem; display: inline-block; max-width: 90%; text-align: left;}
-        .chat-message.user .msg-bubble { background-color: var(--accent-blue); }
-        .chat-message.ai .msg-bubble { background-color: var(--bg-dark-3); }
-        .chat-message.error .msg-bubble { background-color: var(--accent-red); }
-        
-        .chat-input-area { flex-shrink: 0; }
-        #context-info { padding: 10px; border: 1px dashed var(--accent-purple); color: var(--accent-purple); margin-bottom: 1rem; display: none; border-radius: 4px; }
-        #chat-input { background: var(--bg-dark-1); border: 1px solid var(--border-color); color: var(--text-primary); font-family: var(--font-main); font-size: 1rem; padding: 0.75rem; width: 100%; border-radius: 4px; resize: none; }
-        #chat-send { width: 100%; margin-top: 0.5rem; background: var(--accent-blue); border: none; color: white; padding: 0.75rem; border-radius: 4px; cursor: pointer; transition: background-color 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-weight: 600;}
-        #chat-send:hover:not(:disabled) { background: #0c5689; }
-        #chat-send:disabled { background: var(--bg-dark-3); cursor: not-allowed; }
+        /* Dock am linken Rand */
+        .dock { position: fixed; top: 0; left: 0; height: 100%; width: 60px; background: var(--bg-glass); backdrop-filter: blur(12px); border-right: 1px solid var(--border-glass); display: flex; flex-direction: column; align-items: center; padding-top: 1.5rem; gap: 1.5rem; z-index: 1000; }
+        .dock-btn { background: none; border: none; padding: 0; cursor: pointer; color: var(--text-secondary); transition: all 0.2s ease; }
+        .dock-btn svg { width: 28px; height: 28px; }
+        .dock-btn:hover, .dock-btn.active { color: var(--text-primary); transform: scale(1.1); }
+        #inspect-mode-toggle.active { color: var(--accent-primary); }
 
-        /* Editor Ansicht */
-        .CodeMirror { flex-grow: 1; font-family: var(--font-mono) !important; font-size: 15px; height: 100%; }
+        /* Schwebende Fenster */
+        .floating-window {
+            position: absolute;
+            width: 600px; height: 70vh;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            display: none;
+            flex-direction: column;
+            resize: both;
+            overflow: hidden; /* Important for resize */
+            transform-origin: center;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .floating-window.visible { display: flex; transform: scale(1); opacity: 1; }
+        
+        .window-header { height: 40px; background-color: rgba(0,0,0,0.2); flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; cursor: move; border-bottom: 1px solid var(--border-glass); }
+        .window-header h3 { font-size: 0.9rem; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
+        .window-header .close-btn { background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; line-height: 1; }
+
+        .window-body { flex-grow: 1; padding: 0; position: relative; }
+        
+        /* Spezifische Fensterinhalte */
+        #code-window .CodeMirror { height: 100%; font-family: var(--font-mono) !important; font-size: 15px; }
         .cm-s-isotope.CodeMirror { background: transparent; }
 
-        /* Settings Ansicht */
-        .settings-view { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
-        .input-group { display: flex; flex-direction: column; gap: 0.5rem; }
-        .input-group label { color: var(--text-secondary); font-weight: 600; }
-        #api-key { background: var(--bg-dark-1); border: 1px solid var(--border-color); color: var(--text-primary); font-family: var(--font-mono); font-size: 1rem; padding: 0.75rem; border-radius: 4px; }
+        #ai-window .window-body { padding: 1rem; display: flex; flex-direction: column; }
+        .chat-history { flex-grow: 1; overflow-y: auto; margin-bottom: 1rem; }
+        .chat-message { line-height: 1.6; margin-bottom: 1rem; max-width: 90%; }
+        .chat-message.user { align-self: flex-end; }
+        .chat-message .msg-bubble { padding: 0.75rem 1rem; border-radius: 1rem; display: inline-block; }
+        .chat-message.user .msg-bubble { background: var(--accent-primary); }
+        .chat-message.ai .msg-bubble { background: #32323c; }
+        .chat-message.error .msg-bubble { background: #5c1f1f; }
+        #context-info { padding: 10px; border: 1px dashed var(--accent-secondary); color: var(--accent-secondary); display: none; margin-bottom: 1rem; border-radius: 4px; }
+        #chat-input { background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); color: var(--text-primary); font-family: var(--font-main); padding: 0.75rem; width: 100%; border-radius: 4px; resize: none; }
         
-        /* Rechts: Die Bühne */
-        .stage { flex: 1; min-width: 400px; display: flex; flex-direction: column; }
-        .stage-header { padding: 0 1.5rem; height: 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); background: var(--bg-dark-2);}
-        .stage-header h2 { font-size: 0.8rem; text-transform: uppercase; color: var(--text-secondary); margin: 0; font-weight: 600; }
-
-        /* Auswählmodus Schalter */
-        .toggle-switch { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--text-secondary); }
-        .toggle-switch input { display: none; }
-        .toggle-switch .slider { cursor: pointer; width: 42px; height: 22px; background: var(--bg-dark-3); border-radius: 11px; position: relative; transition: 0.3s; }
-        .toggle-switch .slider:before { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: var(--text-primary); border-radius: 50%; transition: 0.3s; }
-        .toggle-switch input:checked + .slider { background: var(--accent-blue); }
-        .toggle-switch input:checked + .slider:before { transform: translateX(20px); }
-        
-        .stage-body { flex-grow: 1; position: relative; }
-        #output { width: 100%; height: 100%; border: none; background: white; transition: cursor 0.3s; }
-        .inspect-mode #output { cursor: crosshair; }
-        #highlight-overlay { position: absolute; background: #0e639c4d; border: 2px solid var(--accent-blue); pointer-events: none; transition: all 0.2s; animation: fadeIn 0.3s; }
+        /* Auswählmodus Overlay */
+        .inspect-mode-active .floating-window { opacity: 0.3 !important; pointer-events: none; transition: opacity 0.3s ease; }
+        #highlight-overlay { position: absolute; background: #8257e54d; border: 2px solid var(--accent-primary); z-index: 1; pointer-events: none; transition: all 0.1s ease; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
     </style>
 </head>
 <body>
-
-    <div class="split-view">
-        <nav class="activity-bar">
-            <button class="activity-bar-btn active" data-target="chat-view" title="AI Chat"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C13.6558 2 15 3.34418 15 5C15 6.65582 13.6558 8 12 8C10.3442 8 9 6.65582 9 5C9 3.34418 10.3442 2 12 2ZM6.77543 9.93829L9.25 11.5L6.77543 13.0617L9.93829 16.2246L11.5 13.75L13.0617 16.2246L16.2246 13.0617L13.75 11.5L16.2246 9.93829L13.0617 6.77543L11.5 9.25L9.93829 6.77543L6.77543 9.93829ZM3 21C3 16.5817 6.58172 13 11 13H13C17.4183 13 21 16.5817 21 21H19C19 17.6863 16.3137 15 13 15H11C7.68629 15 5 17.6863 5 21H3Z"></path></svg></button>
-            <button class="activity-bar-btn" data-target="code-view" title="Code Editor"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 3C21.1046 3 22 3.89543 22 5V19C22 20.1046 21.1046 21 20 21H4C2.89543 21 2 20.1046 2 19V5C2 3.89543 2.89543 3 4 3H20ZM8.58579 16L4.29289 11.7071L5.70711 10.2929L10 14.5858L8.58579 16ZM14.2929 16L12.8787 14.5858L17.1716 10.2929L18.5858 11.7071L14.2929 16Z"></path></svg></button>
-            <button class="activity-bar-btn" data-target="settings-view" title="Einstellungen"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L21.5 6.5V17.5L12 23L2.5 17.5V6.5L12 1ZM12 3.29844L4.5 7.84805V16.152L12 20.7016L19.5 16.152V7.84805L12 3.29844ZM12 14C13.1046 14 14 13.1046 14 12C14 10.8954 13.1046 10 12 10C10.8954 10 10 10.8954 10 12C10 13.1046 10.8954 14 12 14Z"></path></svg></button>
-        </nav>
-
-        <aside class="main-panel" id="main-panel">
-            <div id="chat-view" class="panel-content active">
-                 <h2 class="panel-header">AI Chat</h2>
-                 <div class="chat-view">
-                    <div class="chat-history" id="chat-history"></div>
-                    <div class="chat-input-area">
-                        <div id="context-info">FOKUS: <span></span></div>
-                        <textarea id="chat-input" rows="3" placeholder="Deine Anweisung hier..." disabled></textarea>
-                        <button id="chat-send" disabled>
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M1.94607 9.31543C1.42354 9.1413 1.4194 8.8603 1.95682 8.6811L21.0431 2.319C21.5715 2.14295 21.8746 2.43904 21.7265 2.9569L19.5461 22.0431C19.3888 22.5821 19.1041 22.5853 18.9245 22.0494L12.4549 13.9318L5.56455 17.0272C5.03534 17.2694 4.72264 16.9634 4.96025 16.4497L9.46243 12.3789L1.94607 9.31543Z"></path></svg>
-                            <span>Anweisung Senden</span>
-                        </button>
-                    </div>
-                 </div>
-            </div>
-            <div id="code-view" class="panel-content">
-                <h2 class="panel-header">Source Code</h2>
-                <textarea id="code-editor"></textarea>
-            </div>
-            <div id="settings-view" class="panel-content">
-                <h2 class="panel-header">Einstellungen</h2>
-                <div class="settings-view">
-                    <div class="input-group">
-                        <label for="api-key">Gemini API-Schlüssel</label>
-                        <input id="api-key" type="password" placeholder="API Key...">
-                    </div>
-                </div>
-            </div>
+    <iframe id="live-preview-bg"></iframe>
+    <div class="ui-container">
+        <aside class="dock">
+            <button class="dock-btn" id="open-code-btn" title="Code-Editor"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12l-5.657 5.657-1.414-1.414L21.172 12l-4.243-4.243 1.414-1.414L24 12zM2.828 12l4.243 4.243-1.414 1.414L0 12l5.657-5.657L7.07 7.757 2.828 12zm6.95 9.071l-1.414-1.414 4.242-12.728 1.414 1.414-4.242 12.728z"></path></svg></button>
+            <button class="dock-btn" id="open-ai-btn" title="AI Chat"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C13.6558 2 15 3.34418 15 5C15 6.65582 13.6558 8 12 8C10.3442 8 9 6.65582 9 5C9 3.34418 10.3442 2 12 2ZM6.77543 9.93829L9.25 11.5L6.77543 13.0617L9.93829 16.2246L11.5 13.75L13.0617 16.2246L16.2246 13.0617L13.75 11.5L16.2246 9.93829L13.0617 6.77543L11.5 9.25L9.93829 6.77543L6.77543 9.93829ZM3 21C3 16.5817 6.58172 13 11 13H13C17.4183 13 21 16.5817 21 21H19C19 17.6863 16.3137 15 13 15H11C7.68629 15 5 17.6863 5 21H3Z"></path></svg></button>
+            <button class="dock-btn" id="inspect-mode-toggle" title="Auswählmodus"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3V3zm0 10h8v8H3v-8zM13 3h8v8h-8V3zm0 10h8v8h-8v-8z"></path></svg></button>
         </aside>
 
-        <div class="gutter" id="main-gutter" style="width: 5px;"></div>
-        
-        <main class="stage" id="stage">
-            <header class="stage-header">
-                <h2>Vorschau</h2>
-                <div class="toggle-switch">
-                    <span>Auswählmodus</span>
-                    <label class="switch">
-                        <input type="checkbox" id="inspect-mode-toggle">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-            </header>
-            <div class="stage-body">
-                <iframe id="output"></iframe>
+        <div class="floating-window" id="code-window">
+            <header class="window-header"><h3>Source Code</h3> <button class="close-btn">×</button></header>
+            <div class="window-body"><textarea id="code-editor"></textarea></div>
+        </div>
+
+        <div class="floating-window" id="ai-window">
+            <header class="window-header"><h3>AI Assistant</h3> <button class="close-btn">×</button></header>
+            <div class="window-body">
+                <div class="chat-history" id="chat-history"></div>
+                <div id="context-info">FOKUS: <span></span></div>
+                <textarea id="chat-input" rows="3" placeholder="Deine Anweisung hier..." disabled></textarea>
             </div>
-        </main>
+        </div>
     </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const dom = {
-        activityBtns: document.querySelectorAll('.activity-bar-btn'),
-        panelContents: document.querySelectorAll('.panel-content'),
+        previewFrame: document.getElementById('live-preview-bg'),
+        uiContainer: document.querySelector('.ui-container'),
+        codeWindow: document.getElementById('code-window'),
+        aiWindow: document.getElementById('ai-window'),
+        dockBtns: document.querySelectorAll('.dock-btn'),
         chatHistory: document.getElementById('chat-history'),
         chatInput: document.getElementById('chat-input'),
-        apiKeyInput: document.getElementById('api-key'),
-        chatSendBtn: document.getElementById('chat-send'),
         contextInfo: document.getElementById('context-info'),
-        outputFrame: document.getElementById('output'),
-        inspectModeToggle: document.getElementById('inspect-mode-toggle'),
-        stageBody: document.querySelector('.stage-body'),
-        mainPanel: document.getElementById('main-panel'),
-        stage: document.getElementById('stage'),
-        editorPane: document.getElementById('editor-pane'),
-        chatPane: document.getElementById('chat-pane')
     };
     
-    const state = { apiKey: '', chatHistory: [], selectedElement: null, isAwaitingAI: false, isInspectModeActive: false };
-    
+    const state = { apiKey: '', chatHistory: [], selectedElement: null, isAwaitingAI: false, isInspectModeActive: false, activeZIndex: 10 };
+
     const editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), { lineNumbers: true, mode: 'htmlmixed', theme: 'isotope' });
-    
-    const initialCode = `<!DOCTYPE html>\n<html lang="de">\n<head>\n    <meta charset="UTF-8">\n    <title>Genesis Editor</title>\n    <style>\n        /* CSS hier schreiben */\n        body {\n            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;\n            display: grid; \n            place-items: center;\n            height: 100vh; \n            margin: 0;\n            background-color: #f0f4f9; \n            color: #222;\n        }\n        .card {\n            text-align: center;\n            padding: 2.5rem;\n            background: white;\n            border-radius: 16px;\n            box-shadow: 0 10px 25px rgba(0,0,0,0.1);\n        }\n        button {\n            margin-top: 1rem;\n            padding: 0.8rem 1.6rem;\n            border: none;\n            font-weight: 600;\n            color: white;\n            background: #1e1e1e;\n            cursor: pointer;\n            border-radius: 8px;\n            transition: all 0.2s ease;\n        }\n        button:hover {\n            transform: translateY(-2px);\n            box-shadow: 0 4px 10px rgba(0,0,0,0.2);\n        }\n    </style>\n</head>\n<body>\n    \n    <div class="card">\n      <h1>Projekt Genesis</h1>\n      <p>Willkommen in deiner neuen AI-Code-Umgebung.</p>\n      <button id="action-btn">Klick Mich!</button>\n    </div>\n\n    <script>\n        // JavaScript hier schreiben\n        const button = document.getElementById('action-btn');\n        button.addEventListener('click', () => {\n          alert('Button geklickt! Aktiviere den Auswählmodus, um das Element zu fokussieren.');\n        });\n    <\/script>\n</body>\n</html>`;
-    editor.setValue(initialCode);
+    editor.setValue(`<!DOCTYPE html>\n<html lang="de">\n<head>\n    <meta charset="UTF-8">\n    <title>Obsidian Workspace</title>\n    <style>\n        body { background: #0f2027; background: linear-gradient(to right, #2c5364, #203a43, #0f2027); color: white; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: grid; place-items: center; height: 100vh; margin: 0; }\n        .content-card { text-align: center; padding: 3rem; background: rgba(0,0,0,0.2); backdrop-filter: blur(10px); border-radius: 1rem; border: 1px solid rgba(255,255,255,0.1); }\n        button { margin-top: 1.5rem; padding: 1rem 2rem; border: 1px solid #8257e5; font-weight: 600; color: white; background: transparent; cursor: pointer; border-radius: 8px; transition: all 0.3s ease; }\n        button:hover { background: #8257e5; box-shadow: 0 0 20px #8257e5; }\n    </style>\n</head>\n<body>\n    <div class="content-card">\n      <h1>Project Obsidian</h1>\n      <p>Willkommen in deinem neuen AI Workspace.</p>\n      <button id="action-btn">Initialisieren</button>\n    </div>\n    <script>\n        document.getElementById('action-btn').addEventListener('click', () => {\n          alert('Button aktiviert! Aktiviere den Auswählmodus im Dock, um ihn mit der KI zu bearbeiten.');\n        });\n    <\/script>\n</body>\n</html>`);
 
-    function renderPreview() { dom.outputFrame.srcdoc = editor.getValue(); }
+    const renderPreview = () => dom.previewFrame.srcdoc = editor.getValue();
     editor.on('change', renderPreview);
-
-    function addMessageToChat(text, type, thinking = false) {
-        const msgContainer = document.createElement('div');
-        msgContainer.className = `chat-message ${type}`;
-        
-        const authorDiv = document.createElement('div');
-        authorDiv.className = 'author';
-        authorDiv.textContent = type;
-
-        const bubbleDiv = document.createElement('div');
-        bubbleDiv.className = 'msg-bubble';
-        bubbleDiv.innerHTML = text;
-
-        if (thinking) {
-             bubbleDiv.innerHTML = "Analysiere Anfrage...";
+    
+    // --- Window Management ---
+    function makeDraggable(el) {
+        const header = el.querySelector('.window-header');
+        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        header.onmousedown = (e) => {
+            e.preventDefault();
+            el.style.zIndex = ++state.activeZIndex;
+            pos3 = e.clientX; pos4 = e.clientY;
+            document.onmouseup = () => document.onmouseup = document.onmousemove = null;
+            document.onmousemove = (moveE) => {
+                moveE.preventDefault();
+                pos1 = pos3 - moveE.clientX; pos2 = pos4 - moveE.clientY;
+                pos3 = moveE.clientX; pos4 = moveE.clientY;
+                el.style.top = (el.offsetTop - pos2) + "px";
+                el.style.left = (el.offsetLeft - pos1) + "px";
+            };
+        };
+    }
+    
+    function toggleWindow(windowEl) {
+        const btn = document.getElementById(`open-${windowEl.id.replace('-window','')}-btn`);
+        const isVisible = windowEl.classList.toggle('visible');
+        btn.classList.toggle('active', isVisible);
+        if (isVisible) {
+             windowEl.style.zIndex = ++state.activeZIndex;
+             if (windowEl.id === 'code-window') editor.refresh();
         }
+    }
+    
+    [dom.codeWindow, dom.aiWindow].forEach(makeDraggable);
+    document.querySelectorAll('.close-btn').forEach(btn => btn.onclick = () => toggleWindow(btn.closest('.floating-window')));
+    document.getElementById('open-code-btn').onclick = () => toggleWindow(dom.codeWindow);
+    document.getElementById('open-ai-btn').onclick = () => toggleWindow(dom.aiWindow);
 
-        msgContainer.appendChild(authorDiv);
-        msgContainer.appendChild(bubbleDiv);
-
-        dom.chatHistory.appendChild(msgContainer);
+    // --- AI & Chat Logic ---
+    const updateUIState = () => dom.chatInput.disabled = !state.apiKey || state.isAwaitingAI;
+    
+    function addMessageToChat(text, type) {
+        const msgContainer = document.createElement('div'); msgContainer.className = `chat-message ${type}`;
+        const bubbleDiv = document.createElement('div'); bubbleDiv.className = 'msg-bubble'; bubbleDiv.innerHTML = text;
+        msgContainer.appendChild(bubbleDiv); dom.chatHistory.appendChild(msgContainer);
         dom.chatHistory.scrollTop = dom.chatHistory.scrollHeight;
         return bubbleDiv;
     }
-    
-    function updateUIState() {
-        dom.chatInput.disabled = !state.apiKey || state.isAwaitingAI;
-        dom.chatSendBtn.disabled = !state.apiKey || state.isAwaitingAI;
-        dom.stageBody.classList.toggle('inspect-mode', state.isInspectModeActive);
-    }
-    
+
     async function handleChatSend() {
         const userPrompt = dom.chatInput.value.trim(); if (!userPrompt) return;
-        state.isAwaitingAI = true; updateUIState();
-        addMessageToChat(userPrompt, 'user');
-        const thinkingMsgBubble = addMessageToChat("", 'ai', true);
-        
-        const contextPrompt = state.selectedElement ? `FOKUSSIERTES ELEMENT: Der Benutzer hat das Element ${state.selectedElement.selector} für diese Anfrage ausgewählt.` : '';
-        const systemPrompt = `Du bist ein experter Web-Entwickler. Dir wird ein vollständiges HTML-Dokument zur Verfügung gestellt. Deine Aufgabe ist es, dieses Dokument basierend auf der Anfrage zu ändern. Du musst NUR ein valides JSON-Objekt zurückgeben, das exakt diesem Format folgt: { "newCode": "...", "explanation": "..." }. Der Wert für 'newCode' MUSS das VOLLSTÄNDIGE, aktualisierte HTML-Dokument als ein einziger String sein. 'explanation' MUSS eine kurze, freundliche Erklärung deiner Änderungen sein. Jede Antwort, die nicht diesem JSON-Format entspricht, ist ein Fehler.`;
-        
-        const historyForApi = state.chatHistory.concat({ role: 'user', parts: [{text: `${userPrompt}\n${contextPrompt}\n\nAKTUELLER CODE:\n${editor.getValue()}`}] });
+        state.isAwaitingAI = true; updateUIState(); addMessageToChat(userPrompt, 'user');
+        const thinkingMsgBubble = addMessageToChat("...", 'ai');
+        const contextPrompt = state.selectedElement ? `FOKUS: ${state.selectedElement.selector}` : '';
+        const systemPrompt = `Aufgabe: Ändere das HTML-Dokument basierend auf der Anfrage. Antwort-Format: Nur ein valides JSON-Objekt: { "newCode": "...", "explanation": "..." }. 'newCode' MUSS das VOLLSTÄNDIGE, neue HTML als ein String sein. 'explanation' ist eine kurze Erklärung. Jede andere Antwort ist ein Fehler.`;
+        const historyForApi = [...state.chatHistory, { role: 'user', parts: [{text: `${userPrompt}\n${contextPrompt}\n\nAKTUELLER CODE:\n${editor.getValue()}`}] }];
         
         try {
-            const model = 'gemini-1.5-flash-latest'; const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${state.apiKey}`;
+            const model = 'gemini-1.5-flash-latest';
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${state.apiKey}`;
             const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: historyForApi, systemInstruction: { parts: [{text: systemPrompt }] } }) });
-            if (!response.ok) { let errorDetail = `Status: ${response.status}`; try { const errorData = await response.json(); if (errorData.error?.message) errorDetail = errorData.error.message; } catch(e){} throw new Error(errorDetail); }
+            if (!response.ok) { let e = `Status ${response.status}`; try { const d = await response.json(); if (d.error?.message) e = d.error.message; } catch(err){} throw new Error(e); }
             const data = await response.json();
             const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
             const cleanedText = rawText.replace(/^```json|```$/g, '').trim();
             let result;
-            try { result = JSON.parse(cleanedText); } catch (e) { console.error("Invalid KI response:", cleanedText); throw new Error("KI-Antwort konnte nicht verarbeitet werden. Bitte anders formulieren."); }
+            try { result = JSON.parse(cleanedText); } catch { throw new Error("Formatierungsfehler der KI."); }
 
             if (result.explanation) {
-                thinkingMsgBubble.innerHTML = result.explanation; // Update thinking message with explanation
+                thinkingMsgBubble.innerHTML = result.explanation;
                 state.chatHistory.push({ role: 'user', parts: [{text: userPrompt}] }, { role: 'model', parts: [{text: result.explanation}] });
-            } else {
-                 thinkingMsgBubble.parentElement.remove(); // Remove thinking message if no explanation
-            }
-            if (result.newCode) { editor.setValue(result.newCode); } else { throw new Error("KI hat keinen neuen Code geliefert."); }
+            } else { thinkingMsgBubble.parentElement.remove(); }
+            if (result.newCode) editor.setValue(result.newCode);
+            else { throw new Error("Kein neuer Code empfangen."); }
             dom.chatInput.value = '';
 
         } catch (error) {
@@ -252,67 +215,48 @@ document.addEventListener('DOMContentLoaded', () => {
             state.isAwaitingAI = false; updateUIState();
         }
     }
-    
-    // Resizable Gutter Logic
-    function makeResizable(gutterEl, pane1El, isHorizontal = false) {
-        gutterEl.addEventListener('mousedown', (e) => {
-            e.preventDefault();
-            const startPos = isHorizontal ? e.clientY : e.clientX, p1_start = isHorizontal ? pane1El.offsetHeight : pane1El.offsetWidth;
-            const onMouseMove = (moveE) => {
-                const delta = (isHorizontal ? moveE.clientY : moveE.clientX) - startPos;
-                pane1El.style.flex = `0 0 ${p1_start + delta}px`;
-                editor.refresh();
-            };
-            const onMouseUp = () => { window.removeEventListener('mousemove', onMouseMove); window.removeEventListener('mouseup', onMouseUp); };
-            window.addEventListener('mousemove', onMouseMove); window.addEventListener('mouseup', onMouseUp);
-        });
-    }
-    makeResizable(document.getElementById('main-gutter'), dom.mainPanel);
-    
-    // Event Listeners
-    dom.apiKeyInput.addEventListener('input', () => { state.apiKey = dom.apiKeyInput.value.trim(); localStorage.setItem('genesisApiKey', state.apiKey); updateUIState(); });
-    dom.chatSendBtn.addEventListener('click', handleChatSend);
     dom.chatInput.addEventListener('keydown', (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleChatSend(); }});
-    dom.inspectModeToggle.addEventListener('change', (e) => { state.isInspectModeActive = e.target.checked; updateUIState(); });
-    
-    dom.activityBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            dom.activityBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            
-            const targetId = btn.dataset.target;
-            dom.panelContents.forEach(panel => {
-                panel.classList.toggle('active', panel.id === targetId);
-            });
-            editor.refresh(); // Refresh editor in case it became visible
-        });
+
+    // --- Inspect Mode Logic ---
+    dom.dockBtns.namedItem('inspect-mode-toggle').addEventListener('click', (e) => {
+        state.isInspectModeActive = !state.isInspectModeActive;
+        e.currentTarget.classList.toggle('active', state.isInspectModeActive);
+        dom.uiContainer.classList.toggle('inspect-mode-active', state.isInspectModeActive);
     });
 
-    dom.outputFrame.addEventListener('load', () => {
-        const doc = dom.outputFrame.contentDocument; if (!doc) return;
+    dom.previewFrame.addEventListener('load', () => {
+        const doc = dom.previewFrame.contentDocument; if (!doc) return;
         doc.body.addEventListener('click', (e) => {
-            if (!state.isInspectModeActive) return; 
+            if (!state.isInspectModeActive) return;
             e.preventDefault(); e.stopPropagation(); const target = e.target;
             
             let highlight = doc.getElementById('highlight-overlay');
             if (!highlight) {
-                highlight = doc.createElement('div'); highlight.id = 'highlight-overlay'; doc.body.appendChild(highlight);
+                highlight = doc.createElement('div'); highlight.id = 'highlight-overlay';
+                doc.body.appendChild(highlight);
             }
             const rect = target.getBoundingClientRect();
-            highlight.style.cssText = `top:${rect.top + doc.documentElement.scrollTop}px; left:${rect.left + doc.documentElement.scrollLeft}px; width:${rect.width}px; height:${rect.height}px;`;
-            
+            highlight.style.cssText = `top:${rect.top}px; left:${rect.left}px; width:${rect.width}px; height:${rect.height}px;`;
+
             const tag = target.tagName.toLowerCase(), id = target.id ? `#${target.id}` : '', classes = target.className ? `.${String(target.className).trim().replace(/\s+/g, '.')}` : '';
             state.selectedElement = { selector: `${tag}${id}${classes}` };
             dom.contextInfo.querySelector('span').textContent = state.selectedElement.selector;
             dom.contextInfo.style.display = 'block';
+            
+            // Turn off inspect mode after selection for better workflow
+            dom.dockBtns.namedItem('inspect-mode-toggle').click(); 
         }, true);
     });
 
     function init() {
-        const savedKey = localStorage.getItem('genesisApiKey');
-        if (savedKey) { dom.apiKeyInput.value = savedKey; state.apiKey = savedKey; }
-        addMessageToChat('System bereit. Bitte API-Key unter Einstellungen eingeben, um zu starten.', 'ai');
-        updateUIState(); renderPreview();
+        state.apiKey = localStorage.getItem('obsidianApiKey');
+        if (!state.apiKey) {
+            state.apiKey = prompt("Bitte geben Sie Ihren Gemini API-Schlüssel ein:", "");
+            if (state.apiKey) localStorage.setItem('obsidianApiKey', state.apiKey);
+        }
+        updateUIState();
+        renderPreview();
+        addMessageToChat('Willkommen bei Project Obsidian. Öffnen Sie die Fenster über das Dock links.', 'ai');
     }
     init();
 });
