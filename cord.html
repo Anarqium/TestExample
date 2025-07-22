@@ -3,9 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- WICHTIG: Content-Security-Policy für GitHub Pages -->
-    <!-- Erlaubt das Laden von Skripten, Styles, Schriften und die Verbindung zur Google API -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self'; 
         script-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline'; 
@@ -14,10 +11,7 @@
         connect-src 'self' https://generativelanguage.googleapis.com;
         img-src 'self' data:;
     ">
-
-    <title>Aura Interface | AI Live Editor [GitHub Fixed]</title>
-
-    <!-- CodeMirror-Bibliotheken -->
+    <title>Aura Interface | AI Live Editor [Robust Parse Fix]</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/vibrant-ink.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
@@ -27,195 +21,71 @@
 
     <style>
         :root {
-            --bg-dark-void: #0a0f18;
-            --bg-panel: #121a2a;
-            --border-glow: #00f6ff33;
-            --accent-glow: #00f6ff;
-            --text-primary: #e0e8f0;
-            --text-secondary: #8a96a8;
-            --font-main: 'Share Tech Mono', 'Fira Code', monospace;
-            --accent-magenta: #ff2ea2;
+            --bg-dark-void: #0a0f18; --bg-panel: #121a2a; --border-glow: #00f6ff33;
+            --accent-glow: #00f6ff; --text-primary: #e0e8f0; --text-secondary: #8a96a8;
+            --font-main: 'Share Tech Mono', 'Fira Code', monospace; --accent-magenta: #ff2ea2;
         }
-
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
         
-        /* --- GRUNDSTRUKTUR & HUD-ÄSTHETIK --- */
         * { box-sizing: border-box; }
-        
-        body {
-            font-family: var(--font-main);
-            margin: 0;
-            background-color: var(--bg-dark-void);
-            color: var(--text-primary);
-            height: 100vh;
-            width: 100vw;
-            display: flex;
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* Scanlines & Hintergrund-Hexagone für den HUD-Effekt */
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: 
-                repeating-linear-gradient(0deg, rgba(0, 246, 255, 0.03), rgba(0, 246, 255, 0.03) 1px, transparent 1px, transparent 4px),
-                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%2300f6ff' fill-opacity='0.05'%3E%3Cpath d='M0 38.59l2.83-2.83L0 32.93v5.66zm0-28.28l2.83-2.83L0 4.48v5.66zM3.54 0l2.83 2.83L10 0H3.54zM0 3.54L2.83 6.36 0 10V3.54zM3.54 40l2.83-2.83L10 40H3.54zM0 13.54l2.83 2.83L0 20v-6.46zM3.54 20l2.83 2.83L10 20H3.54zM0 23.54l2.83 2.83L0 30v-6.46z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        .split-view {
-            width: 100%;
-            height: 100%;
-            display: flex;
-        }
-
+        body { font-family: var(--font-main); margin: 0; background-color: var(--bg-dark-void); color: var(--text-primary); height: 100vh; width: 100vw; display: flex; overflow: hidden; position: relative; }
+        body::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(0, 246, 255, 0.03), rgba(0, 246, 255, 0.03) 1px, transparent 1px, transparent 4px), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%2300f6ff' fill-opacity='0.05'%3E%3Cpath d='M0 38.59l2.83-2.83L0 32.93v5.66zm0-28.28l2.83-2.83L0 4.48v5.66zM3.54 0l2.83 2.83L10 0H3.54zM0 3.54L2.83 6.36 0 10V3.54zM3.54 40l2.83-2.83L10 40H3.54zM0 13.54l2.83 2.83L0 20v-6.46zM3.54 20l2.83 2.83L10 20H3.54zM0 23.54l2.83 2.83L0 30v-6.46z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); z-index: -1; pointer-events: none; }
+        .split-view { width: 100%; height: 100%; display: flex; }
         .panel { flex: 1; min-width: 300px; display: flex; flex-direction: column; position: relative; }
-        
-        /* --- PANEL LINKS: CODE-EDITOREN --- */
-        .panel-code {
-            background: #0000004d;
-            border-right: 1px solid var(--border-glow);
-        }
-        
+        .panel-code { background: #0000004d; border-right: 1px solid var(--border-glow); }
         .code-tabs { display: flex; }
-        .code-tab {
-            padding: 12px 24px;
-            cursor: pointer;
-            background: #ffffff0a;
-            border: none;
-            color: var(--text-secondary);
-            font-family: var(--font-main);
-            position: relative;
-            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
-        }
+        .code-tab { padding: 12px 24px; cursor: pointer; background: #ffffff0a; border: none; color: var(--text-secondary); font-family: var(--font-main); position: relative; clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%); }
         .code-tab.active { background: var(--bg-panel); color: var(--accent-glow); text-shadow: 0 0 5px var(--accent-glow); }
-        .code-tab.active::after {
-            content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--accent-glow);
-        }
-
-        .code-editor-wrapper {
-            flex-grow: 1;
-            padding: 0;
-            position: relative;
-            background: var(--bg-panel);
-            clip-path: polygon(0 0, 100% 0, 100% 100%, 5% 100%);
-        }
+        .code-tab.active::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--accent-glow); }
+        .code-editor-wrapper { flex-grow: 1; padding: 0; position: relative; background: var(--bg-panel); clip-path: polygon(0 0, 100% 0, 100% 100%, 5% 100%); }
         .code-editor-instance { position: absolute; top: 0; left: 0; width: 100%; height: 100%; visibility: hidden; }
         .code-editor-instance.active { visibility: visible; }
         .CodeMirror { font-family: var(--font-main); font-size: 15px; height: 100%; }
         .cm-s-vibrant-ink.CodeMirror { background: transparent; }
         .cm-s-vibrant-ink .CodeMirror-gutters { background: #0000004d; border-right: none; }
-        
-        /* --- MITTLERES PANEL: KI-KERN & CHAT --- */
-        .panel-center {
-            flex: 0 0 550px;
-            min-width: 450px;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-            display: flex; flex-direction: column; gap: 2rem;
-        }
-        
-        .ai-core {
-            width: 200px; height: 200px; position: relative; display: flex; justify-content: center; align-items: center;
-            border: 1px solid var(--border-glow); border-radius: 50%;
-        }
+        .panel-center { flex: 0 0 550px; min-width: 450px; justify-content: center; align-items: center; padding: 2rem; display: flex; flex-direction: column; gap: 2rem; }
+        .ai-core { width: 200px; height: 200px; position: relative; display: flex; justify-content: center; align-items: center; border: 1px solid var(--border-glow); border-radius: 50%; }
         .ai-core::before, .ai-core::after { content: ''; position: absolute; border-radius: 50%; border: 1px solid; animation: pulse 3s infinite ease-out; }
         .ai-core::before { inset: 10px; border-color: var(--border-glow); }
         .ai-core::after { inset: 20px; border-color: var(--accent-glow); animation-delay: -1.5s; }
         .ai-core.processing svg { animation: spin 2s linear infinite; }
         #ai-core-svg { width: 60%; height: 60%; color: var(--accent-glow); transition: all 0.3s ease; }
-        
         @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.5; } }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-
-        .chat-module {
-            width: 100%;
-            height: 40vh;
-            display: flex; flex-direction: column;
-            background: #0000004d; border: 1px solid var(--border-glow); padding: 1.5rem;
-        }
-        
+        .chat-module { width: 100%; height: 40vh; display: flex; flex-direction: column; background: #0000004d; border: 1px solid var(--border-glow); padding: 1.5rem; }
         .chat-history { flex-grow: 1; overflow-y: auto; scrollbar-width: thin; }
         .chat-message { line-height: 1.6; margin-bottom: 1rem; }
         .chat-message.user .msg-content { color: var(--text-primary); }
         .chat-message.ai .msg-content { color: var(--accent-glow); }
         .chat-message.error .msg-content { color: var(--accent-magenta); }
         .chat-message strong { text-transform: uppercase; color: var(--text-secondary); }
-
         .chat-input-area { display: flex; gap: 1rem; border-top: 1px solid var(--border-glow); padding-top: 1rem; }
         #chat-input { background: transparent; border: 1px solid var(--border-glow); color: var(--text-primary); font-family: var(--font-main); font-size: 1rem; flex-grow: 1; padding: 0.75rem; }
         #chat-input:focus { outline: 1px solid var(--accent-glow); }
         #chat-send { background: var(--bg-panel); border: 1px solid var(--accent-glow); color: var(--accent-glow); font-family: var(--font-main); cursor: pointer; padding: 0.75rem; transition: all 0.2s ease; }
         #chat-send:hover:not(:disabled) { background: var(--accent-glow); color: var(--bg-dark-void); text-shadow: 0 0 5px #000; }
         #chat-send:disabled { filter: grayscale(1); cursor: not-allowed; }
-        
         #context-info { padding: 10px; margin-bottom: 10px; border: 1px solid var(--accent-magenta); color: var(--accent-magenta); display: none; }
-
-        /* --- PANEL RECHTS: VORSCHAU --- */
         .panel-preview { border-left: 1px solid var(--border-glow); }
         #output { width: 100%; height: 100%; border: none; background: white; }
-        
-        #highlight-overlay {
-            position: absolute;
-            background: #00f6ff33;
-            border: 2px solid var(--accent-glow);
-            z-index: 9999;
-            pointer-events: none;
-            transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
-            animation: fadeIn 0.3s forwards;
-        }
+        #highlight-overlay { position: absolute; background: #00f6ff33; border: 2px solid var(--accent-glow); z-index: 9999; pointer-events: none; transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1); animation: fadeIn 0.3s forwards; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
+        .blinking-cursor { animation: blink 1s step-end infinite; display: inline-block; width: 8px; height: 1.2em; background-color: var(--accent-glow); vertical-align: text-bottom; }
+        @keyframes blink { 50% { opacity: 0; } }
     </style>
 </head>
 <body>
-
     <div class="split-view">
-        <div class="panel panel-code" id="panel-code">
-            <div class="code-tabs">
-                <button class="code-tab active" data-target="html-editor">HTML</button>
-                <button class="code-tab" data-target="css-editor">CSS</button>
-                <button class="code-tab" data-target="js-editor">JS</button>
-            </div>
-            <div class="code-editor-wrapper">
-                <div id="html-editor" class="code-editor-instance active"><textarea id="html-code"></textarea></div>
-                <div id="css-editor" class="code-editor-instance"><textarea id="css-code"></textarea></div>
-                <div id="js-editor" class="code-editor-instance"><textarea id="js-code"></textarea></div>
-            </div>
+        <div class="panel panel-code"><div class="code-tabs"><button class="code-tab active" data-target="html-editor">HTML</button><button class="code-tab" data-target="css-editor">CSS</button><button class="code-tab" data-target="js-editor">JS</button></div><div class="code-editor-wrapper"><div id="html-editor" class="code-editor-instance active"><textarea id="html-code"></textarea></div><div id="css-editor" class="code-editor-instance"><textarea id="css-code"></textarea></div><div id="js-editor" class="code-editor-instance"><textarea id="js-code"></textarea></div></div></div>
+        <div class="panel panel-center"><div class="ai-core" id="ai-core"><svg id="ai-core-svg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 011.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.108 1.204.165.397.505.71.93.78l.893.15c.543.09.94.56.94 1.11v1.093c0 .55-.397 1.02-.94 1.11l-.893.149c-.425.07-.765.383-.93.78-.165.398-.142.854.108 1.204l.527.738c.32.447.27.96-.12 1.45l-.773.773a1.125 1.125 0 01-1.45.12l-.737-.527c-.35-.25-.806-.272-1.204-.108-.397.165-.71.505-.78.93l-.15.894c-.09.542-.56.94-1.11.94h-1.093c-.55 0-1.02-.398-1.11-.94l-.149-.894c-.07-.424-.384-.764-.78-.93-.398-.164-.855-.142-1.205.108l-.737.527a1.125 1.125 0 01-1.45-.12l-.773-.774a1.125 1.125 0 01-.12-1.45l.527-.737c.25-.35.273-.806.108-1.204-.165-.397-.505-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.11v-1.093c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.142-.854-.108-1.204l-.527-.738a1.125 1.125 0 01.12-1.45l.773-.773a1.125 1.125 0 011.45-.12l.737.527c.35.25.806.272 1.204.108.397-.165.71-.505.78.93l.15-.894z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg></div>
+            <div class="chat-module"><div class="chat-history" id="chat-history"></div><div id="context-info">FOKUS: <span></span></div><div class="chat-input-area"><input id="api-key" type="password" placeholder="API Key..."><input id="chat-input" type="text" placeholder="Deine Anweisung..." disabled><button id="chat-send" disabled>SEND</button></div></div>
         </div>
-
-        <div class="panel panel-center">
-            <div class="ai-core" id="ai-core">
-                 <svg id="ai-core-svg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 011.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.108 1.204.165.397.505.71.93.78l.893.15c.543.09.94.56.94 1.11v1.093c0 .55-.397 1.02-.94 1.11l-.893.149c-.425.07-.765.383-.93.78-.165.398-.142.854.108 1.204l.527.738c.32.447.27.96-.12 1.45l-.773.773a1.125 1.125 0 01-1.45.12l-.737-.527c-.35-.25-.806-.272-1.204-.108-.397.165-.71.505-.78.93l-.15.894c-.09.542-.56.94-1.11.94h-1.093c-.55 0-1.02-.398-1.11-.94l-.149-.894c-.07-.424-.384-.764-.78-.93-.398-.164-.855-.142-1.205.108l-.737.527a1.125 1.125 0 01-1.45-.12l-.773-.774a1.125 1.125 0 01-.12-1.45l.527-.737c.25-.35.273-.806.108-1.204-.165-.397-.505-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.11v-1.093c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.142-.854-.108-1.204l-.527-.738a1.125 1.125 0 01.12-1.45l.773-.773a1.125 1.125 0 011.45-.12l.737.527c.35.25.806.272 1.204.108.397-.165.71-.505.78-.93l.15-.894z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-            </div>
-
-            <div class="chat-module">
-                <div class="chat-history" id="chat-history"></div>
-                <div id="context-info">FOKUS: <span></span></div>
-                <div class="chat-input-area">
-                    <input id="api-key" type="password" placeholder="API Key...">
-                    <input id="chat-input" type="text" placeholder="Deine Anweisung..." disabled>
-                    <button id="chat-send" disabled>SEND</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="panel panel-preview" id="panel-preview">
-            <iframe id="output"></iframe>
-        </div>
+        <div class="panel panel-preview"><iframe id="output"></iframe></div>
     </div>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
     const dom = {
-        codePanel: document.getElementById('panel-code'),
-        previewPanel: document.getElementById('panel-preview'),
         codeTabs: document.querySelectorAll('.code-tab'),
         codeEditors: document.querySelectorAll('.code-editor-instance'),
         aiCore: document.getElementById('ai-core'),
@@ -227,12 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
         outputFrame: document.getElementById('output'),
     };
     
-    const state = {
-        apiKey: '',
-        chatHistory: [],
-        selectedElement: null,
-        isAwaitingAI: false,
-    };
+    const state = { apiKey: '', chatHistory: [], selectedElement: null, isAwaitingAI: false };
     
     const editors = {
         html: CodeMirror.fromTextArea(document.getElementById('html-code'), { lineNumbers: true, mode: 'xml', theme: 'vibrant-ink' }),
@@ -240,61 +105,29 @@ document.addEventListener('DOMContentLoaded', () => {
         js: CodeMirror.fromTextArea(document.getElementById('js-code'), { lineNumbers: true, mode: 'javascript', theme: 'vibrant-ink' })
     };
     
-    const initialCode = {
-        html: `<div class="content-box">
-  <h1>Aura Interface</h1>
-  <p>Ein KI-gestützter Editor.</p>
-  <button id="main-btn" class="glow-button">Initialisieren</button>
-</div>`,
-        css: `body {
-  font-family: 'Share Tech Mono', monospace;
-  display: grid; place-items: center;
-  height: 100vh; margin: 0;
-  background-color: #f0f4f9; color: #333;
-}
-.content-box { text-align: center; }
-.glow-button {
-  padding: 1em 2em;
-  border: none;
-  border-radius: 5px;
-  font-weight: bold;
-  letter-spacing: 2px;
-  color: white;
-  background-color: #333;
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
-  box-shadow: 0 0 10px #333;
-}
-.glow-button:hover {
-  box-shadow: 0 0 20px #000, 0 0 30px #000;
-  transform: scale(1.1);
-}`,
-        js: `const button = document.getElementById('main-btn');
-button.addEventListener('click', () => {
-  button.textContent = 'SYSTEM AKTIV!';
-  button.style.backgroundColor = '#28a745';
-  button.style.boxShadow = '0 0 20px #28a745';
-});`
-    };
+    const initialCode = { html: `<div class="content-box"><h1>Aura Interface</h1><p>Ein KI-gestützter Editor.</p><button id="main-btn" class="glow-button">Initialisieren</button></div>`, css: `body { font-family: 'Share Tech Mono', monospace; display: grid; place-items: center; height: 100vh; margin: 0; background-color: #f0f4f9; color: #333; }.content-box { text-align: center; }.glow-button { padding: 1em 2em; border: none; border-radius: 5px; font-weight: bold; letter-spacing: 2px; color: white; background-color: #333; cursor: pointer; transition: all 0.3s ease-in-out; box-shadow: 0 0 10px #333; }.glow-button:hover { box-shadow: 0 0 20px #000, 0 0 30px #000; transform: scale(1.1); }`, js: `const button = document.getElementById('main-btn'); button.addEventListener('click', () => { button.textContent = 'SYSTEM AKTIV!'; button.style.backgroundColor = '#28a745'; button.style.boxShadow = '0 0 20px #28a745'; });`};
     editors.html.setValue(initialCode.html);
     editors.css.setValue(initialCode.css);
     editors.js.setValue(initialCode.js);
 
     function renderPreview() {
-        const source = `
-            <html><head><style>${editors.css.getValue()}</style></head>
-            <body>${editors.html.getValue()}<script>${editors.js.getValue()}<\/script></body></html>`;
+        const source = `<html><head><style>${editors.css.getValue()}</style></head><body>${editors.html.getValue()}<script>${editors.js.getValue()}<\/script></body></html>`;
         dom.outputFrame.srcdoc = source;
     }
 
     Object.values(editors).forEach(editor => editor.on('change', renderPreview));
 
-    function addMessageToChat(text, type) {
+    function addMessageToChat(text, type, thinking=false) {
         const msgDiv = document.createElement('div');
         msgDiv.className = `chat-message ${type}`;
-        msgDiv.innerHTML = `<strong>${type.toUpperCase()}:</strong> <span class="msg-content">${text}</span>`;
+        if(thinking){
+            msgDiv.innerHTML = `<strong>${type.toUpperCase()}:</strong> <span class="msg-content">Denkt nach<span class="blinking-cursor"></span></span>`;
+        } else {
+             msgDiv.innerHTML = `<strong>${type.toUpperCase()}:</strong> <span class="msg-content">${text}</span>`;
+        }
         dom.chatHistory.appendChild(msgDiv);
         dom.chatHistory.scrollTop = dom.chatHistory.scrollHeight;
+        return msgDiv;
     }
     
     function updateUIState() {
@@ -311,51 +144,42 @@ button.addEventListener('click', () => {
         state.isAwaitingAI = true;
         updateUIState();
         addMessageToChat(userPrompt, 'user');
+        const thinkingMsg = addMessageToChat('', 'ai', true);
         
-        let contextPrompt = '';
-        if (state.selectedElement) {
-            contextPrompt = `FOKUS: Der Benutzer hat das Element ${state.selectedElement.selector} ausgewählt. Die Änderung soll sich primär darauf beziehen.`;
-        }
-
-        const systemPrompt = `Du bist ein experter Web-Entwickler. Ändere den Code basierend auf der Anfrage. Gib NUR ein valides JSON-Objekt zurück, das so aussieht: { "code": { "html": "...", "css": "...", "js": "..." }, "explanation": "..." }. Die 'explanation' muss eine kurze, freundliche Erklärung deiner Änderungen sein. Gib absolut keinen Text oder Markdown außerhalb dieses JSON-Objekts zurück.`;
+        const contextPrompt = state.selectedElement ? `FOKUS: Der Benutzer hat das Element ${state.selectedElement.selector} ausgewählt. Die Änderung soll sich primär darauf beziehen.` : '';
+        const systemPrompt = `Du bist ein experter Web-Entwickler. Ändere den Code basierend auf der Anfrage. Gib NUR ein valides JSON-Objekt zurück, das so aussieht: { "code": { "html": "...", "css": "...", "js": "..." }, "explanation": "..." }. Die 'explanation' muss eine kurze, freundliche Erklärung deiner Änderungen sein. Gib absolut keinen Text oder Markdown außerhalb dieses JSON-Objekts zurück. Halte dich unbedingt an dieses Format! Jede andere Antwort wird als Fehler gewertet.`;
         
         const historyForApi = state.chatHistory.concat({ role: 'user', parts: [{text: `${userPrompt}\n${contextPrompt}`}] });
         
-        // ** KORRIGIERTE API-LOGIK **
+        // ** KUGELSICHERE API-LOGIK **
         try {
-            // **API-ENDPUNKT ZU EINEM NEUEREN, ZUVERLÄSSIGEREN MODELL GEÄNDERT**
             const model = 'gemini-1.5-flash-latest';
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${state.apiKey}`;
 
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: historyForApi,
-                    systemInstruction: { parts: [{text: systemPrompt }] }
-                }),
-            });
+            const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: historyForApi, systemInstruction: { parts: [{text: systemPrompt }] } }) });
             
-            // **VERBESSERTE FEHLERBEHANDLUNG**
             if (!response.ok) {
                 let errorDetail = `Status: ${response.status} ${response.statusText}`;
-                try {
-                    // Versuche, eine detailliertere Fehlermeldung aus dem Body zu extrahieren
-                    const errorData = await response.json();
-                    if (errorData.error && errorData.error.message) {
-                        errorDetail = errorData.error.message;
-                    }
-                } catch (e) { /* ignorieren, wenn body nicht lesbar ist */ }
+                try { const errorData = await response.json(); if (errorData.error && errorData.error.message) { errorDetail = errorData.error.message; } } catch (e) { /* ignore */ }
                 throw new Error(errorDetail);
             }
             
             const data = await response.json();
-            // Extrahieren der reinen Textantwort, auch bei komplexeren Kandidaten-Strukturen
-            const rawText = data.candidates[0]?.content?.parts[0]?.text || '';
+            const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
             
-            // Robustes Parsen des JSON-Objekts
-            const result = JSON.parse(rawText);
-            
+            // 1. **"Schmutzfilter"**
+            const cleanedText = rawText.replace(/```json|```/g, '').trim();
+
+            let result;
+            // 2. **Isolierte, sichere Parsing-Prüfung**
+            try {
+                result = JSON.parse(cleanedText);
+            } catch (parseError) {
+                console.error("Ungültige Antwort der KI erhalten:", cleanedText);
+                throw new Error("Die KI hat ein ungültiges Format gesendet. Versuchen Sie, Ihre Anfrage umzuformulieren.");
+            }
+
+            thinkingMsg.remove(); // Entfernt "Denkt nach..."
             if (result.explanation) {
                 addMessageToChat(result.explanation, 'ai');
                 state.chatHistory.push({ role: 'user', parts: [{text: userPrompt}] }, { role: 'model', parts: [{text: result.explanation}] });
@@ -371,8 +195,8 @@ button.addEventListener('click', () => {
             dom.chatInput.value = '';
 
         } catch (error) {
-            // Zeige die extrahierte oder generische Fehlermeldung an
-            addMessageToChat(`Fehler: ${error.message}`, 'error');
+            thinkingMsg.remove(); // Entfernt "Denkt nach..."
+            addMessageToChat(`${error.message}`, 'error');
         } finally {
             state.isAwaitingAI = false;
             updateUIState();
@@ -383,49 +207,25 @@ button.addEventListener('click', () => {
         tab.addEventListener('click', () => {
             dom.codeTabs.forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
-            
-            dom.codeEditors.forEach(editor => {
-                editor.classList.toggle('active', editor.id === tab.dataset.target);
-            });
+            dom.codeEditors.forEach(editor => { editor.classList.toggle('active', editor.id === tab.dataset.target); });
             Object.values(editors).forEach(editor => editor.refresh());
         });
     });
 
-    dom.apiKeyInput.addEventListener('input', () => {
-        state.apiKey = dom.apiKeyInput.value.trim();
-        localStorage.setItem('auraApiKey', state.apiKey);
-        updateUIState();
-    });
-
+    dom.apiKeyInput.addEventListener('input', () => { state.apiKey = dom.apiKeyInput.value.trim(); localStorage.setItem('auraApiKey', state.apiKey); updateUIState(); });
     dom.chatSendBtn.addEventListener('click', handleChatSend);
     dom.chatInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') { e.preventDefault(); handleChatSend(); }});
 
     dom.outputFrame.addEventListener('load', () => {
-        const doc = dom.outputFrame.contentDocument;
-        if (!doc) return;
+        const doc = dom.outputFrame.contentDocument; if (!doc) return;
         doc.body.addEventListener('click', (e) => {
-            e.preventDefault(); e.stopPropagation();
-            const target = e.target;
-            
+            e.preventDefault(); e.stopPropagation(); const target = e.target;
             let existingHighlight = doc.getElementById('highlight-overlay');
             if (!existingHighlight) {
-                existingHighlight = doc.createElement('div');
-                existingHighlight.id = 'highlight-overlay';
-                // Fügt den Stil für den Highlight-Rahmen direkt in die Iframe ein
-                const style = doc.createElement('style');
-                style.innerHTML = `
-                    #highlight-overlay { 
-                        position: absolute; pointer-events: none;
-                        background: #00f6ff33; border: 2px solid #00f6ff;
-                        z-index: 99999;
-                        transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
-                        animation: fadeIn 0.3s forwards;
-                    }
-                    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }`;
-                doc.head.appendChild(style);
-                doc.body.appendChild(existingHighlight);
+                existingHighlight = doc.createElement('div'); existingHighlight.id = 'highlight-overlay';
+                const style = doc.createElement('style'); style.innerHTML = `#highlight-overlay { position: absolute; pointer-events: none; background: #00f6ff33; border: 2px solid #00f6ff; z-index: 99999; transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1); animation: fadeIn 0.3s forwards; } @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }`;
+                doc.head.appendChild(style); doc.body.appendChild(existingHighlight);
             }
-            
             const rect = target.getBoundingClientRect();
             existingHighlight.style.top = `${rect.top + doc.documentElement.scrollTop}px`;
             existingHighlight.style.left = `${rect.left + doc.documentElement.scrollLeft}px`;
@@ -436,28 +236,19 @@ button.addEventListener('click', () => {
             const id = target.id ? `#${target.id}` : '';
             const classes = target.className ? `.${String(target.className).trim().replace(/\s+/g, '.')}` : '';
             state.selectedElement = { selector: `${tag}${id}${classes}` };
-            
             dom.contextInfo.querySelector('span').textContent = state.selectedElement.selector;
             dom.contextInfo.style.display = 'block';
-
         }, true);
     });
 
     function init() {
         const savedKey = localStorage.getItem('auraApiKey');
-        if (savedKey) {
-            dom.apiKeyInput.value = savedKey;
-            state.apiKey = savedKey;
-        }
-        addMessageToChat('System initialisiert. Bitte API-Key eingeben, um zu starten.', 'ai');
-        updateUIState();
-        renderPreview();
+        if (savedKey) { dom.apiKeyInput.value = savedKey; state.apiKey = savedKey; }
+        addMessageToChat('System bereit. Bitte API-Key eingeben.', 'ai');
+        updateUIState(); renderPreview();
     }
-    
     init();
-
 });
 </script>
-
 </body>
 </html>
