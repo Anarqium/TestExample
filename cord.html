@@ -504,7 +504,8 @@
             }
 
             async function callGeminiAPI(prompt) {
-                const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${state.apiKey}`;
+                // NEW CORRECTED LINE
+const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${state.apiKey}`;
 
                 const requestBody = {
                     contents: [{
