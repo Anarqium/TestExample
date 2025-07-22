@@ -1,380 +1,550 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Live HTML Editor mit Gemini AI</title>
-    
-    <!-- CSS für ein modernes & benutzerfreundliches Design -->
+    <title>Gemini Live HTML Editor</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;700&display=swap');
-
         :root {
-            --bg-color: #1e1e1e;
-            --editor-bg: #252526;
-            --border-color: #3e3e42;
-            --text-color: #d4d4d4;
-            --header-color: #ffffff;
-            --accent-color: #007acc;
-            --accent-hover: #005a9e;
+            --bg-color: #1a1b26; --editor-bg: #24283b; --preview-bg: #fff;
+            --text-color: #c0caf5; --accent-color: #7aa2f7; --border-color: #414868;
+            --highlight-bg: rgba(122, 162, 247, 0.2); --highlight-outline: 2px solid var(--accent-color);
+            --font-family: 'SF Mono', 'Consolas', 'Menlo', monospace;
         }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+               background-color: var(--bg-color); color: var(--text-color); font-size: 16px;
+               display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        header { padding: 10px 15px; background-color: var(--editor-bg); border-bottom: 1px solid var(--border-color);
+                 display: flex; align-items: center; gap: 20px; flex-shrink: 0; }
+        header h1 { font-size: 1.2rem; color: var(--text-color); }
+        .toolbar button, .toolbar select {
+            background: var(--border-color); color: var(--text-color); border: 1px solid transparent;
+            padding: 8px 12px; border-radius: 5px; cursor: pointer; transition: all 0.2s ease;
         }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        header {
-            padding: 1rem 2rem;
-            border-bottom: 1px solid var(--border-color);
-            background-color: var(--editor-bg);
-            flex-shrink: 0;
-        }
-
-        header h1 {
-            color: var(--header-color);
-            font-size: 1.5rem;
-        }
-
-        header p {
-            color: var(--text-color);
-        }
-
-        .main-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            flex-grow: 1;
-            gap: 1rem;
-            padding: 1rem;
-            min-height: 0;
-        }
-
-        .editor-container {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            min-height: 0;
-        }
-
-        .editor-pane {
-            display: flex;
-            flex-direction: column;
-            background-color: var(--editor-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            flex-grow: 1;
-            min-height: 0;
-        }
-
-        h3 {
-            padding: 0.75rem 1rem;
-            background-color: #333;
-            border-bottom: 1px solid var(--border-color);
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        textarea {
-            flex-grow: 1;
-            width: 100%;
-            padding: 1rem;
-            background: transparent;
-            border: none;
-            color: var(--text-color);
-            font-family: 'Fira Code', monospace;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            resize: none;
-            outline: none;
-        }
-
-        .preview-container {
-            display: flex;
-            flex-direction: column;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-        }
-
-        #live-preview {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background-color: #fff;
-        }
-
-        .ai-container {
-            display: flex;
-            gap: 1rem;
-            padding: 1rem;
-            border-top: 1px solid var(--border-color);
-            background-color: var(--editor-bg);
-            flex-shrink: 0;
-        }
-
-        #gemini-prompt {
-            flex-grow: 1;
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--border-color);
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            border-radius: 6px;
-            font-size: 1rem;
-            outline: none;
-        }
-
-        #gemini-prompt:focus {
-            border-color: var(--accent-color);
-        }
-
-        #gemini-button {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            background-color: var(--accent-color);
-            color: white;
-            font-weight: 700;
-            font-size: 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.2s ease, opacity 0.2s ease;
-        }
-
-        #gemini-button:hover:not(:disabled) {
-            background-color: var(--accent-hover);
-        }
-
-        #gemini-button:disabled {
-            background-color: #555;
-            cursor: not-allowed;
-            opacity: 0.7;
+        .toolbar button:hover, .toolbar select:hover { background: #565f89; }
+        .toolbar button:active { transform: scale(0.95); }
+        .toolbar .separator { width: 1px; height: 25px; background-color: var(--border-color); margin: 0 5px; }
+        
+        main { display: flex; flex-grow: 1; overflow: hidden; }
+        .pane { width: 50%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        #code-pane { background-color: var(--editor-bg); }
+        #preview-pane iframe { width: 100%; height: 100%; border: none; background: var(--preview-bg); }
+        textarea#code-editor {
+            flex-grow: 1; width: 100%; resize: none; border: none; background: transparent;
+            color: var(--text-color); font-family: var(--font-family); font-size: 14px;
+            padding: 20px; outline: none; white-space: pre; line-height: 1.5;
         }
         
-        @media (max-width: 900px) {
-            .main-container {
-                grid-template-columns: 1fr;
-                height: auto;
-            }
-            .preview-container {
-                min-height: 400px;
-            }
+        #resizer { width: 8px; background: var(--border-color); cursor: col-resize; z-index: 10; }
+
+        /* Preview Highlight */
+        .selection-highlight {
+            outline: var(--highlight-outline);
+            box-shadow: 0 0 10px var(--accent-color);
+            background-color: var(--highlight-bg);
         }
+
+        /* Settings Modal */
+        dialog#settings-modal {
+            background: var(--editor-bg); color: var(--text-color); border: 1px solid var(--border-color);
+            border-radius: 8px; padding: 25px; min-width: 400px;
+        }
+        dialog#settings-modal::backdrop { background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); }
+        dialog h2 { margin-bottom: 20px; }
+        dialog label { display: block; margin-bottom: 8px; }
+        dialog input { width: 100%; padding: 10px; background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 5px; margin-bottom: 20px; }
+        dialog button { float: right; margin-left: 10px; }
+
+        /* Gemini AI Input */
+        #ai-prompt-container { display: flex; padding: 10px; background: var(--editor-bg); border-top: 1px solid var(--border-color); }
+        #ai-prompt-container input { flex-grow: 1; padding: 10px; border-radius: 5px 0 0 5px; background: var(--bg-color);
+                                     border: 1px solid var(--border-color); color: var(--text-color); outline: none; }
+        #ai-prompt-container button { border-radius: 0 5px 5px 0; background-color: var(--accent-color);
+                                      color: var(--bg-color); font-weight: bold; border: none; padding: 0 20px; cursor: pointer; }
+        #ai-prompt-container button:disabled { background: var(--border-color); cursor: not-allowed; }
     </style>
 </head>
 <body>
+
     <header>
-        <h1>Modern Live Editor</h1>
-        <p>mit ✨ Gemini AI Unterstützung</p>
+        <h1>Gemini Live Editor</h1>
+        <div class="toolbar">
+            <button id="save-btn" title="Download HTML File">Save</button>
+            <div class="separator"></div>
+            <button id="undo-btn" title="Undo (Ctrl+Z)" disabled>Undo</button>
+            <button id="redo-btn" title="Redo (Ctrl+Y)" disabled>Redo</button>
+            <div class="separator"></div>
+            <select id="edit-mode-toggle" title="Select Edit Mode">
+                <option value="full">Full Page Edit</option>
+                <option value="element">Selected Element Edit</option>
+            </select>
+            <div class="separator"></div>
+            <button id="settings-btn" title="Settings">⚙️ Settings</button>
+        </div>
     </header>
 
-    <div class="main-container">
-        <div class="editor-container">
-            <div class="editor-pane">
-                <h3>HTML</h3>
-                <textarea id="html-code" spellcheck="false"></textarea>
-            </div>
-            <div class="editor-pane">
-                <h3>CSS</h3>
-                <textarea id="css-code" spellcheck="false"></textarea>
-            </div>
-            <div class="editor-pane">
-                <h3>JavaScript</h3>
-                <textarea id="js-code" spellcheck="false"></textarea>
+    <main id="editor-container">
+        <div id="code-pane" class="pane">
+            <textarea id="code-editor" spellcheck="false" autocomplete="off"></textarea>
+            <div id="ai-prompt-container">
+                <input type="text" id="ai-prompt-input" placeholder="Enter edit command for Gemini... (e.g., 'change the button color to red')">
+                <button id="ai-submit-btn" title="Send to Gemini">➤</button>
             </div>
         </div>
-        <div class="preview-container">
-            <h3>Live Vorschau</h3>
-            <iframe id="live-preview"></iframe>
+        <div id="resizer"></div>
+        <div id="preview-pane" class="pane">
+            <iframe id="preview-frame"></iframe>
         </div>
-    </div>
+    </main>
 
-    <div class="ai-container">
-        <input type="text" id="gemini-prompt" placeholder="Beschreibe deine Änderung (z.B. 'Mache den Button blau')">
-        <button id="gemini-button">Mit Gemini bearbeiten</button>
-    </div>
+    <dialog id="settings-modal">
+        <h2>Settings</h2>
+        <form id="settings-form">
+            <label for="api-key-input">Gemini API Key</label>
+            <input type="password" id="api-key-input" placeholder="Enter your Google AI Studio API Key">
+            <button type="button" id="close-settings-btn">Close</button>
+            <button type="submit" id="save-settings-btn">Save</button>
+        </form>
+    </dialog>
 
-    <!-- Die gesamte Anwendungslogik -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const htmlCode = document.getElementById('html-code');
-            const cssCode = document.getElementById('css-code');
-            const jsCode = document.getElementById('js-code');
-            const previewFrame = document.getElementById('live-preview');
-            const geminiPrompt = document.getElementById('gemini-prompt');
-            const geminiButton = document.getElementById('gemini-button');
-
-            // Funktion zur Aktualisierung der Live-Vorschau
-            const updatePreview = () => {
-                const previewDoc = `
-                    <html>
-                        <head>
-                            <style>${cssCode.value}</style>
-                        </head>
-                        <body>
-                            ${htmlCode.value}
-                            <script>${jsCode.value}<\/script> 
-                        </body>
-                    </html>
-                `;
-                previewFrame.srcdoc = previewDoc;
+            // --- STATE MANAGEMENT ---
+            const state = {
+                apiKey: localStorage.getItem('gemini-api-key') || '',
+                currentCode: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome!</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 50px; }
+    h1 { color: #333; }
+    .container { max-width: 600px; margin: auto; }
+    button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Hello, World!</h1>
+    <p>This is a sample page. Click on any element to highlight its code, or select code to highlight the element.</p>
+    <button>Click Me</button>
+  </div>
+</body>
+</html>`,
+                history: [],
+                redoStack: [],
+                selectedElement: null, // DOM node in iframe
+                editMode: 'full', // 'full' or 'element'
+                elementIdMap: new Map(), // Maps element ID to char positions
             };
+
+            // --- DOM ELEMENTS ---
+            const codeEditor = document.getElementById('code-editor');
+            const previewFrame = document.getElementById('preview-frame');
+            const editModeToggle = document.getElementById('edit-mode-toggle');
+            const aiPromptInput = document.getElementById('ai-prompt-input');
+            const aiSubmitBtn = document.getElementById('ai-submit-btn');
             
-            // Beispielcode beim Laden der Seite
-            const loadExampleCode = () => {
-                htmlCode.value = `<!-- Willkommen! -->
-<div class="container">
-  <h1>Hallo Welt!</h1>
-  <p>Gib im Feld unten einen Befehl ein, um den Code mit Gemini AI zu ändern.</p>
-  <button id="my-button">Klick mich!</button>
-</div>`;
+            // Toolbar Buttons
+            const saveBtn = document.getElementById('save-btn');
+            const undoBtn = document.getElementById('undo-btn');
+            const redoBtn = document.getElementById('redo-btn');
+            const settingsBtn = document.getElementById('settings-btn');
+            const closeSettingsBtn = document.getElementById('close-settings-btn');
+            const settingsModal = document.getElementById('settings-modal');
+            const settingsForm = document.getElementById('settings-form');
+            const apiKeyInput = document.getElementById('api-key-input');
+            
+            // Resizer
+            const resizer = document.getElementById('resizer');
+            const codePane = document.getElementById('code-pane');
 
-                cssCode.value = `body {
-  font-family: sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #f0f0f0;
-  color: #333;
-  text-align: center;
-}
-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  border: 2px solid #333;
-  background-color: white;
-  cursor: pointer;
-  border-radius: 5px;
-}`;
-
-                jsCode.value = `const button = document.getElementById('my-button');
-button.addEventListener('click', () => {
-  alert('Du hast den Button geklickt!');
-});`;
-            };
-
-            // Event-Listener für die Code-Editoren
-            [htmlCode, cssCode, jsCode].forEach(editor => {
-                editor.addEventListener('input', updatePreview);
-            });
-
-            // Funktion zur Handhabung der Gemini-Anfrage
-            const handleGeminiRequest = async () => {
-                const promptText = geminiPrompt.value.trim();
-                if (!promptText) {
-                    alert('Bitte gib eine Anweisung für die KI ein.');
-                    return;
-                }
-
-                // ==============================================================
-                // == WICHTIG: Gib hier deinen Gemini API Schlüssel ein        ==
-                // == Du erhältst ihn im Google AI Studio: https://aistudio.google.com/
-                // ==============================================================
-                const API_KEY = 'DEIN_GEMINI_API_SCHLUESSEL_HIER_EINFUEGEN';
+            // --- INITIALIZATION ---
+            function init() {
+                codeEditor.value = state.currentCode;
+                apiKeyInput.value = state.apiKey;
+                pushToHistory(state.currentCode, true);
+                renderPreview();
+                setupEventListeners();
+                updateAiPromptPlaceholder();
+            }
+            
+            // --- EVENT LISTENERS ---
+            function setupEventListeners() {
+                // Main editor update
+                let debounceTimer;
+                codeEditor.addEventListener('input', () => {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => {
+                        state.currentCode = codeEditor.value;
+                        renderPreview();
+                        pushToHistory(state.currentCode);
+                    }, 300);
+                });
                 
-                if (API_KEY === 'DEIN_GEMINI_API_SCHLUESSEL_HIER_EINFUEGEN') {
-                    alert('Bitte ersetze "DEIN_GEMINI_API_SCHLUESSEL_HIER_EINFUEGEN" im Skript durch deinen echten Gemini API-Schlüssel.');
-                    return;
-                }
-
-                geminiButton.disabled = true;
-                geminiButton.textContent = 'Bearbeite...';
+                // Code -> Preview sync
+                codeEditor.addEventListener('selectionchange', handleCodeSelection);
                 
-                // Der detaillierte Prompt, damit Gemini den Kontext versteht
-                const promptForGemini = `
-                    Du bist ein KI-Assistent für Webentwicklung. Deine Aufgabe ist es, bestehenden HTML-, CSS- und JavaScript-Code basierend auf einer Benutzeranweisung zu modifizieren.
-                    Analysiere den untenstehenden Code und die Anweisung. Gib deine Antwort IMMER und AUSSCHLIESSLICH als ein einzelnes JSON-Objekt zurück, das die Schlüssel "html", "css" und "js" mit dem aktualisierten Code als String-Wert enthält. Ändere nichts, was nicht angefragt wurde.
+                // Toolbar
+                saveBtn.addEventListener('click', downloadHtml);
+                undoBtn.addEventListener('click', undo);
+                redoBtn.addEventListener('click', redo);
+                document.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); }
+                    if (e.ctrlKey && e.key === 'y') { e.preventDefault(); redo(); }
+                });
 
-                    Benutzeranweisung: "${promptText}"
-
-                    Aktueller HTML-Code:
-                    \`\`\`html
-                    ${htmlCode.value}
-                    \`\`\`
-
-                    Aktueller CSS-Code:
-                    \`\`\`css
-                    ${cssCode.value}
-                    \`\`\`
-
-                    Aktueller JavaScript-Code:
-                    \`\`\`javascript
-                    ${jsCode.value}
-                    \`\`\`
-                    
-                    Antworte nur mit dem JSON-Objekt. Kein einleitender Text, keine Erklärungen.
-                `;
-
-                const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`;
+                // AI Integration
+                editModeToggle.addEventListener('change', (e) => {
+                    state.editMode = e.target.value;
+                    updateAiPromptPlaceholder();
+                });
+                aiSubmitBtn.addEventListener('click', handleAiSubmit);
+                aiPromptInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') handleAiSubmit();
+                });
                 
+                // Settings Modal
+                settingsBtn.addEventListener('click', () => settingsModal.showModal());
+                closeSettingsBtn.addEventListener('click', () => settingsModal.close());
+                settingsForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    state.apiKey = apiKeyInput.value;
+                    localStorage.setItem('gemini-api-key', state.apiKey);
+                    settingsModal.close();
+                    alert('API Key saved.');
+                });
+
+                // Resizer logic
+                let isResizing = false;
+                resizer.addEventListener('mousedown', (e) => {
+                    isResizing = true;
+                    document.body.style.userSelect = 'none'; // Prevent text selection while resizing
+                });
+                document.addEventListener('mousemove', (e) => {
+                    if (!isResizing) return;
+                    const containerRect = document.getElementById('editor-container').getBoundingClientRect();
+                    const newCodePaneWidth = e.clientX - containerRect.left;
+                    if (newCodePaneWidth > 100 && newCodePaneWidth < containerRect.width - 100) {
+                        codePane.style.width = `${newCodePaneWidth}px`;
+                    }
+                });
+                document.addEventListener('mouseup', () => {
+                    isResizing = false;
+                    document.body.style.userSelect = 'auto';
+                });
+            }
+
+            // --- CORE FUNCTIONALITY & SYNCHRONIZATION ---
+
+            /**
+             * Renders the current code into the iframe, injecting IDs for synchronization.
+             */
+            function renderPreview() {
                 try {
-                    const response = await fetch(API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{
-                                parts: [{ text: promptForGemini }]
-                            }]
-                        })
-                    });
+                    const { htmlWithIds, newMap } = injectElementIds(state.currentCode);
+                    state.elementIdMap = newMap;
+                    previewFrame.srcdoc = htmlWithIds;
+                    
+                    // The 'load' event ensures the iframe content is ready for interaction.
+                    previewFrame.onload = () => {
+                        const previewDoc = previewFrame.contentDocument;
+                        if(previewDoc) {
+                           previewDoc.addEventListener('click', handlePreviewClick, true);
+                           previewDoc.addEventListener('mouseover', handlePreviewMouseOver, true);
+                           previewDoc.addEventListener('mouseout', handlePreviewMouseOut, true);
+                           highlightElementInPreview(null); // Clear previous highlights
+                        }
+                    };
+                } catch (e) {
+                    console.error("Error rendering preview:", e);
+                    previewFrame.srcdoc = `<html><body><h1>HTML Parsing Error</h1><p>${e.message}</p></body></html>`;
+                }
+            }
 
-                    if (!response.ok) {
-                        throw new Error(`API-Fehler: ${response.status} ${response.statusText}`);
+            /**
+             * Injects `data-editor-id` and creates a map of IDs to character positions.
+             * This is the magic for Preview -> Code sync.
+             */
+            function injectElementIds(htmlString) {
+                const newMap = new Map();
+                let idCounter = 0;
+                let finalHtml = '';
+                let currentIndex = 0;
+
+                // Simple regex-based parser. For production, a proper parser is safer.
+                const tagRegex = /<([a-zA-Z0-9]+)([^>]*)>/g;
+                
+                htmlString.replace(tagRegex, (match, tagName, attributes, offset) => {
+                    finalHtml += htmlString.substring(currentIndex, offset);
+                    const id = `editor-el-${idCounter++}`;
+                    finalHtml += `<${tagName} data-editor-id="${id}"${attributes}>`;
+                    
+                    // Find the end of this element to map its full range
+                    const fullElementMatch = findElementEnd(htmlString, offset);
+                    if (fullElementMatch) {
+                        newMap.set(id, { start: offset, end: fullElementMatch.end });
                     }
 
-                    const data = await response.json();
-                    
-                    // Den reinen Text aus der Antwort extrahieren
-                    let responseText = data.candidates[0].content.parts[0].text;
-                    
-                    // Bereinige die Antwort, falls sie in Markdown-Code-Blöcken eingeschlossen ist
-                    responseText = responseText.replace(/^```json\s*/, '').replace(/```\s*$/, '');
-                    
-                    const parsedCode = JSON.parse(responseText);
-                    
-                    // Überprüfen, ob die Antwort die erwarteten Schlüssel enthält
-                    if (parsedCode.html && parsedCode.css && parsedCode.js) {
-                        htmlCode.value = parsedCode.html;
-                        cssCode.value = parsedCode.css;
-                        jsCode.value = parsedCode.js;
-                        updatePreview(); // Wichtig, um die Änderungen anzuzeigen
-                    } else {
-                        throw new Error("Die KI-Antwort hatte ein unerwartetes Format.");
-                    }
+                    currentIndex = offset + match.length;
+                    return match; // replace function requires a return
+                });
 
-                } catch (error) {
-                    console.error('Fehler bei der Gemini-Anfrage:', error);
-                    alert(`Ein Fehler ist aufgetreten: ${error.message}. Bitte überprüfe die Entwicklerkonsole.`);
-                } finally {
-                    geminiButton.disabled = false;
-                    geminiButton.textContent = 'Mit Gemini bearbeiten';
-                    geminiPrompt.value = ''; // Eingabefeld leeren
-                }
-            };
+                finalHtml += htmlString.substring(currentIndex);
+                return { htmlWithIds: finalHtml, newMap };
+            }
 
-            // Event-Listener für den Gemini-Button und die Enter-Taste
-            geminiButton.addEventListener('click', handleGeminiRequest);
-            geminiPrompt.addEventListener('keydown', (event) => {
-                if (event.key === 'Enter') {
-                    handleGeminiRequest();
+            // Helper to find closing tag (simplified)
+            function findElementEnd(html, startIndex) {
+                // This is a complex problem. A robust solution needs a real parser.
+                // This simplified version finds the next closing ">"
+                const nextTagClose = html.indexOf('>', startIndex);
+                if (nextTagClose === -1) return null;
+                // This isn't perfect, but good enough for this demo
+                return { end: nextTagClose + 1 };
+            }
+
+
+            function handlePreviewClick(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                const target = event.target;
+                const elementId = target.getAttribute('data-editor-id');
+
+                if (elementId) {
+                    state.selectedElement = target;
+                    highlightCodeForElement(elementId);
+                    highlightElementInPreview(target);
+                    updateAiPromptPlaceholder();
                 }
-            });
+            }
             
-            // Editor initialisieren
-            loadExampleCode();
-            updatePreview();
+            function handlePreviewMouseOver(e) { e.target.style.outline = '1px dashed var(--accent-color)'; }
+            function handlePreviewMouseOut(e) { e.target.style.outline = ''; }
+            
+            /**
+             * When an element is clicked in the preview, find its code and highlight it.
+             */
+            function highlightCodeForElement(elementId) {
+                const positions = state.elementIdMap.get(elementId);
+                if (positions) {
+                    codeEditor.focus();
+                    codeEditor.setSelectionRange(positions.start, positions.end);
+                }
+            }
+            
+            /**
+             * When code is selected in the editor, find the corresponding element and highlight it.
+             */
+             function handleCodeSelection() {
+                const start = codeEditor.selectionStart;
+                const end = codeEditor.selectionEnd;
+
+                if (start === end) { // No selection, clear highlights
+                     highlightElementInPreview(null);
+                     state.selectedElement = null;
+                     updateAiPromptPlaceholder();
+                     return;
+                }
+                
+                let bestMatchId = null;
+                for (const [id, pos] of state.elementIdMap.entries()) {
+                    // Find the smallest element that contains the selection
+                    if (start >= pos.start && end <= pos.end) {
+                       bestMatchId = id;
+                    }
+                }
+
+                if (bestMatchId) {
+                    const previewDoc = previewFrame.contentDocument;
+                    if (previewDoc) {
+                        const el = previewDoc.querySelector(`[data-editor-id="${bestMatchId}"]`);
+                        highlightElementInPreview(el);
+                        state.selectedElement = el;
+                        updateAiPromptPlaceholder();
+                    }
+                } else {
+                    highlightElementInPreview(null);
+                    state.selectedElement = null;
+                    updateAiPromptPlaceholder();
+                }
+            }
+            
+            /**
+             * Applies or removes the highlight class in the preview frame.
+             */
+            function highlightElementInPreview(element) {
+                 const previewDoc = previewFrame.contentDocument;
+                 if (!previewDoc) return;
+
+                 previewDoc.querySelectorAll('.selection-highlight').forEach(el => {
+                     el.classList.remove('selection-highlight');
+                 });
+
+                 if (element) {
+                     element.classList.add('selection-highlight');
+                 }
+            }
+
+            // --- HISTORY (UNDO/REDO) ---
+            function pushToHistory(code, initial = false) {
+                if (!initial) {
+                    // To prevent saving every single keystroke
+                    if(state.history.length > 0 && state.history[state.history.length - 1] === code) return;
+                    state.history.push(code);
+                } else {
+                    state.history.push(code);
+                }
+
+                if(state.history.length > 50) { // Limit history size
+                    state.history.shift();
+                }
+
+                state.redoStack = []; // Clear redo stack on new action
+                updateUndoRedoButtons();
+            }
+
+            function undo() {
+                if (state.history.length > 1) {
+                    const currentState = state.history.pop();
+                    state.redoStack.push(currentState);
+                    const prevState = state.history[state.history.length - 1];
+                    updateEditorWithValue(prevState);
+                }
+            }
+
+            function redo() {
+                if (state.redoStack.length > 0) {
+                    const nextState = state.redoStack.pop();
+                    state.history.push(nextState);
+                    updateEditorWithValue(nextState);
+                }
+            }
+            
+            function updateUndoRedoButtons() {
+                undoBtn.disabled = state.history.length <= 1;
+                redoBtn.disabled = state.redoStack.length === 0;
+            }
+
+            // --- UTILITY FUNCTIONS ---
+            function downloadHtml() {
+                const blob = new Blob([state.currentCode], { type: 'text/html' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'index.html';
+                a.click();
+                URL.revokeObjectURL(a.href);
+            }
+            
+            function updateEditorWithValue(value) {
+                state.currentCode = value;
+                codeEditor.value = value;
+                renderPreview();
+                updateUndoRedoButtons();
+            }
+            
+            function updateAiPromptPlaceholder() {
+                if (state.editMode === 'element' && state.selectedElement) {
+                    aiPromptInput.placeholder = `Editing <${state.selectedElement.tagName.toLowerCase()}>... (e.g., "add a blue border")`;
+                } else {
+                    aiPromptInput.placeholder = "Editing full page... (e.g., 'add a footer with a copyright notice')";
+                }
+            }
+
+            // --- GEMINI API INTEGRATION ---
+            async function handleAiSubmit() {
+                const promptText = aiPromptInput.value.trim();
+                if (!promptText) return alert("Please enter a command for Gemini.");
+                if (!state.apiKey) {
+                    alert("Please set your Gemini API key in the Settings.");
+                    settingsModal.showModal();
+                    return;
+                }
+
+                aiSubmitBtn.disabled = true;
+                aiSubmitBtn.textContent = '...';
+
+                try {
+                    let finalPrompt = '';
+                    if (state.editMode === 'element' && state.selectedElement) {
+                         const outerHtml = state.selectedElement.outerHTML.replace(/ data-editor-id="[^"]*"/g, ''); // Clean for AI
+                         finalPrompt = `You are an expert HTML code assistant. Given the following HTML element:\n\n\`\`\`html\n${outerHtml}\n\`\`\`\n\nApply this change: "${promptText}". Only return the complete, new HTML code for the element. Do not include any explanation or markdown formatting.`;
+                    } else {
+                        finalPrompt = `You are an expert HTML code assistant. Given the following full HTML document:\n\n\`\`\`html\n${state.currentCode}\n\`\`\`\n\nApply this change: "${promptText}". Only return the complete, new HTML code for the entire page. Do not include any explanation or markdown formatting.`;
+                    }
+
+                    const response = await callGeminiAPI(finalPrompt);
+
+                    let newCode = response.trim().replace(/^```html\n|```$/g, '');
+                    
+                    if (state.editMode === 'element' && state.selectedElement) {
+                         const elementId = state.selectedElement.getAttribute('data-editor-id');
+                         const positions = state.elementIdMap.get(elementId);
+                         if(positions) {
+                             const updatedFullCode = state.currentCode.substring(0, positions.start) + newCode + state.currentCode.substring(positions.end);
+                             updateEditorWithValue(updatedFullCode);
+                             pushToHistory(updatedFullCode);
+                         }
+                    } else {
+                        updateEditorWithValue(newCode);
+                        pushToHistory(newCode);
+                    }
+
+                    aiPromptInput.value = '';
+                } catch (error) {
+                    console.error("Gemini API Error:", error);
+                    alert("An error occurred with the Gemini API: " + error.message);
+                } finally {
+                    aiSubmitBtn.disabled = false;
+                    aiSubmitBtn.textContent = '➤';
+                }
+            }
+
+            async function callGeminiAPI(prompt) {
+                const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${state.apiKey}`;
+
+                const requestBody = {
+                    contents: [{
+                        parts: [{
+                            text: prompt
+                        }]
+                    }],
+                    // Safety settings can be adjusted
+                    "safetySettings": [
+                        { "category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE" },
+                        { "category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE" },
+                        { "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE" },
+                        { "category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE" }
+                    ]
+                };
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error.message || `Request failed with status ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.candidates && data.candidates.length > 0) {
+                    return data.candidates[0].content.parts[0].text;
+                } else if(data.promptFeedback) {
+                     throw new Error(`Content blocked by safety settings. Reason: ${data.promptFeedback.blockReason}`);
+                } else {
+                    throw new Error("Invalid response from API.");
+                }
+            }
+
+            // Start the application
+            init();
         });
     </script>
 </body>
