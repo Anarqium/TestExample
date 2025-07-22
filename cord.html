@@ -3,263 +3,379 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="
-        default-src 'self'; 
-        script-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline'; 
-        style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline'; 
-        font-src 'self' https://fonts.gstatic.com; 
-        connect-src 'self' https://generativelanguage.googleapis.com;
-    ">
-    <title>Project Obsidian | AI Workspace</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/isotope.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/htmlmixed/htmlmixed.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/xml/xml.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/javascript/javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/css/css.min.js"></script>
+    <title>Modern Live HTML Editor mit Gemini AI</title>
+    
+    <!-- CSS für ein modernes & benutzerfreundliches Design -->
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;700&display=swap');
+
         :root {
-            --bg-base: #101114;
-            --bg-glass: rgba(25, 26, 30, 0.6);
-            --border-glass: rgba(255, 255, 255, 0.1);
-            --shadow-color: rgba(0,0,0,0.3);
-            --text-primary: #e1e1e6; --text-secondary: #a8a8b3;
-            --accent-primary: #8257e5; --accent-secondary: #27d88b;
-            --font-main: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            --font-mono: 'Fira Code', monospace;
+            --bg-color: #1e1e1e;
+            --editor-bg: #252526;
+            --border-color: #3e3e42;
+            --text-color: #d4d4d4;
+            --header-color: #ffffff;
+            --accent-color: #007acc;
+            --accent-hover: #005a9e;
         }
-        @import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');
-        
-        * { box-sizing: border-box; }
-        body { font-family: var(--font-main); margin: 0; background-color: var(--bg-base); color: var(--text-primary); height: 100vh; width: 100vw; overflow: hidden; }
 
-        #live-preview-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; z-index: 1; }
-        
-        .ui-container { position: relative; z-index: 2; height: 100vh; width: 100vw; }
-        
-        /* Dock am linken Rand */
-        .dock { position: fixed; top: 0; left: 0; height: 100%; width: 60px; background: var(--bg-glass); backdrop-filter: blur(12px); border-right: 1px solid var(--border-glass); display: flex; flex-direction: column; align-items: center; padding-top: 1.5rem; gap: 1.5rem; z-index: 1000; }
-        .dock-btn { background: none; border: none; padding: 0; cursor: pointer; color: var(--text-secondary); transition: all 0.2s ease; }
-        .dock-btn svg { width: 28px; height: 28px; }
-        .dock-btn:hover, .dock-btn.active { color: var(--text-primary); transform: scale(1.1); }
-        #inspect-mode-toggle.active { color: var(--accent-primary); }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-        /* Schwebende Fenster */
-        .floating-window {
-            position: absolute;
-            width: 600px; height: 70vh;
-            background: var(--bg-glass);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border-glass);
-            border-radius: 12px;
-            box-shadow: 0 10px 30px var(--shadow-color);
-            display: none;
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
             flex-direction: column;
-            resize: both;
-            overflow: hidden; /* Important for resize */
-            transform-origin: center;
-            transition: opacity 0.3s ease, transform 0.3s ease;
+            height: 100vh;
+            overflow: hidden;
         }
-        .floating-window.visible { display: flex; transform: scale(1); opacity: 1; }
-        
-        .window-header { height: 40px; background-color: rgba(0,0,0,0.2); flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; cursor: move; border-bottom: 1px solid var(--border-glass); }
-        .window-header h3 { font-size: 0.9rem; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
-        .window-header .close-btn { background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; line-height: 1; }
 
-        .window-body { flex-grow: 1; padding: 0; position: relative; }
-        
-        /* Spezifische Fensterinhalte */
-        #code-window .CodeMirror { height: 100%; font-family: var(--font-mono) !important; font-size: 15px; }
-        .cm-s-isotope.CodeMirror { background: transparent; }
+        header {
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--editor-bg);
+            flex-shrink: 0;
+        }
 
-        #ai-window .window-body { padding: 1rem; display: flex; flex-direction: column; }
-        .chat-history { flex-grow: 1; overflow-y: auto; margin-bottom: 1rem; }
-        .chat-message { line-height: 1.6; margin-bottom: 1rem; max-width: 90%; }
-        .chat-message.user { align-self: flex-end; }
-        .chat-message .msg-bubble { padding: 0.75rem 1rem; border-radius: 1rem; display: inline-block; }
-        .chat-message.user .msg-bubble { background: var(--accent-primary); }
-        .chat-message.ai .msg-bubble { background: #32323c; }
-        .chat-message.error .msg-bubble { background: #5c1f1f; }
-        #context-info { padding: 10px; border: 1px dashed var(--accent-secondary); color: var(--accent-secondary); display: none; margin-bottom: 1rem; border-radius: 4px; }
-        #chat-input { background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); color: var(--text-primary); font-family: var(--font-main); padding: 0.75rem; width: 100%; border-radius: 4px; resize: none; }
-        
-        /* Auswählmodus Overlay */
-        .inspect-mode-active .floating-window { opacity: 0.3 !important; pointer-events: none; transition: opacity 0.3s ease; }
-        #highlight-overlay { position: absolute; background: #8257e54d; border: 2px solid var(--accent-primary); z-index: 1; pointer-events: none; transition: all 0.1s ease; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        header h1 {
+            color: var(--header-color);
+            font-size: 1.5rem;
+        }
 
+        header p {
+            color: var(--text-color);
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            flex-grow: 1;
+            gap: 1rem;
+            padding: 1rem;
+            min-height: 0;
+        }
+
+        .editor-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            min-height: 0;
+        }
+
+        .editor-pane {
+            display: flex;
+            flex-direction: column;
+            background-color: var(--editor-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            flex-grow: 1;
+            min-height: 0;
+        }
+
+        h3 {
+            padding: 0.75rem 1rem;
+            background-color: #333;
+            border-bottom: 1px solid var(--border-color);
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        textarea {
+            flex-grow: 1;
+            width: 100%;
+            padding: 1rem;
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+        }
+
+        .preview-container {
+            display: flex;
+            flex-direction: column;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        #live-preview {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: #fff;
+        }
+
+        .ai-container {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            background-color: var(--editor-bg);
+            flex-shrink: 0;
+        }
+
+        #gemini-prompt {
+            flex-grow: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        #gemini-prompt:focus {
+            border-color: var(--accent-color);
+        }
+
+        #gemini-button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, opacity 0.2s ease;
+        }
+
+        #gemini-button:hover:not(:disabled) {
+            background-color: var(--accent-hover);
+        }
+
+        #gemini-button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        @media (max-width: 900px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            .preview-container {
+                min-height: 400px;
+            }
+        }
     </style>
 </head>
 <body>
-    <iframe id="live-preview-bg"></iframe>
-    <div class="ui-container">
-        <aside class="dock">
-            <button class="dock-btn" id="open-code-btn" title="Code-Editor"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12l-5.657 5.657-1.414-1.414L21.172 12l-4.243-4.243 1.414-1.414L24 12zM2.828 12l4.243 4.243-1.414 1.414L0 12l5.657-5.657L7.07 7.757 2.828 12zm6.95 9.071l-1.414-1.414 4.242-12.728 1.414 1.414-4.242 12.728z"></path></svg></button>
-            <button class="dock-btn" id="open-ai-btn" title="AI Chat"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C13.6558 2 15 3.34418 15 5C15 6.65582 13.6558 8 12 8C10.3442 8 9 6.65582 9 5C9 3.34418 10.3442 2 12 2ZM6.77543 9.93829L9.25 11.5L6.77543 13.0617L9.93829 16.2246L11.5 13.75L13.0617 16.2246L16.2246 13.0617L13.75 11.5L16.2246 9.93829L13.0617 6.77543L11.5 9.25L9.93829 6.77543L6.77543 9.93829ZM3 21C3 16.5817 6.58172 13 11 13H13C17.4183 13 21 16.5817 21 21H19C19 17.6863 16.3137 15 13 15H11C7.68629 15 5 17.6863 5 21H3Z"></path></svg></button>
-            <button class="dock-btn" id="inspect-mode-toggle" title="Auswählmodus"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3V3zm0 10h8v8H3v-8zM13 3h8v8h-8V3zm0 10h8v8h-8v-8z"></path></svg></button>
-        </aside>
+    <header>
+        <h1>Modern Live Editor</h1>
+        <p>mit ✨ Gemini AI Unterstützung</p>
+    </header>
 
-        <div class="floating-window" id="code-window">
-            <header class="window-header"><h3>Source Code</h3> <button class="close-btn">×</button></header>
-            <div class="window-body"><textarea id="code-editor"></textarea></div>
-        </div>
-
-        <div class="floating-window" id="ai-window">
-            <header class="window-header"><h3>AI Assistant</h3> <button class="close-btn">×</button></header>
-            <div class="window-body">
-                <div class="chat-history" id="chat-history"></div>
-                <div id="context-info">FOKUS: <span></span></div>
-                <textarea id="chat-input" rows="3" placeholder="Deine Anweisung hier..." disabled></textarea>
+    <div class="main-container">
+        <div class="editor-container">
+            <div class="editor-pane">
+                <h3>HTML</h3>
+                <textarea id="html-code" spellcheck="false"></textarea>
             </div>
+            <div class="editor-pane">
+                <h3>CSS</h3>
+                <textarea id="css-code" spellcheck="false"></textarea>
+            </div>
+            <div class="editor-pane">
+                <h3>JavaScript</h3>
+                <textarea id="js-code" spellcheck="false"></textarea>
+            </div>
+        </div>
+        <div class="preview-container">
+            <h3>Live Vorschau</h3>
+            <iframe id="live-preview"></iframe>
         </div>
     </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const dom = {
-        previewFrame: document.getElementById('live-preview-bg'),
-        uiContainer: document.querySelector('.ui-container'),
-        codeWindow: document.getElementById('code-window'),
-        aiWindow: document.getElementById('ai-window'),
-        dockBtns: document.querySelectorAll('.dock-btn'),
-        chatHistory: document.getElementById('chat-history'),
-        chatInput: document.getElementById('chat-input'),
-        contextInfo: document.getElementById('context-info'),
-    };
-    
-    const state = { apiKey: '', chatHistory: [], selectedElement: null, isAwaitingAI: false, isInspectModeActive: false, activeZIndex: 10 };
+    <div class="ai-container">
+        <input type="text" id="gemini-prompt" placeholder="Beschreibe deine Änderung (z.B. 'Mache den Button blau')">
+        <button id="gemini-button">Mit Gemini bearbeiten</button>
+    </div>
 
-    const editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), { lineNumbers: true, mode: 'htmlmixed', theme: 'isotope' });
-    editor.setValue(`<!DOCTYPE html>\n<html lang="de">\n<head>\n    <meta charset="UTF-8">\n    <title>Obsidian Workspace</title>\n    <style>\n        body { background: #0f2027; background: linear-gradient(to right, #2c5364, #203a43, #0f2027); color: white; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: grid; place-items: center; height: 100vh; margin: 0; }\n        .content-card { text-align: center; padding: 3rem; background: rgba(0,0,0,0.2); backdrop-filter: blur(10px); border-radius: 1rem; border: 1px solid rgba(255,255,255,0.1); }\n        button { margin-top: 1.5rem; padding: 1rem 2rem; border: 1px solid #8257e5; font-weight: 600; color: white; background: transparent; cursor: pointer; border-radius: 8px; transition: all 0.3s ease; }\n        button:hover { background: #8257e5; box-shadow: 0 0 20px #8257e5; }\n    </style>\n</head>\n<body>\n    <div class="content-card">\n      <h1>Project Obsidian</h1>\n      <p>Willkommen in deinem neuen AI Workspace.</p>\n      <button id="action-btn">Initialisieren</button>\n    </div>\n    <script>\n        document.getElementById('action-btn').addEventListener('click', () => {\n          alert('Button aktiviert! Aktiviere den Auswählmodus im Dock, um ihn mit der KI zu bearbeiten.');\n        });\n    <\/script>\n</body>\n</html>`);
+    <!-- Die gesamte Anwendungslogik -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const htmlCode = document.getElementById('html-code');
+            const cssCode = document.getElementById('css-code');
+            const jsCode = document.getElementById('js-code');
+            const previewFrame = document.getElementById('live-preview');
+            const geminiPrompt = document.getElementById('gemini-prompt');
+            const geminiButton = document.getElementById('gemini-button');
 
-    const renderPreview = () => dom.previewFrame.srcdoc = editor.getValue();
-    editor.on('change', renderPreview);
-    
-    // --- Window Management ---
-    function makeDraggable(el) {
-        const header = el.querySelector('.window-header');
-        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-        header.onmousedown = (e) => {
-            e.preventDefault();
-            el.style.zIndex = ++state.activeZIndex;
-            pos3 = e.clientX; pos4 = e.clientY;
-            document.onmouseup = () => document.onmouseup = document.onmousemove = null;
-            document.onmousemove = (moveE) => {
-                moveE.preventDefault();
-                pos1 = pos3 - moveE.clientX; pos2 = pos4 - moveE.clientY;
-                pos3 = moveE.clientX; pos4 = moveE.clientY;
-                el.style.top = (el.offsetTop - pos2) + "px";
-                el.style.left = (el.offsetLeft - pos1) + "px";
+            // Funktion zur Aktualisierung der Live-Vorschau
+            const updatePreview = () => {
+                const previewDoc = `
+                    <html>
+                        <head>
+                            <style>${cssCode.value}</style>
+                        </head>
+                        <body>
+                            ${htmlCode.value}
+                            <script>${jsCode.value}<\/script> 
+                        </body>
+                    </html>
+                `;
+                previewFrame.srcdoc = previewDoc;
             };
-        };
-    }
-    
-    function toggleWindow(windowEl) {
-        const btn = document.getElementById(`open-${windowEl.id.replace('-window','')}-btn`);
-        const isVisible = windowEl.classList.toggle('visible');
-        btn.classList.toggle('active', isVisible);
-        if (isVisible) {
-             windowEl.style.zIndex = ++state.activeZIndex;
-             if (windowEl.id === 'code-window') editor.refresh();
-        }
-    }
-    
-    [dom.codeWindow, dom.aiWindow].forEach(makeDraggable);
-    document.querySelectorAll('.close-btn').forEach(btn => btn.onclick = () => toggleWindow(btn.closest('.floating-window')));
-    document.getElementById('open-code-btn').onclick = () => toggleWindow(dom.codeWindow);
-    document.getElementById('open-ai-btn').onclick = () => toggleWindow(dom.aiWindow);
-
-    // --- AI & Chat Logic ---
-    const updateUIState = () => dom.chatInput.disabled = !state.apiKey || state.isAwaitingAI;
-    
-    function addMessageToChat(text, type) {
-        const msgContainer = document.createElement('div'); msgContainer.className = `chat-message ${type}`;
-        const bubbleDiv = document.createElement('div'); bubbleDiv.className = 'msg-bubble'; bubbleDiv.innerHTML = text;
-        msgContainer.appendChild(bubbleDiv); dom.chatHistory.appendChild(msgContainer);
-        dom.chatHistory.scrollTop = dom.chatHistory.scrollHeight;
-        return bubbleDiv;
-    }
-
-    async function handleChatSend() {
-        const userPrompt = dom.chatInput.value.trim(); if (!userPrompt) return;
-        state.isAwaitingAI = true; updateUIState(); addMessageToChat(userPrompt, 'user');
-        const thinkingMsgBubble = addMessageToChat("...", 'ai');
-        const contextPrompt = state.selectedElement ? `FOKUS: ${state.selectedElement.selector}` : '';
-        const systemPrompt = `Aufgabe: Ändere das HTML-Dokument basierend auf der Anfrage. Antwort-Format: Nur ein valides JSON-Objekt: { "newCode": "...", "explanation": "..." }. 'newCode' MUSS das VOLLSTÄNDIGE, neue HTML als ein String sein. 'explanation' ist eine kurze Erklärung. Jede andere Antwort ist ein Fehler.`;
-        const historyForApi = [...state.chatHistory, { role: 'user', parts: [{text: `${userPrompt}\n${contextPrompt}\n\nAKTUELLER CODE:\n${editor.getValue()}`}] }];
-        
-        try {
-            const model = 'gemini-1.5-flash-latest';
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${state.apiKey}`;
-            const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: historyForApi, systemInstruction: { parts: [{text: systemPrompt }] } }) });
-            if (!response.ok) { let e = `Status ${response.status}`; try { const d = await response.json(); if (d.error?.message) e = d.error.message; } catch(err){} throw new Error(e); }
-            const data = await response.json();
-            const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-            const cleanedText = rawText.replace(/^```json|```$/g, '').trim();
-            let result;
-            try { result = JSON.parse(cleanedText); } catch { throw new Error("Formatierungsfehler der KI."); }
-
-            if (result.explanation) {
-                thinkingMsgBubble.innerHTML = result.explanation;
-                state.chatHistory.push({ role: 'user', parts: [{text: userPrompt}] }, { role: 'model', parts: [{text: result.explanation}] });
-            } else { thinkingMsgBubble.parentElement.remove(); }
-            if (result.newCode) editor.setValue(result.newCode);
-            else { throw new Error("Kein neuer Code empfangen."); }
-            dom.chatInput.value = '';
-
-        } catch (error) {
-            thinkingMsgBubble.parentElement.classList.add('error');
-            thinkingMsgBubble.innerHTML = `Fehler: ${error.message}`;
-        } finally {
-            state.isAwaitingAI = false; updateUIState();
-        }
-    }
-    dom.chatInput.addEventListener('keydown', (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleChatSend(); }});
-
-    // --- Inspect Mode Logic ---
-    dom.dockBtns.namedItem('inspect-mode-toggle').addEventListener('click', (e) => {
-        state.isInspectModeActive = !state.isInspectModeActive;
-        e.currentTarget.classList.toggle('active', state.isInspectModeActive);
-        dom.uiContainer.classList.toggle('inspect-mode-active', state.isInspectModeActive);
-    });
-
-    dom.previewFrame.addEventListener('load', () => {
-        const doc = dom.previewFrame.contentDocument; if (!doc) return;
-        doc.body.addEventListener('click', (e) => {
-            if (!state.isInspectModeActive) return;
-            e.preventDefault(); e.stopPropagation(); const target = e.target;
             
-            let highlight = doc.getElementById('highlight-overlay');
-            if (!highlight) {
-                highlight = doc.createElement('div'); highlight.id = 'highlight-overlay';
-                doc.body.appendChild(highlight);
-            }
-            const rect = target.getBoundingClientRect();
-            highlight.style.cssText = `top:${rect.top}px; left:${rect.left}px; width:${rect.width}px; height:${rect.height}px;`;
+            // Beispielcode beim Laden der Seite
+            const loadExampleCode = () => {
+                htmlCode.value = `<!-- Willkommen! -->
+<div class="container">
+  <h1>Hallo Welt!</h1>
+  <p>Gib im Feld unten einen Befehl ein, um den Code mit Gemini AI zu ändern.</p>
+  <button id="my-button">Klick mich!</button>
+</div>`;
 
-            const tag = target.tagName.toLowerCase(), id = target.id ? `#${target.id}` : '', classes = target.className ? `.${String(target.className).trim().replace(/\s+/g, '.')}` : '';
-            state.selectedElement = { selector: `${tag}${id}${classes}` };
-            dom.contextInfo.querySelector('span').textContent = state.selectedElement.selector;
-            dom.contextInfo.style.display = 'block';
+                cssCode.value = `body {
+  font-family: sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f0f0f0;
+  color: #333;
+  text-align: center;
+}
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: 2px solid #333;
+  background-color: white;
+  cursor: pointer;
+  border-radius: 5px;
+}`;
+
+                jsCode.value = `const button = document.getElementById('my-button');
+button.addEventListener('click', () => {
+  alert('Du hast den Button geklickt!');
+});`;
+            };
+
+            // Event-Listener für die Code-Editoren
+            [htmlCode, cssCode, jsCode].forEach(editor => {
+                editor.addEventListener('input', updatePreview);
+            });
+
+            // Funktion zur Handhabung der Gemini-Anfrage
+            const handleGeminiRequest = async () => {
+                const promptText = geminiPrompt.value.trim();
+                if (!promptText) {
+                    alert('Bitte gib eine Anweisung für die KI ein.');
+                    return;
+                }
+
+                // ==============================================================
+                // == WICHTIG: Gib hier deinen Gemini API Schlüssel ein        ==
+                // == Du erhältst ihn im Google AI Studio: https://aistudio.google.com/
+                // ==============================================================
+                const API_KEY = 'DEIN_GEMINI_API_SCHLUESSEL_HIER_EINFUEGEN';
+                
+                if (API_KEY === 'DEIN_GEMINI_API_SCHLUESSEL_HIER_EINFUEGEN') {
+                    alert('Bitte ersetze "DEIN_GEMINI_API_SCHLUESSEL_HIER_EINFUEGEN" im Skript durch deinen echten Gemini API-Schlüssel.');
+                    return;
+                }
+
+                geminiButton.disabled = true;
+                geminiButton.textContent = 'Bearbeite...';
+                
+                // Der detaillierte Prompt, damit Gemini den Kontext versteht
+                const promptForGemini = `
+                    Du bist ein KI-Assistent für Webentwicklung. Deine Aufgabe ist es, bestehenden HTML-, CSS- und JavaScript-Code basierend auf einer Benutzeranweisung zu modifizieren.
+                    Analysiere den untenstehenden Code und die Anweisung. Gib deine Antwort IMMER und AUSSCHLIESSLICH als ein einzelnes JSON-Objekt zurück, das die Schlüssel "html", "css" und "js" mit dem aktualisierten Code als String-Wert enthält. Ändere nichts, was nicht angefragt wurde.
+
+                    Benutzeranweisung: "${promptText}"
+
+                    Aktueller HTML-Code:
+                    \`\`\`html
+                    ${htmlCode.value}
+                    \`\`\`
+
+                    Aktueller CSS-Code:
+                    \`\`\`css
+                    ${cssCode.value}
+                    \`\`\`
+
+                    Aktueller JavaScript-Code:
+                    \`\`\`javascript
+                    ${jsCode.value}
+                    \`\`\`
+                    
+                    Antworte nur mit dem JSON-Objekt. Kein einleitender Text, keine Erklärungen.
+                `;
+
+                const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`;
+                
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [{ text: promptForGemini }]
+                            }]
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`API-Fehler: ${response.status} ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    // Den reinen Text aus der Antwort extrahieren
+                    let responseText = data.candidates[0].content.parts[0].text;
+                    
+                    // Bereinige die Antwort, falls sie in Markdown-Code-Blöcken eingeschlossen ist
+                    responseText = responseText.replace(/^```json\s*/, '').replace(/```\s*$/, '');
+                    
+                    const parsedCode = JSON.parse(responseText);
+                    
+                    // Überprüfen, ob die Antwort die erwarteten Schlüssel enthält
+                    if (parsedCode.html && parsedCode.css && parsedCode.js) {
+                        htmlCode.value = parsedCode.html;
+                        cssCode.value = parsedCode.css;
+                        jsCode.value = parsedCode.js;
+                        updatePreview(); // Wichtig, um die Änderungen anzuzeigen
+                    } else {
+                        throw new Error("Die KI-Antwort hatte ein unerwartetes Format.");
+                    }
+
+                } catch (error) {
+                    console.error('Fehler bei der Gemini-Anfrage:', error);
+                    alert(`Ein Fehler ist aufgetreten: ${error.message}. Bitte überprüfe die Entwicklerkonsole.`);
+                } finally {
+                    geminiButton.disabled = false;
+                    geminiButton.textContent = 'Mit Gemini bearbeiten';
+                    geminiPrompt.value = ''; // Eingabefeld leeren
+                }
+            };
+
+            // Event-Listener für den Gemini-Button und die Enter-Taste
+            geminiButton.addEventListener('click', handleGeminiRequest);
+            geminiPrompt.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    handleGeminiRequest();
+                }
+            });
             
-            // Turn off inspect mode after selection for better workflow
-            dom.dockBtns.namedItem('inspect-mode-toggle').click(); 
-        }, true);
-    });
-
-    function init() {
-        state.apiKey = localStorage.getItem('obsidianApiKey');
-        if (!state.apiKey) {
-            state.apiKey = prompt("Bitte geben Sie Ihren Gemini API-Schlüssel ein:", "");
-            if (state.apiKey) localStorage.setItem('obsidianApiKey', state.apiKey);
-        }
-        updateUIState();
-        renderPreview();
-        addMessageToChat('Willkommen bei Project Obsidian. Öffnen Sie die Fenster über das Dock links.', 'ai');
-    }
-    init();
-});
-</script>
+            // Editor initialisieren
+            loadExampleCode();
+            updatePreview();
+        });
+    </script>
 </body>
 </html>
