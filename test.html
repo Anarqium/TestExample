@@ -2537,6 +2537,70 @@
             </div>
             <div class="background-preview" id="bg-preview"></div>
         </div>
+        
+        <div class="divider"></div>
+        
+        <div class="settings-section">
+            <h3><span class="material-icons">import_export</span> Daten verwalten</h3>
+            <div class="settings-item">
+                <label>Daten exportieren</label>
+                <button type="button" class="add-btn" onclick="exportData()">
+                    <span class="material-icons">download</span>
+                    Backup erstellen
+                </button>
+            </div>
+            <div class="settings-item">
+                <label>Daten importieren</label>
+                <input type="file" id="import-file" accept=".json" style="display: none;" onchange="importData(this.files[0])">
+                <button type="button" class="add-btn" onclick="document.getElementById('import-file').click()">
+                    <span class="material-icons">upload</span>
+                    Backup wiederherstellen
+                </button>
+            </div>
+            <div class="settings-item">
+                <label>Alle Daten löschen</label>
+                <button type="button" class="add-btn" style="background: var(--error-color);" onclick="if(confirm('Alle lokalen Daten löschen?')) { localStorage.clear(); location.reload(); }">
+                    <span class="material-icons">delete_forever</span>
+                    Zurücksetzen
+                </button>
+            </div>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div class="settings-section">
+            <h3><span class="material-icons">keyboard</span> Tastenkürzel</h3>
+            <div class="shortcuts-help">
+                <div class="shortcut-item">
+                    <kbd>Ctrl+K</kbd>
+                    <span>Suche fokussieren</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Ctrl+,</kbd>
+                    <span>Einstellungen öffnen</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Ctrl+S</kbd>
+                    <span>Daten exportieren</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Alt+1-4</kbd>
+                    <span>Widgets umschalten</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Alt+P</kbd>
+                    <span>Pomodoro Timer</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>!export</kbd>
+                    <span>Daten exportieren (Suche)</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>!calc</kbd>
+                    <span>Taschenrechner öffnen</span>
+                </div>
+            </div>
+        </div>
     </div>
     
     <!-- Firefox message popup with enhanced animation -->
@@ -3628,6 +3692,37 @@
             .timer-time {
                 font-size: var(--font-size-lg);
             }
+        }
+        
+        /* Enhanced settings panel styles */
+        .shortcuts-help {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+        }
+        
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-2) var(--space-3);
+            background: rgba(255,255,255,0.05);
+            border-radius: var(--input-radius);
+        }
+        
+        .shortcut-item kbd {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: var(--font-mono);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+        }
+        
+        .shortcut-item span {
+            font-size: var(--font-size-sm);
+            opacity: 0.8;
         }
         
         /* Dark/Light mode transitions */
@@ -5445,11 +5540,122 @@
             showToast('Zufällige Palette erstellt!', 'success');
         }
         
+        // Pomodoro Timer Functionality
+        class PomodoroTimer {
+            constructor() {
+                this.modes = {
+                    work: 25 * 60,
+                    break: 5 * 60,
+                    longbreak: 15 * 60
+                };
+                this.currentMode = 'work';
+                this.timeLeft = this.modes[this.currentMode];
+                this.isRunning = false;
+                this.interval = null;
+                
+                this.todayPomodoros = parseInt(localStorage.getItem('todayPomodoros')) || 0;
+                this.totalPomodoros = parseInt(localStorage.getItem('totalPomodoros')) || 0;
+                
+                this.setupEventListeners();
+                this.updateDisplay();
+                this.updateStats();
+            }
+            
+            setupEventListeners() {
+                document.getElementById('timer-start').addEventListener('click', () => this.start());
+                document.getElementById('timer-pause').addEventListener('click', () => this.pause());
+                document.getElementById('timer-reset').addEventListener('click', () => this.reset());
+                
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.setMode(e.target.dataset.mode));
+                });
+            }
+            
+            start() {
+                this.isRunning = true;
+                document.getElementById('timer-start').style.display = 'none';
+                document.getElementById('timer-pause').style.display = 'inline-flex';
+                
+                this.interval = setInterval(() => {
+                    this.timeLeft--;
+                    this.updateDisplay();
+                    
+                    if (this.timeLeft <= 0) {
+                        this.complete();
+                    }
+                }, 1000);
+            }
+            
+            pause() {
+                this.isRunning = false;
+                clearInterval(this.interval);
+                document.getElementById('timer-start').style.display = 'inline-flex';
+                document.getElementById('timer-pause').style.display = 'none';
+            }
+            
+            reset() {
+                this.pause();
+                this.timeLeft = this.modes[this.currentMode];
+                this.updateDisplay();
+            }
+            
+            complete() {
+                this.pause();
+                
+                if (this.currentMode === 'work') {
+                    this.todayPomodoros++;
+                    this.totalPomodoros++;
+                    localStorage.setItem('todayPomodoros', this.todayPomodoros);
+                    localStorage.setItem('totalPomodoros', this.totalPomodoros);
+                    this.updateStats();
+                }
+                
+                // Show notification
+                if (Notification.permission === 'granted') {
+                    new Notification('Pomodoro Timer', {
+                        body: this.currentMode === 'work' ? 'Zeit für eine Pause!' : 'Zeit für Arbeit!',
+                        icon: './manifest.json'
+                    });
+                }
+                
+                showToast(`${this.currentMode === 'work' ? 'Arbeitszeit' : 'Pause'} beendet!`, 'success');
+                this.reset();
+            }
+            
+            setMode(mode) {
+                if (this.modes[mode]) {
+                    this.currentMode = mode;
+                    this.reset();
+                    
+                    document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+                    document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+                }
+            }
+            
+            updateDisplay() {
+                const minutes = Math.floor(this.timeLeft / 60);
+                const seconds = this.timeLeft % 60;
+                document.getElementById('timer-time').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                // Update progress circle
+                const totalTime = this.modes[this.currentMode];
+                const progress = ((totalTime - this.timeLeft) / totalTime) * 283;
+                document.getElementById('timer-progress').style.strokeDashoffset = 283 - progress;
+            }
+            
+            updateStats() {
+                document.getElementById('today-pomodoros').textContent = this.todayPomodoros;
+                document.getElementById('total-pomodoros').textContent = this.totalPomodoros;
+            }
+        }
+        
         // Initialize Advanced Features
         function initAdvancedFeatures() {
             window.musicPlayer = new MusicPlayer();
             window.calculator = new Calculator();
             window.cryptoTracker = new CryptoTracker();
+            window.pomodoroTimer = new PomodoroTimer();
             
             // Setup crypto refresh button
             document.querySelector('.refresh-crypto').addEventListener('click', () => {
@@ -5459,15 +5665,257 @@
             // Load crypto data initially
             window.cryptoTracker.fetchCryptoPrices();
             
-            // Add copy functionality to existing color swatches
-            document.querySelectorAll('.color-swatch').forEach(swatch => {
-                swatch.addEventListener('click', () => {
-                    const color = swatch.getAttribute('data-color');
-                    navigator.clipboard.writeText(color).then(() => {
-                        showToast(`Farbe ${color} kopiert!`, 'success');
-                    });
-                });
+        // Enhanced Keyboard Shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Calculator shortcuts when calculator is visible
+            if (document.getElementById('calculator-widget') && !document.getElementById('calculator-widget').classList.contains('minimized')) {
+                if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                    if (e.key >= '0' && e.key <= '9') {
+                        e.preventDefault();
+                        inputNumber(e.key);
+                    } else if (e.key === '.') {
+                        e.preventDefault();
+                        inputDecimal();
+                    } else if (['+', '-', '*', '/'].includes(e.key)) {
+                        e.preventDefault();
+                        inputOperator(e.key);
+                    } else if (e.key === 'Enter' || e.key === '=') {
+                        e.preventDefault();
+                        calculate();
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        clearCalculator();
+                    }
+                }
+            }
+            
+            // Global shortcuts
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 'k':
+                        e.preventDefault();
+                        document.querySelector('.search-input').focus();
+                        break;
+                    case ',':
+                        e.preventDefault();
+                        document.getElementById('settings-panel').classList.toggle('show');
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        exportData();
+                        break;
+                    case 'o':
+                        e.preventDefault();
+                        document.getElementById('import-file').click();
+                        break;
+                }
+            }
+            
+            // Widget shortcuts
+            if (e.altKey) {
+                switch (e.key) {
+                    case '1':
+                        e.preventDefault();
+                        toggleWidget('weather-widget');
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        toggleWidget('clock-widget');
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        toggleWidget('todo-widget');
+                        break;
+                    case '4':
+                        e.preventDefault();
+                        toggleWidget('calculator-widget');
+                        break;
+                    case 'm':
+                        e.preventDefault();
+                        toggleWidget('music-widget');
+                        break;
+                    case 'c':
+                        e.preventDefault();
+                        toggleWidget('crypto-widget');
+                        break;
+                    case 'p':
+                        e.preventDefault();
+                        if (window.pomodoroTimer.isRunning) {
+                            window.pomodoroTimer.pause();
+                        } else {
+                            window.pomodoroTimer.start();
+                        }
+                        break;
+                }
+            }
+        });
+        
+        // Data Export/Import Functionality
+        function exportData() {
+            const data = {
+                shortcuts: JSON.parse(localStorage.getItem('shortcuts')) || [],
+                todos: JSON.parse(localStorage.getItem('todos')) || [],
+                notes: localStorage.getItem('note') || '',
+                weatherLocation: localStorage.getItem('weatherLocation') || '',
+                theme: localStorage.getItem('theme') || 'firefox',
+                lightMode: localStorage.getItem('lightMode') || 'false',
+                searchEngine: localStorage.getItem('searchEngine') || '',
+                bgPattern: localStorage.getItem('bgPattern') || 'dots',
+                todayPomodoros: localStorage.getItem('todayPomodoros') || '0',
+                totalPomodoros: localStorage.getItem('totalPomodoros') || '0',
+                chatUsername: localStorage.getItem('chatUsername') || '',
+                exportDate: new Date().toISOString(),
+                version: '2.0.0'
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `firefox-startpage-backup-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showToast('Daten exportiert!', 'success');
+        }
+        
+        function importData(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Validate data structure
+                    if (!data.version || !data.exportDate) {
+                        throw new Error('Invalid backup file format');
+                    }
+                    
+                    // Import data
+                    if (data.shortcuts) localStorage.setItem('shortcuts', JSON.stringify(data.shortcuts));
+                    if (data.todos) localStorage.setItem('todos', JSON.stringify(data.todos));
+                    if (data.notes) localStorage.setItem('note', data.notes);
+                    if (data.weatherLocation) localStorage.setItem('weatherLocation', data.weatherLocation);
+                    if (data.theme) localStorage.setItem('theme', data.theme);
+                    if (data.lightMode) localStorage.setItem('lightMode', data.lightMode);
+                    if (data.searchEngine) localStorage.setItem('searchEngine', data.searchEngine);
+                    if (data.bgPattern) localStorage.setItem('bgPattern', data.bgPattern);
+                    if (data.todayPomodoros) localStorage.setItem('todayPomodoros', data.todayPomodoros);
+                    if (data.totalPomodoros) localStorage.setItem('totalPomodoros', data.totalPomodoros);
+                    if (data.chatUsername) localStorage.setItem('chatUsername', data.chatUsername);
+                    
+                    showToast('Daten importiert! Seite wird neu geladen...', 'success');
+                    setTimeout(() => window.location.reload(), 2000);
+                    
+                } catch (error) {
+                    showToast('Fehler beim Importieren der Daten', 'error');
+                    console.error('Import error:', error);
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        // Performance Monitoring
+        function initPerformanceMonitoring() {
+            // Monitor page load performance
+            window.addEventListener('load', () => {
+                const perfData = performance.getEntriesByType('navigation')[0];
+                const loadTime = perfData.loadEventEnd - perfData.loadEventStart;
+                
+                if (loadTime > 3000) {
+                    console.warn('Slow page load detected:', loadTime + 'ms');
+                }
+                
+                // Update performance widget if it exists
+                const loadTimeElement = document.getElementById('page-load');
+                if (loadTimeElement) {
+                    loadTimeElement.textContent = `${(loadTime / 1000).toFixed(2)} Sekunden`;
+                }
             });
+            
+            // Monitor memory usage if available
+            if ('memory' in performance) {
+                setInterval(() => {
+                    const memory = performance.memory;
+                    const memoryUsage = (memory.usedJSHeapSize / memory.totalJSHeapSize * 100).toFixed(1);
+                    
+                    const memoryElement = document.getElementById('memory-status');
+                    if (memoryElement) {
+                        memoryElement.textContent = `${memoryUsage}% verwendet`;
+                    }
+                }, 5000);
+            }
+        }
+        
+        // Enhanced Search Features
+        function enhanceSearchFeatures() {
+            const searchInput = document.querySelector('.search-input');
+            const searchForm = document.getElementById('search-form');
+            
+            // Add search suggestions
+            const suggestions = [
+                'Wetter Berlin', 'Google Drive', 'YouTube Music', 'GitHub Repositories',
+                'Stack Overflow', 'MDN Web Docs', 'CSS Grid', 'JavaScript ES6',
+                'React Documentation', 'Node.js Guide', 'Python Tutorial'
+            ];
+            
+            // Add search history
+            const searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
+            
+            searchForm.addEventListener('submit', (e) => {
+                const query = searchInput.value.trim();
+                if (query && !searchHistory.includes(query)) {
+                    searchHistory.unshift(query);
+                    if (searchHistory.length > 10) searchHistory.pop();
+                    localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+                }
+            });
+            
+            // Quick search commands
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const query = searchInput.value.trim();
+                    
+                    // Check for special commands
+                    if (query.startsWith('!')) {
+                        e.preventDefault();
+                        handleSpecialCommand(query.substring(1));
+                        searchInput.value = '';
+                    }
+                }
+            });
+        }
+        
+        function handleSpecialCommand(command) {
+            const cmd = command.toLowerCase();
+            
+            switch (cmd) {
+                case 'export':
+                    exportData();
+                    break;
+                case 'clear':
+                    if (confirm('Alle lokalen Daten löschen?')) {
+                        localStorage.clear();
+                        location.reload();
+                    }
+                    break;
+                case 'theme':
+                    document.getElementById('settings-panel').classList.add('show');
+                    break;
+                case 'calc':
+                    toggleWidget('calculator-widget');
+                    break;
+                case 'music':
+                    toggleWidget('music-widget');
+                    break;
+                case 'timer':
+                    toggleWidget('pomodoro-widget');
+                    break;
+                case 'crypto':
+                    window.cryptoTracker.fetchCryptoPrices();
+                    break;
+                default:
+                    showToast(`Unbekannter Befehl: !${command}`, 'warning');
+            }
         }
 
         // Initialization
@@ -5502,6 +5950,12 @@
             
             // Initialize advanced features
             initAdvancedFeatures();
+            
+            // Initialize performance monitoring
+            initPerformanceMonitoring();
+            
+            // Enhance search features
+            enhanceSearchFeatures();
             
             // Load news
             loadNews();
